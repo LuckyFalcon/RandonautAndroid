@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Randonaut</string>
+    <string name="mapbox_access_token">MAPBOX_ACCESS_TOKEN</string>
+    <string name="mapbox_style">MAPBOX_STREETS</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_randonaut">Randonaut</string>
+    <string name="menu_bot">Bot</string>
+    <string name="menu_myAttractors">My Attractors</string>
+    <string name="menu_profile">Profile</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_share">Share</string>
+    <string name="menu_support">Support</string>
+</resources>

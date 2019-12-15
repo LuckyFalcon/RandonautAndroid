@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3CB8EB</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#D81B60</color>
+
+    <color name="colorBackground">#ffffff</color>
+    <color name="colorText">#000000</color>
+
+    <color name="centerColor">#008996</color>
+    <color name="endColor">#005969</color>
+    <color name="startColor">#1AAAE2</color>
+
+    <color name="buttonColor">#3CB8EB</color>
+    <color name="buttonText">#ffffff</color>
+
+    <color name="navSelected">#000000</color>
+    <color name="navNotSelected">#000000</color>
+</resources>
