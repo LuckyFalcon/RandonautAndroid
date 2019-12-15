@@ -82,6 +82,8 @@ public class MyAttractorsListFragment extends Fragment {
                     resultRow.y = jsonObject.getString("y");
                     resultRow.radiusm = jsonObject.getString("radiusm");
                     resultRow.z_score = jsonObject.getString("z_score");
+                    resultRow.pseudo = jsonObject.getString("pseudo");
+
                     attractorArray.add(resultRow);
 
                 } catch (JSONException e) {
@@ -102,11 +104,15 @@ public class MyAttractorsListFragment extends Fragment {
                       JSONObject json_data = jsonArray.getJSONObject(i);
                         Attractor resultRow = new Attractor();
 
-                      resultRow.power = json_data.getString("power");
+                        resultRow.type = json_data.getString("type");
+                        resultRow.id = json_data.getString("id");
+                        resultRow.power = json_data.getString("power");
                         resultRow.x = json_data.getString("x");
-                       resultRow.y = json_data.getString("y");
+                        resultRow.y = json_data.getString("y");
                         resultRow.radiusm = json_data.getString("radiusm");
                         resultRow.z_score = json_data.getString("z_score");
+                        resultRow.pseudo = json_data.getString("pseudo");
+
                         attractorArray.add(resultRow);
                     }
 
@@ -150,7 +156,14 @@ public class MyAttractorsListFragment extends Fragment {
         @Override
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-            String type = getItem(position).getType() + " " +  getItem(position).getId();
+            String type;
+
+            if(getItem(position).getPseudo() == "true"){
+                type = "Pseudo " + getItem(position).getType() + " " +  getItem(position).getId();
+            } else {
+                type = getItem(position).getType() + " " +  getItem(position).getId();
+            }
+
             String power = "Power: " + df2.format(Double.valueOf(getItem(position).getPower()));
             String radiusm = "Radius: " + df2.format(Double.valueOf(getItem(position).getRadiusm()));
             String z_score = "Z_Score: " + df2.format(Double.valueOf(getItem(position).getZ_score()));

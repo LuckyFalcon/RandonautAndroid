@@ -9,6 +9,7 @@ public class Attractor {
     public String z_score;
     public String x;
     public String y;
+    public String pseudo;
 
     public String getType() {
         return type;
@@ -37,4 +38,9 @@ public class Attractor {
     public String getY() {
         return y;
     }
+
+    public String getPseudo() {
+        return pseudo;
+    }
+
 }

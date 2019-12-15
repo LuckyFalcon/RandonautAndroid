@@ -68,7 +68,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginTop="20dp"
         android:text="Attractor"
-        android:textSize="20dp"
+        android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

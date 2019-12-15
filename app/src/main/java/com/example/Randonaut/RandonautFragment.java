@@ -121,7 +121,6 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
     private MapView mapView;
     private MapboxMap mapboxMap;
 
-
     //Mapbox storing
     String style = Style.MAPBOX_STREETS;
     private final List<DirectionsRoute> directionsRouteList = new ArrayList<>();
@@ -422,6 +421,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
                                     //Nothhing was found
                                     onCreateDialog();
                                 }
+
                                 saveData();
                                 progressdialog.dismiss();
 
@@ -543,7 +543,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
                             singleLocation.setPsuedo(true);
                             locationList.add(singleLocation);
 
-                            writeJsonFile(places[i].getType(), places[i].getRadiusm(),
+                            attractorsToJSONArray(places[i].getType(), places[i].getRadiusm(),
                                         places[i].getPower(), places[i].getZ_score(), places[i].getCoordinate());
 
                             i++;
@@ -560,6 +560,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
                             onCreateDialog();
                         }
                         saveData();
+                        writeJsonFile();
                         progressdialog.dismiss();
 
 
@@ -587,39 +588,51 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
         locationList = new ArrayList<>();
         mapboxMap.clear();
         removeRecyclerView();
+        attractorsArray = new JSONArray();
+        attractorObj = new JSONObject();
 
     }
 
 
     //Disk reading/writing/creating
 
-    public void writeJsonFile(int type, double radiusM, double power, double z_score, LatLng coordinates){
+    public void attractorsToJSONArray(int type, double radiusM, double power, double z_score, LatLng coordinates){
+
+        try {
+            String attractor_type;
+            if (type == 1) {
+                attractor_type = "Attractor";
+
+            } else {
+                attractor_type = "Void";
+            }
+            attractorObj = new JSONObject();
+            attractorObj.put("id", psuedo);
+            attractorObj.put("type", attractor_type);
+            attractorObj.put("power", power);
+            attractorObj.put("x", coordinates.getLatitude());
+            attractorObj.put("y", coordinates.getLongitude());
+            attractorObj.put("radiusm", radiusM);
+            attractorObj.put("z_score", z_score);
+            attractorObj.put("pseudo", true);
+
+            attractorsArray.put(attractorObj);
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            Log.d("wrote", "" + e);
+            e.printStackTrace();
+        }
+
+    }
+
+    public void writeJsonFile(){
 
         FileReader fileReader = null;
         FileWriter fileWriter = null;
         BufferedReader bufferedReader = null;
         BufferedWriter bufferedWriter = null;
 
-    try {
-        String attractor_type;
-        if (type == 1){
-            attractor_type = "Attractor";
-
-        } else {
-            attractor_type = "Void";
-        }
-        attractorObj.put("id", atts);
-        attractorObj.put("type", attractor_type);
-        attractorObj.put("power", power);
-        attractorObj.put("x", coordinates.getLatitude());
-        attractorObj.put("y", coordinates.getLongitude());
-        attractorObj.put("radiusm", radiusM);
-        attractorObj.put("z_score", z_score);
-      //  attractorObj.put("img_filepath", atts);
-
-        attractorsArray.put(attractorObj);
-        attractorsArray.put(attractorObj);
-        Log.d("wrote", "test" );
+        try{
         boolean isFilePresent = isFilePresent(getActivity(), "storage.json");
         if(isFilePresent) {
             Log.d("wrote", "FileisPresent" );
@@ -627,9 +640,13 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
             //do the json parsing here and do the rest of functionality of app
             Log.d("wrote", "" + jsonString );
             Object json = new JSONTokener(jsonString).nextValue();
+
             if (json instanceof JSONObject){
+                Log.d("wrote", "o" );
                 JSONObject jsonObject = new JSONObject(jsonString);
-                jsonObject = (attractorObj);
+               // jsonObject = (attractorObj);
+                JSONArray jsonArray = new JSONArray();
+                attractorsArray.put(jsonObject);
                 File file = new File(getActivity().getFilesDir(), "storage.json");
                 try {
 
@@ -647,16 +664,31 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
             }
 
             else if (json instanceof JSONArray){
-                JSONArray jsonArray = new JSONArray(jsonString);
-                jsonArray.put(attractorsArray);
+                Log.d("wrote", "d" );
+                //JSONArray jsonArray = new JSONArray(jsonString);
+
+             //   JSONArray jsonArray = new JSONArray(jsonString);
+             //   jsonArray.put(attractorsArray);
+
+                JSONArray sourceArray = new JSONArray(jsonString);
+
+                String s3 = attractorsArray.toString();
+                JSONArray destinationArray = new JSONArray(s3);
+
+
+               for (int i = 0; i < sourceArray.length(); i++) {
+                   JSONObject jsonObject = sourceArray.getJSONObject(i);
+                   destinationArray.put(jsonObject);
+                }
+
                 File file = new File(getActivity().getFilesDir(), "storage.json");
                 try {
 
                     fileWriter = new FileWriter(file.getAbsoluteFile());
                     bufferedWriter = new BufferedWriter(fileWriter);
-                    bufferedWriter.write(jsonArray.toString());
+                    bufferedWriter.write(destinationArray.toString());
                     bufferedWriter.close();
-                    Log.d("wrote", "" + jsonArray );
+                    Log.d("wrote", "success" + destinationArray );
                 } catch (IOException e){
 
                     e.printStackTrace();
@@ -664,8 +696,6 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
                 }
 
             }
-
-
 
         } else {
             Log.d("wrote", "Fileisnotpresent" );
@@ -678,7 +708,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
                     file.createNewFile();
                     fileWriter = new FileWriter(file.getAbsoluteFile());
                     bufferedWriter = new BufferedWriter(fileWriter);
-                    bufferedWriter.write("{}");
+                    bufferedWriter.write(attractorsArray.toString());
                     bufferedWriter.close();
                 } catch (IOException e){
                     e.printStackTrace();
@@ -688,15 +718,17 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
                 //show error or try again.
             }
         }
-
     } catch (JSONException e) {
         // TODO Auto-generated catch block
-        Log.d("wrote",  "" + e);
+        Log.d("wrote", "error" + e);
         e.printStackTrace();
     }
-
-
     } //Fix this
+
+
+
+
+
 
     private String read(Context context, String fileName) {
         try {
@@ -884,6 +916,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putLong("ATTRACTORS", atts);
         editor.putLong("VOID", voids);
+        editor.putLong("PSEUDO", psuedo);
         editor.putLong("ENTROPY", entropy);
 
         editor.apply();
@@ -894,10 +927,8 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
         atts = sharedPreferences.getLong("ATTRACTORS", 0);
         voids = sharedPreferences.getLong("VOID", 0);
         entropy = sharedPreferences.getLong("ENTROPY", 0);
+        psuedo = sharedPreferences.getLong("PSEUDO", 0);
     }
-
-
-
 
     //Recyclerview
 
@@ -1059,6 +1090,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
         }
 
         static class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
             TextView type;
             TextView radiusm;
             TextView power;

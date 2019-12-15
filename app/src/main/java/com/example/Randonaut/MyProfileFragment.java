@@ -3,6 +3,7 @@ package com.example.Randonaut;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,14 +13,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.text.DecimalFormat;
+
 public class MyProfileFragment extends Fragment {
 
     private long attractors;
     private long voids;
-    private long psuedo;
+    private long pseudo;
     private long anomalies;
     private long entropy;
     private long reports;
+
+    private static DecimalFormat df2 = new DecimalFormat("#.##");
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         getActivity().setTitle("Profile");
@@ -40,12 +45,13 @@ public class MyProfileFragment extends Fragment {
         TextView Entropy = (TextView)getActivity().findViewById(R.id.tv5);
         TextView Reports = (TextView)getActivity().findViewById(R.id.tv6);
 
-        //in your OnCreate() method
-        String totalEntropyGenerated = Double.valueOf(entropy/1000000)+"M"; // FIX THIS!!
+
+        Double envtropy = Double.valueOf(entropy);
+        String totalEntropyGenerated = df2.format((envtropy/1000000))+"M";
 
         Attractors.setText(Long.toString(attractors));
         Voids.setText(Long.toString(voids));
-        Psuedo.setText(Long.toString(psuedo));
+        Psuedo.setText(Long.toString(pseudo));
         Anomalies.setText(Long.toString(anomalies));
         Entropy.setText(totalEntropyGenerated);
         Reports.setText(Long.toString(reports));
@@ -55,6 +61,9 @@ public class MyProfileFragment extends Fragment {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(RandonautFragment.STATS, Context.MODE_PRIVATE);
         attractors = sharedPreferences.getLong("ATTRACTORS", 0);
         voids = sharedPreferences.getLong("VOIDS", 0);
+        anomalies = sharedPreferences.getLong("ANOMALIES", 0);
+        pseudo = sharedPreferences.getLong("PSEUDO", 0);
+        reports = sharedPreferences.getLong("REPORTS", 0);
         entropy = sharedPreferences.getLong("ENTROPY", 0);
     }
 }
