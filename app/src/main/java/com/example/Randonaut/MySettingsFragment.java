@@ -14,13 +14,16 @@ import androidx.preference.SwitchPreferenceCompat;
 
 public class MySettingsFragment extends PreferenceFragmentCompat {
 
+    //set preference call string
     public static final String SHARED_PREFS = "sharedPrefs";
     public static final String SWTICHEnableDarkMode = "enableDarkMode";
     public static final String SWTICHEnableWaterPoints = "enableWaterPoints";
+
     // Get the preference widgets reference
     private SwitchPreferenceCompat enableDarkMode;
     private SwitchPreferenceCompat enableWaterPoints;
 
+    //setting actual values
     private boolean switchOnOff;
     private boolean waterSwitchOnOff;
 
@@ -35,8 +38,6 @@ public class MySettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-
 
         enableDarkMode.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override

@@ -16,6 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.Randonaut.Classes.Attractor;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,46 +44,6 @@ public class MyAttractorsListFragment extends Fragment {
     Dialog reportDialog;
 
     private static DecimalFormat df2 = new DecimalFormat("#.##");
-
-    public class Attractor {
-
-      //  public String type;
-        public String type;
-        public String id;
-        public String radiusm;
-        public String power;
-        public String z_score;
-        public String x;
-        public String y;
-
-        public String getType() {
-            return type;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public String getRadiusm() {
-            return radiusm;
-        }
-
-        public String getPower() {
-            return power;
-        }
-
-        public String getZ_score() {
-            return z_score;
-        }
-
-        public String getX() {
-            return x;
-        }
-
-        public String getY() {
-            return y;
-        }
-    }
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         getActivity().setTitle("My Attractors");

@@ -1,8 +1,8 @@
-package com.example.Randonaut;
+package com.example.Randonaut.Classes;
 
-public class Gid {
+public class Sizes {
 
-    private String Type;
+    public String Type;
 
     private int N;
 

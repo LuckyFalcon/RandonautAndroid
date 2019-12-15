@@ -1,6 +1,6 @@
-package com.example.Randonaut;
+package com.example.Randonaut.Classes;
 
-
+//Used by RandoWrapperApi
 
 public class Attractors {
 

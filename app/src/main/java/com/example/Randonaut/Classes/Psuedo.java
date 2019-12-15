@@ -1,10 +1,11 @@
-package com.example.Randonaut;
+package com.example.Randonaut.Classes;
 
 
 
 public class Psuedo {
 
     private double latitude;
+
     private double longitude;
 
     private int type;

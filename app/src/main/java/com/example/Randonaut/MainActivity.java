@@ -21,24 +21,20 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener  {
-    private MapView mapView;
-    private MapboxMap mapboxMap;
-    private PermissionsManager permissionsManager;
     private DrawerLayout drawer;
     private String tag;
 
     private FragmentManager fragmentManager;
+
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Mapbox.getInstance(this, "pk.eyJ1IjoiZGF2aWRmYWxjb24iLCJhIjoiY2szbjRzZmd2MTcwNDNkcXhnbTFzbHR0cCJ9.ZgbfsJXtrCFgI0rRJkwUyg");
         setContentView(R.layout.activity_main);
-//        mapView = findViewById(R.id.mapView);
- //      mapView.onCreate(savedInstanceState);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -47,7 +43,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-       // navigationView.getMenu().findItem(R.id.login).setVisible(false);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
 
@@ -59,15 +54,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .addToBackStack("randonaut")
                 .commit();
         navigationView.setCheckedItem(R.id.nav_randonaut);
-
-
-      //  mapView = (MapView) findViewById(R.id.mapView);
-      //  mapView.onCreate(savedInstanceState);
-
-        //mapView.getMapAsync(this);
     }
 
-    @Override
+        @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         switch (menuItem.getItemId()){
             case R.id.nav_randonaut:

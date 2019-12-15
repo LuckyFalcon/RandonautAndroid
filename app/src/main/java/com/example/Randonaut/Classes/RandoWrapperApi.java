@@ -1,4 +1,9 @@
-package com.example.Randonaut;
+package com.example.Randonaut.Classes;
+
+import com.example.Randonaut.Classes.Attractors;
+import com.example.Randonaut.Classes.Entropy;
+import com.example.Randonaut.Classes.Psuedo;
+import com.example.Randonaut.Classes.Sizes;
 
 import java.util.List;
 
@@ -11,7 +16,7 @@ import retrofit2.http.Query;
 public interface RandoWrapperApi {
 
     @GET("sizes")
-    Call<Post> getSizes(@Query("radius") int  radius);
+    Call<Sizes> getSizes(@Query("radius") int  radius);
 
     @GET("entropy")
     Call<Entropy> getEntropy(@Query("size") int  hexSize,

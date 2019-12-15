@@ -35,6 +35,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
 
+import com.example.Randonaut.Classes.Attractors;
+import com.example.Randonaut.Classes.Entropy;
+import com.example.Randonaut.Classes.Psuedo;
+import com.example.Randonaut.Classes.RandoWrapperApi;
+import com.example.Randonaut.Classes.Sizes;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.DirectionsCriteria;
@@ -105,6 +110,28 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
 public class RandonautFragment extends Fragment implements OnMapReadyCallback, PermissionsListener  {
+
+    //Fragment View
+    private  View v;
+
+    //Fragment related
+    private PermissionsManager permissionsManager;
+
+    //Mapbox related
+    private MapView mapView;
+    private MapboxMap mapboxMap;
+
+
+    //Mapbox storing
+    String style = Style.MAPBOX_STREETS;
+    private final List<DirectionsRoute> directionsRouteList = new ArrayList<>();
+    ArrayList<SingleRecyclerViewLocation> locationList = new ArrayList<>();
+    private static final  LatLng[] possibleDestinations = new LatLng[]{};
+    private LocationComponent locationComponent;
+    private Point directionsOriginPoint;
+
+    //Mapbox Route generation
+    private static final String TAG = "RVDirectionsActivity";
     public static final String STATS = "stats";
     private static final String SYMBOL_ICON_ID = "SYMBOL_ICON_ID";
     private static final String PERSON_ICON_ID = "PERSON_ICON_ID";
@@ -115,21 +142,17 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
     private static final String PERSON_LAYER_ID = "PERSON_LAYER_ID";
     private static final String DASHED_DIRECTIONS_LINE_LAYER_ID = "DASHED_DIRECTIONS_LINE_LAYER_ID";
 
-    private MapView mapView;
-    private MapboxMap mapboxMap;
-    private RandoWrapperApi randoWrapperApi;
-    private final List<DirectionsRoute> directionsRouteList = new ArrayList<>();
-    private FeatureCollection dashedLineDirectionsFeatureCollection;
-
-    private PermissionsManager permissionsManager;
-    private LocationComponent locationComponent;
-
     private DrawerLayout drawer;
+
+    //RandoWrapperAPI
+    private RandoWrapperApi randoWrapperApi;
+    private FeatureCollection dashedLineDirectionsFeatureCollection;
 
     //Buttons
     private Button startButton;
     private Button navigateButton;
     private Button resetButton;
+
 
     private String auth_token;
     private TextView textViewProgress;
@@ -137,13 +160,16 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
 
     //Preferences Dialog variables
     Dialog preferencesDialog;
+
+    //Preferences Dialog Toggle buttons
     ToggleButton AttractorToggleButton;
     ToggleButton VoidToggleButton;
     ToggleButton PsuedoToggleButton;
-    private int distance;
-    private String selected;
 
     //Save data
+    JSONObject attractorObj = new JSONObject();
+    JSONArray attractorsArray = new JSONArray();
+
     private long voids;
     private long atts;
     private long psuedo;
@@ -151,33 +177,25 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
     private long entropy;
     private long reports;
 
+    private OutputStream outputStream;
+
+    //Load data
+    private boolean waterPointsEnabled;
+
+    //Dialogs
     ProgressDialog progressdialog;
     Dialog reportDialog;
 
-    //String style = "MAPBOX_STREETS";
-    String style = Style.MAPBOX_STREETS;
-
-    ArrayList<SingleRecyclerViewLocation> locationList = new ArrayList<>();
-    private static final  LatLng[] possibleDestinations = new LatLng[]{};
+    //Attractor generation
+    private int distance;
+    private String selected;
     private String GID;
     private String Type;
     private int N;
     private int spot;
     private int hexsize;
 
-    private OutputStream outputStream;
 
-    private boolean waterPointsEnabled;
-    private Point directionsOriginPoint;
-
-    private  View v;
-
-    //Store attractors
-    JSONObject attractorObj = new JSONObject();
-    JSONArray attractorsArray = new JSONArray();
-
-
-    private static final String TAG = "RVDirectionsActivity";
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -241,129 +259,6 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
                 }
             });
 
-
-
-
-
-
-
-    }
-
-    /**
-     * Loop through the possible destination list of LatLng locations and get
-     * the route for each destination.
-     */
-    private void getRoutesToAllPoints(LatLng test) {
-
-            getRoute(Point.fromLngLat(test.getLongitude(), test.getLatitude()));
-
-    }
-
-    /**
-     * Make a call to the Mapbox Directions API to get the route from the person location icon
-     * to the marker's location and then add the route to the route list.
-     *
-     * @param destination the marker associated with the recyclerview card that was tapped on.
-     */
-    @SuppressWarnings({"MissingPermission"})
-    private void getRoute(Point destination) {
-        directionsOriginPoint = Point.fromLngLat(mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(),
-                mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude());
-        MapboxDirections client = MapboxDirections.builder()
-                .origin(directionsOriginPoint)
-                .destination(destination)
-                .overview(DirectionsCriteria.OVERVIEW_FULL)
-                .profile(DirectionsCriteria.PROFILE_DRIVING)
-                .accessToken("pk.eyJ1IjoiZGF2aWRmYWxjb24iLCJhIjoiY2szbjRzZmd2MTcwNDNkcXhnbTFzbHR0cCJ9.ZgbfsJXtrCFgI0rRJkwUyg")
-                .build();
-        client.enqueueCall(new Callback<DirectionsResponse>() {
-            @Override
-            public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
-                if (response.body() == null) {
-                    Log.d(TAG, "No routes found, make sure you set the right user and access token.");
-                    return;
-                } else if (response.body().routes().size() < 1) {
-                    Log.d(TAG, "No routes found");
-                    return;
-                }
-                // Add the route to the list.
-                directionsRouteList.add(response.body().routes().get(0));
-            }
-
-            @Override
-            public void onFailure(Call<DirectionsResponse> call, Throwable throwable) {
-                Log.d(TAG, "Error: " + throwable.getMessage());
-                if (!throwable.getMessage().equals("Coordinate is invalid: 0,0")) {
-                    Toast.makeText(getContext(),
-                            "Error: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-    }
-
-    /**
-     * Update the GeoJSON data for the direction route LineLayer.
-     *
-     * @param route The route to be drawn in the map's LineLayer that was set up above.
-     */
-    private void drawNavigationPolylineRoute(final DirectionsRoute route) {
-
-        if (mapboxMap != null) {
-            mapboxMap.getStyle(new Style.OnStyleLoaded() {
-                @Override
-                public void onStyleLoaded(@NonNull Style style) {
-                    List<Feature> directionsRouteFeatureList = new ArrayList<>();
-                    LineString lineString = LineString.fromPolyline(route.geometry(), PRECISION_6);
-                    List<Point> lineStringCoordinates = lineString.coordinates();
-                    for (int i = 0; i < lineStringCoordinates.size(); i++) {
-                        directionsRouteFeatureList.add(Feature.fromGeometry(
-                                LineString.fromLngLats(lineStringCoordinates)));
-                    }
-                    dashedLineDirectionsFeatureCollection =
-                            FeatureCollection.fromFeatures(directionsRouteFeatureList);
-                    GeoJsonSource source = style.getSourceAs(DASHED_DIRECTIONS_LINE_LAYER_SOURCE_ID);
-                    if (source != null) {
-                        source.setGeoJson(dashedLineDirectionsFeatureCollection);
-                    }
-                }
-            });
-        }
-    }
-
-    class Place {
-        private LatLng coordinate;
-        private int type;
-        private double radiusm;
-        private double power;
-        private double z_score;
-
-        public LatLng getCoordinate() {
-            return coordinate;
-        }
-
-        public int getType() {
-            return type;
-        }
-
-        public double getRadiusm() {
-            return radiusm;
-        }
-
-        public double getPower() {
-            return power;
-        }
-
-        public double getZ_score() {
-            return z_score;
-        }
-
-        public Place(LatLng coordinate, int type, double radiusm, double power, double z_score) {
-            this.coordinate = coordinate;
-            this.type = type;
-            this.radiusm = radiusm;
-            this.power = power;
-            this.z_score = z_score;
-        }
     }
 
     @Override
@@ -372,7 +267,6 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
         RandonautFragment.this.mapboxMap = mapboxMap;
 
         mapboxMap.setStyle(new Style.Builder().fromUri(style)
-
 
                 // Set up the source and layer for the direction route LineLayer
                 .withSource(new GeoJsonSource(DASHED_DIRECTIONS_LINE_LAYER_SOURCE_ID))
@@ -391,196 +285,8 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
 
     }
 
-    private void initRecyclerView() {
 
-        RecyclerView recyclerView = getView().findViewById(R.id.rv_on_top_of_map);
-        recyclerView.setOnFlingListener(null);
-        LocationRecyclerViewAdapter locationAdapter =
-                new LocationRecyclerViewAdapter(this, createRecyclerViewLocations(), mapboxMap);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(),
-                LinearLayoutManager.HORIZONTAL, true));
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(locationAdapter);
-        SnapHelper snapHelper = new LinearSnapHelper();
-        snapHelper.attachToRecyclerView(recyclerView);
-
-    }
-
-    private void removeRecyclerView() {
-
-        RecyclerView recyclerView = getView().findViewById(R.id.rv_on_top_of_map);
-        recyclerView.setAdapter(null);
-
-    }
-
-    private List<SingleRecyclerViewLocation> createRecyclerViewLocations() {
-
-        return locationList;
-    }
-
-    /**
-     * POJO model class for a single location in the recyclerview
-     */
-    class SingleRecyclerViewLocation {
-
-        private int type;
-
-        private double radiusm;
-        private double  power;
-        private double z_score;
-        private boolean isPsuedo;
-
-        private LatLng locationCoordinates;
-
-
-        public int getType() {
-            return type;
-        }
-
-        public void setType(int name) {
-            this.type = name;
-        }
-
-        public boolean isPsuedo() {
-            return isPsuedo;
-        }
-
-        public void setPsuedo(boolean psuedo) {
-            isPsuedo = psuedo;
-        }
-
-        public double getRadiusm() {
-            return radiusm;
-        }
-
-        public void setRadiusm(double radiusm) {
-            this.radiusm = radiusm;
-        }
-
-        public double getPower() {
-            return power;
-        }
-
-        public void setPower(double power) {
-            this.power = power;
-        }
-
-        public double getZ_score() {
-            return z_score;
-        }
-
-        public void setZ_score(double z_score) {
-            this.z_score = z_score;
-        }
-
-        public LatLng getLocationCoordinates() {
-            return locationCoordinates;
-        }
-
-        public void setLocationCoordinates(LatLng locationCoordinates) {
-            this.locationCoordinates = locationCoordinates;
-        }
-
-    }
-
-    static class LocationRecyclerViewAdapter extends
-            RecyclerView.Adapter<LocationRecyclerViewAdapter.MyViewHolder> {
-
-        private List<SingleRecyclerViewLocation> locationList;
-        private MapboxMap map;
-        private WeakReference<RandonautFragment> weakReference;
-
-        public LocationRecyclerViewAdapter(RandonautFragment activity,
-                                           List<SingleRecyclerViewLocation> locationList,
-                                           MapboxMap mapBoxMap) {
-            this.locationList = locationList;
-            this.map = mapBoxMap;
-            this.weakReference = new WeakReference<>(activity);
-        }
-
-        @Override
-        public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.rv_on_top_of_map_card, parent, false);
-            return new MyViewHolder(itemView);
-        }
-
-        @Override
-        public void onBindViewHolder(MyViewHolder holder, int position) {
-            SingleRecyclerViewLocation singleRecyclerViewLocation = locationList.get(position);
-            String type = "Attractor";
-            if(singleRecyclerViewLocation.getType() == 2){
-                type = "Void";
-            }
-            if(singleRecyclerViewLocation.isPsuedo()){
-                type = "Pseudo Attractor";
-                if(singleRecyclerViewLocation.getType() == 2){
-                    type = "Pseudo Void";
-                }
-            }
-
-            String radiusm = "Radius: " +  (int) singleRecyclerViewLocation.getRadiusm();
-            String power = "Power: " + String.format("%.2f", singleRecyclerViewLocation.getPower());
-            String z_score = "Z Score: " + String.format("%.2f", singleRecyclerViewLocation.getZ_score());
-
-            holder.type.setText(type);
-            holder.radiusm.setText(radiusm);
-            holder.power.setText(power);
-            holder.z_score.setText(z_score);
-
-
-            holder.setClickListener(new ItemClickListener() {
-                @Override
-                public void onClick(View view, int position) {
-                    LatLng selectedLocationLatLng = locationList.get(position).getLocationCoordinates();
-                  //  weakReference.get()
-                    //        .drawNavigationPolylineRoute(weakReference.get().directionsRouteList.get(position));
-                    CameraPosition newCameraPosition = new CameraPosition.Builder()
-                            .target(selectedLocationLatLng)
-                            .build();
-                    map.easeCamera(CameraUpdateFactory.newCameraPosition(newCameraPosition));
-                }
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return locationList.size();
-        }
-
-        static class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-            TextView type;
-            TextView radiusm;
-            TextView power;
-            TextView z_score;
-            CardView singleCard;
-            ItemClickListener clickListener;
-
-            MyViewHolder(View view) {
-                super(view);
-                type = view.findViewById(R.id.type);
-                radiusm = view.findViewById(R.id.radiusm);
-                power = view.findViewById(R.id.power);
-                z_score = view.findViewById(R.id.z_score);
-
-                singleCard = view.findViewById(R.id.single_location_cardview);
-                singleCard.setOnClickListener(this);
-            }
-
-            public void setClickListener(ItemClickListener itemClickListener) {
-                this.clickListener = itemClickListener;
-            }
-
-            @Override
-            public void onClick(View view) {
-                clickListener.onClick(view, getLayoutPosition());
-            }
-        }
-    }
-
-    public interface ItemClickListener {
-        void onClick(View view, int position);
-    }
+    //Generate points functions
 
     public void getAttractors(){
 
@@ -610,11 +316,11 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
 
         randoWrapperApi = retrofit.create(RandoWrapperApi.class);
 
-        Call<Post> callGetSizes = randoWrapperApi.getSizes(distance);
+        Call<Sizes> callGetSizes = randoWrapperApi.getSizes(distance);
 
-        callGetSizes.enqueue(new Callback<Post>() {
+        callGetSizes.enqueue(new Callback<Sizes>() {
             @Override
-            public void onResponse(Call<Post> call, Response<Post> response) {
+            public void onResponse(Call<Sizes> call, Response<Sizes> response) {
                 Type = response.body().getType();
                 N = response.body().getN();
                 spot = response.body().getSpot();
@@ -739,7 +445,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
             }
 
             @Override
-            public void onFailure(Call<Post> call, Throwable t) {
+            public void onFailure(Call<Sizes> call, Throwable t) {
                 Toast.makeText(getContext(), "ex", Toast.LENGTH_SHORT).show();
             }
         });
@@ -775,11 +481,11 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
 
         randoWrapperApi = retrofit.create(RandoWrapperApi.class);
 
-        Call<Post> callGetSizes = randoWrapperApi.getSizes(distance);
+        Call<Sizes> callGetSizes = randoWrapperApi.getSizes(distance);
 
-        callGetSizes.enqueue(new Callback<Post>() {
+        callGetSizes.enqueue(new Callback<Sizes>() {
             @Override
-            public void onResponse(Call<Post> call, Response<Post> response) {
+            public void onResponse(Call<Sizes> call, Response<Sizes> response) {
                 Type = response.body().getType();
                 N = response.body().getN();
                 spot = response.body().getSpot();
@@ -869,13 +575,23 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
             }
 
             @Override
-            public void onFailure(Call<Post> call, Throwable t) {
+            public void onFailure(Call<Sizes> call, Throwable t) {
 
             }
 
         });
     }
 
+    public void resetRandonaut() {
+        //Empty previous run
+        locationList = new ArrayList<>();
+        mapboxMap.clear();
+        removeRecyclerView();
+
+    }
+
+
+    //Disk reading/writing/creating
 
     public void writeJsonFile(int type, double radiusM, double power, double z_score, LatLng coordinates){
 
@@ -1025,6 +741,19 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
         return file.exists();
     }
 
+
+
+    //Dialogs
+
+    public void setReportAlertDialog(){
+        reportDialog = new Dialog(getActivity());
+        reportDialog.setContentView(R.layout.dialog_report);
+        reportDialog.setTitle("Report");
+
+
+        reportDialog.show();
+    }
+
     public void onCreateDialog() {
 
         new AlertDialog.Builder(getContext())
@@ -1041,121 +770,6 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
 
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
-    }
-
-    public void resetRandonaut() {
-        //Empty previous run
-        locationList = new ArrayList<>();
-        mapboxMap.clear();
-        removeRecyclerView();
-
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mapView.onStart();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mapView.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mapView.onPause();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        mapView.onStop();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mapView.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        mapView.onLowMemory();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mapView.onDestroy();
-    }
-
-    @Override
-    public void onExplanationNeeded(List<String> permissionsToExplain) {
-        Toast.makeText(getContext(), "Granted", Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onPermissionResult(boolean granted) {
-        if (granted) {
-            mapboxMap.getStyle(new Style.OnStyleLoaded() {
-                @Override
-                public void onStyleLoaded(@NonNull Style style) {
-                    enableLocationComponent(style);
-                }
-            });
-        } else {
-            Toast.makeText(getContext(), "Not Granted", Toast.LENGTH_LONG).show();
-            getActivity().finish();
-        }
-    }
-
-    private void enableLocationComponent(@NonNull Style loadedMapStyle) {
-        // Check if permissions are enabled and if not request
-        if (PermissionsManager.areLocationPermissionsGranted(getContext())) {
-
-
-            LocationComponentOptions locationComponentOptions = LocationComponentOptions.builder(getContext())
-                    .accuracyAnimationEnabled(true)
-                    .build();
-
-            LocationComponentActivationOptions locationComponentActivationOptions = LocationComponentActivationOptions
-                    .builder(getContext(), loadedMapStyle)
-                    .locationComponentOptions(locationComponentOptions)
-                    .build();
-
-            // Get an instance of the component
-            final LocationComponent locationComponent = mapboxMap.getLocationComponent();
-
-            // Activate with options
-            locationComponent.activateLocationComponent(locationComponentActivationOptions);
-            // locationComponent.activateLocationComponent(
-            //       LocationComponentActivationOptions.builder(getContext(), loadedMapStyle).build());
-
-            // Enable to make component visible
-            locationComponent.setLocationComponentEnabled(true);
-
-
-            // Set the component's camera mode
-            locationComponent.setCameraMode(CameraMode.TRACKING_GPS);
-
-            // Set the component's render mode
-            locationComponent.setRenderMode(RenderMode.COMPASS);
-
-            // locationComponent.getLastKnownLocation();
-            CameraPosition position = new CameraPosition.Builder()
-                    .target(new LatLng(locationComponent.getLastKnownLocation()))
-                    .zoom(15)
-                    .build();
-
-            mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 10000);
-        } else {
-            permissionsManager = new PermissionsManager(this);
-            permissionsManager.requestLocationPermissions(getActivity());
-        }
     }
 
     public void setPreferencesAlertDialog(){
@@ -1232,6 +846,8 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
             }
         });
 
+
+
         preferencesDialog.show();
 
     }
@@ -1260,14 +876,8 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
         }
     };
 
-    public void setReportAlertDialog(){
-        reportDialog = new Dialog(getActivity());
-        reportDialog.setContentView(R.layout.dialog_report);
-        reportDialog.setTitle("Report");
 
-
-        reportDialog.show();
-    }
+    //Shared preferences
 
     public void saveData() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(STATS, Context.MODE_PRIVATE);
@@ -1284,6 +894,406 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
         atts = sharedPreferences.getLong("ATTRACTORS", 0);
         voids = sharedPreferences.getLong("VOID", 0);
         entropy = sharedPreferences.getLong("ENTROPY", 0);
+    }
+
+
+
+
+    //Recyclerview
+
+    private void initRecyclerView() {
+
+        RecyclerView recyclerView = getView().findViewById(R.id.rv_on_top_of_map);
+        recyclerView.setOnFlingListener(null);
+        LocationRecyclerViewAdapter locationAdapter =
+                new LocationRecyclerViewAdapter(this, createRecyclerViewLocations(), mapboxMap);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(),
+                LinearLayoutManager.HORIZONTAL, true));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(locationAdapter);
+        SnapHelper snapHelper = new LinearSnapHelper();
+        snapHelper.attachToRecyclerView(recyclerView);
+
+    }
+
+    private void removeRecyclerView() {
+
+        RecyclerView recyclerView = getView().findViewById(R.id.rv_on_top_of_map);
+        recyclerView.setAdapter(null);
+
+    }
+
+    private List<SingleRecyclerViewLocation> createRecyclerViewLocations() {
+
+        return locationList;
+    }
+
+    /**
+     * POJO model class for a single location in the recyclerview
+     */
+    class SingleRecyclerViewLocation {
+
+        private int type;
+
+        private double radiusm;
+        private double  power;
+        private double z_score;
+        private boolean isPsuedo;
+
+        private LatLng locationCoordinates;
+
+
+        public int getType() {
+            return type;
+        }
+
+        public void setType(int name) {
+            this.type = name;
+        }
+
+        public boolean isPsuedo() {
+            return isPsuedo;
+        }
+
+        public void setPsuedo(boolean psuedo) {
+            isPsuedo = psuedo;
+        }
+
+        public double getRadiusm() {
+            return radiusm;
+        }
+
+        public void setRadiusm(double radiusm) {
+            this.radiusm = radiusm;
+        }
+
+        public double getPower() {
+            return power;
+        }
+
+        public void setPower(double power) {
+            this.power = power;
+        }
+
+        public double getZ_score() {
+            return z_score;
+        }
+
+        public void setZ_score(double z_score) {
+            this.z_score = z_score;
+        }
+
+        public LatLng getLocationCoordinates() {
+            return locationCoordinates;
+        }
+
+        public void setLocationCoordinates(LatLng locationCoordinates) {
+            this.locationCoordinates = locationCoordinates;
+        }
+
+    }
+
+    static class LocationRecyclerViewAdapter extends
+            RecyclerView.Adapter<LocationRecyclerViewAdapter.MyViewHolder> {
+
+        private List<SingleRecyclerViewLocation> locationList;
+        private MapboxMap map;
+        private WeakReference<RandonautFragment> weakReference;
+
+        public LocationRecyclerViewAdapter(RandonautFragment activity,
+                                           List<SingleRecyclerViewLocation> locationList,
+                                           MapboxMap mapBoxMap) {
+            this.locationList = locationList;
+            this.map = mapBoxMap;
+            this.weakReference = new WeakReference<>(activity);
+        }
+
+        @Override
+        public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.rv_on_top_of_map_card, parent, false);
+            return new MyViewHolder(itemView);
+        }
+
+        @Override
+        public void onBindViewHolder(MyViewHolder holder, int position) {
+            SingleRecyclerViewLocation singleRecyclerViewLocation = locationList.get(position);
+            String type = "Attractor";
+            if(singleRecyclerViewLocation.getType() == 2){
+                type = "Void";
+            }
+            if(singleRecyclerViewLocation.isPsuedo()){
+                type = "Pseudo Attractor";
+                if(singleRecyclerViewLocation.getType() == 2){
+                    type = "Pseudo Void";
+                }
+            }
+
+            String radiusm = "Radius: " +  (int) singleRecyclerViewLocation.getRadiusm();
+            String power = "Power: " + String.format("%.2f", singleRecyclerViewLocation.getPower());
+            String z_score = "Z Score: " + String.format("%.2f", singleRecyclerViewLocation.getZ_score());
+
+            holder.type.setText(type);
+            holder.radiusm.setText(radiusm);
+            holder.power.setText(power);
+            holder.z_score.setText(z_score);
+
+
+            holder.setClickListener(new ItemClickListener() {
+                @Override
+                public void onClick(View view, int position) {
+                    LatLng selectedLocationLatLng = locationList.get(position).getLocationCoordinates();
+                    //  weakReference.get()
+                    //        .drawNavigationPolylineRoute(weakReference.get().directionsRouteList.get(position));
+                    CameraPosition newCameraPosition = new CameraPosition.Builder()
+                            .target(selectedLocationLatLng)
+                            .build();
+                    map.easeCamera(CameraUpdateFactory.newCameraPosition(newCameraPosition));
+                }
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return locationList.size();
+        }
+
+        static class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+            TextView type;
+            TextView radiusm;
+            TextView power;
+            TextView z_score;
+            CardView singleCard;
+            ItemClickListener clickListener;
+
+            MyViewHolder(View view) {
+                super(view);
+                type = view.findViewById(R.id.type);
+                radiusm = view.findViewById(R.id.radiusm);
+                power = view.findViewById(R.id.power);
+                z_score = view.findViewById(R.id.z_score);
+
+                singleCard = view.findViewById(R.id.single_location_cardview);
+                singleCard.setOnClickListener(this);
+            }
+
+            public void setClickListener(ItemClickListener itemClickListener) {
+                this.clickListener = itemClickListener;
+            }
+
+            @Override
+            public void onClick(View view) {
+                clickListener.onClick(view, getLayoutPosition());
+            }
+        }
+    }
+
+    public interface ItemClickListener {
+        void onClick(View view, int position);
+    }
+
+
+
+
+
+    //Permissions for location
+    @Override
+    public void onExplanationNeeded(List<String> permissionsToExplain) {
+        Toast.makeText(getContext(), "Granted", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onPermissionResult(boolean granted) {
+        if (granted) {
+            mapboxMap.getStyle(new Style.OnStyleLoaded() {
+                @Override
+                public void onStyleLoaded(@NonNull Style style) {
+                    enableLocationComponent(style);
+                }
+            });
+        } else {
+            Toast.makeText(getContext(), "Not Granted", Toast.LENGTH_LONG).show();
+            getActivity().finish();
+        }
+    }
+
+    private void enableLocationComponent(@NonNull Style loadedMapStyle) {
+        // Check if permissions are enabled and if not request
+        if (PermissionsManager.areLocationPermissionsGranted(getContext())) {
+
+
+            LocationComponentOptions locationComponentOptions = LocationComponentOptions.builder(getContext())
+                    .accuracyAnimationEnabled(true)
+                    .build();
+
+            LocationComponentActivationOptions locationComponentActivationOptions = LocationComponentActivationOptions
+                    .builder(getContext(), loadedMapStyle)
+                    .locationComponentOptions(locationComponentOptions)
+                    .build();
+
+            // Get an instance of the component
+            final LocationComponent locationComponent = mapboxMap.getLocationComponent();
+
+            // Activate with options
+            locationComponent.activateLocationComponent(locationComponentActivationOptions);
+            // locationComponent.activateLocationComponent(
+            //       LocationComponentActivationOptions.builder(getContext(), loadedMapStyle).build());
+
+            // Enable to make component visible
+            locationComponent.setLocationComponentEnabled(true);
+
+
+            // Set the component's camera mode
+            locationComponent.setCameraMode(CameraMode.TRACKING_GPS);
+
+            // Set the component's render mode
+            locationComponent.setRenderMode(RenderMode.COMPASS);
+
+            // locationComponent.getLastKnownLocation();
+            CameraPosition position = new CameraPosition.Builder()
+                    .target(new LatLng(locationComponent.getLastKnownLocation()))
+                    .zoom(15)
+                    .build();
+
+            mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 10000);
+        } else {
+            permissionsManager = new PermissionsManager(this);
+            permissionsManager.requestLocationPermissions(getActivity());
+        }
+    }
+
+
+
+
+    //Mapbox Route generation (works but not yet used)
+
+    /**
+     * Loop through the possible destination list of LatLng locations and get
+     * the route for each destination.
+     */
+    private void getRoutesToAllPoints(LatLng test) {
+
+        getRoute(Point.fromLngLat(test.getLongitude(), test.getLatitude()));
+
+    }
+
+    /**
+     * Make a call to the Mapbox Directions API to get the route from the person location icon
+     * to the marker's location and then add the route to the route list.
+     *
+     * @param destination the marker associated with the recyclerview card that was tapped on.
+     */
+    @SuppressWarnings({"MissingPermission"})
+    private void getRoute(Point destination) {
+        directionsOriginPoint = Point.fromLngLat(mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(),
+                mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude());
+        MapboxDirections client = MapboxDirections.builder()
+                .origin(directionsOriginPoint)
+                .destination(destination)
+                .overview(DirectionsCriteria.OVERVIEW_FULL)
+                .profile(DirectionsCriteria.PROFILE_DRIVING)
+                .accessToken("pk.eyJ1IjoiZGF2aWRmYWxjb24iLCJhIjoiY2szbjRzZmd2MTcwNDNkcXhnbTFzbHR0cCJ9.ZgbfsJXtrCFgI0rRJkwUyg")
+                .build();
+        client.enqueueCall(new Callback<DirectionsResponse>() {
+            @Override
+            public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+                if (response.body() == null) {
+                    Log.d(TAG, "No routes found, make sure you set the right user and access token.");
+                    return;
+                } else if (response.body().routes().size() < 1) {
+                    Log.d(TAG, "No routes found");
+                    return;
+                }
+                // Add the route to the list.
+                directionsRouteList.add(response.body().routes().get(0));
+            }
+
+            @Override
+            public void onFailure(Call<DirectionsResponse> call, Throwable throwable) {
+                Log.d(TAG, "Error: " + throwable.getMessage());
+                if (!throwable.getMessage().equals("Coordinate is invalid: 0,0")) {
+                    Toast.makeText(getContext(),
+                            "Error: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    /**
+     * Update the GeoJSON data for the direction route LineLayer.
+     *
+     * @param route The route to be drawn in the map's LineLayer that was set up above.
+     */
+    private void drawNavigationPolylineRoute(final DirectionsRoute route) {
+
+        if (mapboxMap != null) {
+            mapboxMap.getStyle(new Style.OnStyleLoaded() {
+                @Override
+                public void onStyleLoaded(@NonNull Style style) {
+                    List<Feature> directionsRouteFeatureList = new ArrayList<>();
+                    LineString lineString = LineString.fromPolyline(route.geometry(), PRECISION_6);
+                    List<Point> lineStringCoordinates = lineString.coordinates();
+                    for (int i = 0; i < lineStringCoordinates.size(); i++) {
+                        directionsRouteFeatureList.add(Feature.fromGeometry(
+                                LineString.fromLngLats(lineStringCoordinates)));
+                    }
+                    dashedLineDirectionsFeatureCollection =
+                            FeatureCollection.fromFeatures(directionsRouteFeatureList);
+                    GeoJsonSource source = style.getSourceAs(DASHED_DIRECTIONS_LINE_LAYER_SOURCE_ID);
+                    if (source != null) {
+                        source.setGeoJson(dashedLineDirectionsFeatureCollection);
+                    }
+                }
+            });
+        }
+    }
+
+
+
+
+
+    //Mapbox functions
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mapView.onStart();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mapView.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mapView.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mapView.onStop();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mapView.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mapView.onLowMemory();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mapView.onDestroy();
     }
 
 }
