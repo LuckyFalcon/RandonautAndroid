@@ -1,7 +1,8 @@
-package com.example.Randonaut;
+package com.randonautica.app;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,12 +17,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.Randonaut.Classes.Attractor;
+import com.randonautica.app.Classes.Attractor;
+import com.randonautica.app.Classes.DatabaseHelper;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -35,6 +35,7 @@ import java.util.List;
 
 public class MyAttractorsListFragment extends Fragment {
 
+
     //Store attractors
     JSONObject attractorObj = new JSONObject();
     JSONArray attractorsArray = new JSONArray();
@@ -43,100 +44,59 @@ public class MyAttractorsListFragment extends Fragment {
 
     Dialog reportDialog;
 
+    private ListView mListView;
+
+    DatabaseHelper mDatabaseHelper;
+
+    String attractorTable = "Attractors";
+
+    private View view;
+
     private static DecimalFormat df2 = new DecimalFormat("#.##");
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        view = inflater.inflate(R.layout.fragment_list_attractors, container, false);
         getActivity().setTitle("My Attractors");
-        return inflater.inflate(R.layout.fragment_list_attractors, container, false);
+        return view;
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mDatabaseHelper = new DatabaseHelper(getActivity(), attractorTable);
+        mListView = (ListView) view.findViewById(R.id.attractorsList);
+        populateListView();
+    }
 
-        boolean isFilePresent = isFilePresent(getActivity(), "storage.json");
-        if(isFilePresent) {
+    private void populateListView() {
+        Log.d("test", "populateListView: Displaying data in the ListView.");
+        attractorArray = new ArrayList<Attractor>();
+        Cursor data = mDatabaseHelper.getData(attractorTable);
 
-            Log.d("wrote", "FileisPresent" );
-            String jsonString = read(getActivity(), "storage.json");
-            //do the json parsing here and do the rest of functionality of app
-            Log.d("wrote", "" + jsonString );
-            Object json = null;
-            try {
-                json = new JSONTokener(jsonString).nextValue();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            if (json instanceof JSONObject){
-                JSONObject jsonObject = null;
-                try {
-                    jsonObject = new JSONObject(jsonString);
+        while(data.moveToNext()){
+            Attractor resultRow = new Attractor();
 
+            resultRow.id = data.getString(0);
+            resultRow.type = data.getString(1);
+            resultRow.power = data.getString(2);
+            resultRow.x = data.getString(3);
+            resultRow.y = data.getString(4);
+            resultRow.radiusm = data.getString(5);
+            resultRow.z_score = data.getString(6);
+            resultRow.pseudo = data.getString(7);
 
-                    Attractor resultRow = new Attractor();
+            attractorArray.add(resultRow);
 
-                    resultRow.type = jsonObject.getString("type");
-                    resultRow.id = jsonObject.getString("id");
-                    resultRow.power = jsonObject.getString("power");
-                    resultRow.x = jsonObject.getString("x");
-                    resultRow.y = jsonObject.getString("y");
-                    resultRow.radiusm = jsonObject.getString("radiusm");
-                    resultRow.z_score = jsonObject.getString("z_score");
-                    resultRow.pseudo = jsonObject.getString("pseudo");
-
-                    attractorArray.add(resultRow);
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                ListView myListView = (ListView) getActivity().findViewById(R.id.attractorsList);
-                AttractorListAdapter adapter = new AttractorListAdapter(getContext(), R.layout.my_attractors_list_item_test, attractorArray);
-                myListView.setAdapter(adapter);
-
-            }
-
-            else if (json instanceof JSONArray){
-                JSONArray jsonArray = null;
-                try {
-                    jsonArray = new JSONArray(jsonString);
-                    for(int i =0; i < jsonArray.length();i++){
-
-                      JSONObject json_data = jsonArray.getJSONObject(i);
-                        Attractor resultRow = new Attractor();
-
-                        resultRow.type = json_data.getString("type");
-                        resultRow.id = json_data.getString("id");
-                        resultRow.power = json_data.getString("power");
-                        resultRow.x = json_data.getString("x");
-                        resultRow.y = json_data.getString("y");
-                        resultRow.radiusm = json_data.getString("radiusm");
-                        resultRow.z_score = json_data.getString("z_score");
-                        resultRow.pseudo = json_data.getString("pseudo");
-
-                        attractorArray.add(resultRow);
-                    }
-
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                ListView myListView = (ListView) getActivity().findViewById(R.id.attractorsList);
-                AttractorListAdapter adapter = new AttractorListAdapter(getContext(), R.layout.my_attractors_list_item_test, attractorArray);
-                myListView.setAdapter(adapter);
-
-
-            }
-
-
-
-        } else {
-            Log.d("wrote", "Fileisnotpresent");
         }
 
-
+        AttractorListAdapter adapter = new AttractorListAdapter(getContext(), R.layout.my_attractors_list_item_test, attractorArray);
+        mListView.setAdapter(adapter);
 
 
     }
+
+
 
     class AttractorListAdapter extends ArrayAdapter<Attractor>{
 
@@ -154,19 +114,20 @@ public class MyAttractorsListFragment extends Fragment {
 
         @NonNull
         @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-            String type;
-
-            if(getItem(position).getPseudo() == "true"){
-                type = "Pseudo " + getItem(position).getType() + " " +  getItem(position).getId();
-            } else {
-                type = getItem(position).getType() + " " +  getItem(position).getId();
-            }
+            String type = "Attractor " +  getItem(position).getId();
 
             String power = "Power: " + df2.format(Double.valueOf(getItem(position).getPower()));
             String radiusm = "Radius: " + df2.format(Double.valueOf(getItem(position).getRadiusm()));
             String z_score = "Z_Score: " + df2.format(Double.valueOf(getItem(position).getZ_score()));
+            String pseudo;
+            if(Double.valueOf(getItem(position).getPseudo()) == 1){
+                pseudo = "Pseudo: " + "Yes";
+            } else {
+                pseudo = "Pseudo: " + "No";
+            }
+
 
 
             LayoutInflater inflater = LayoutInflater.from(mContext);
@@ -176,12 +137,13 @@ public class MyAttractorsListFragment extends Fragment {
             TextView textViewPower = (TextView) convertView.findViewById(R.id.textViewPower);
             TextView textViewRadius = (TextView) convertView.findViewById(R.id.textViewRadius);
             TextView textViewZ_score = (TextView) convertView.findViewById(R.id.textViewZ_score);
-
+            TextView textViewPsuedo = (TextView) convertView.findViewById(R.id.textViewPsuedo);
 
             textViewType.setText(type);
             textViewPower.setText(power);
             textViewRadius.setText(radiusm);
             textViewZ_score.setText(z_score);
+            textViewPsuedo.setText(pseudo);
 
             Button button = (Button) convertView.findViewById(R.id.reportButtonInList);
             button.setOnClickListener(new View.OnClickListener() {
@@ -192,6 +154,23 @@ public class MyAttractorsListFragment extends Fragment {
 
                 }
             });
+
+            Button showButton = (Button) convertView.findViewById(R.id.showButtonInList);
+            showButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    setShowAlertDialog(Integer.parseInt(getItem(position).getId()),
+                            Double.valueOf(getItem(position).getPower()),
+                            Double.valueOf(getItem(position).getX()),
+                            Double.valueOf(getItem(position).getY()),
+                            Double.valueOf(getItem(position).getRadiusm()),
+                            Double.valueOf(getItem(position).getZ_score()),
+                            Double.valueOf(getItem(position).getPseudo()));
+
+                }
+            });
+
             return convertView;
         }
     }
@@ -202,9 +181,52 @@ public class MyAttractorsListFragment extends Fragment {
         reportDialog.setContentView(R.layout.dialog_report);
         reportDialog.setTitle("Report");
 
+        reportDialog.show();
+    }
+
+    public void setShowAlertDialog(final int type, final double power, final double x, final double y, final double radiusm, final double z_score, final double pseudo){
+        reportDialog = new Dialog(getActivity());
+        reportDialog.setContentView(R.layout.dialog_showonmap);
+        reportDialog.setTitle("Show");
+
+        TextView textViewShowOnMap = (TextView) reportDialog.findViewById(R.id.textViewShowOnMap);
+        textViewShowOnMap.setText(
+                "This will remove the old attractors from the map, do you wish to proceed?");
+
+        Button okButton = (Button) reportDialog.findViewById(R.id.preferencesDialogStartButton);
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                SM.sendData(type, power, x, y, radiusm, z_score, pseudo);
+                reportDialog.dismiss();
+
+            }
+        });
 
         reportDialog.show();
     }
+
+    SendMessage SM;
+
+    interface SendMessage {
+        void sendData(int type, double power, double x, double y, double radiusm, double z_score, double pseudo);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        try {
+            SM = (SendMessage) getActivity();
+        } catch (ClassCastException e) {
+            throw new ClassCastException("Error in retrieving data. Please try again");
+        }
+    }
+
+
+
+
 
     private String read(Context context, String fileName) {
         try {
@@ -232,7 +254,6 @@ public class MyAttractorsListFragment extends Fragment {
 
 
 }
-
 
 
 

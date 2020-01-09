@@ -1,4 +1,4 @@
-package com.example.Randonaut;
+package com.randonautica.app;
 
 import android.content.Context;
 

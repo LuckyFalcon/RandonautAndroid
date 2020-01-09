@@ -1,4 +1,4 @@
-package com.example.Randonaut;
+package com.randonautica.app;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -12,15 +12,10 @@ import androidx.fragment.app.FragmentManager;
 
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
-import com.mapbox.android.core.permissions.PermissionsManager;
-import com.mapbox.mapboxsdk.maps.MapView;
-import com.mapbox.mapboxsdk.maps.MapboxMap;
 
-
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener  {
+public class MainActivity extends AppCompatActivity implements RandonautFragment.SendMessage, MyAttractorsListFragment.SendMessage, NavigationView.OnNavigationItemSelectedListener  {
     private DrawerLayout drawer;
     private String tag;
 
@@ -66,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 Fragment randonautfragment = (Fragment) fragmentManager.findFragmentByTag(tag);
                 if (randonautfragment == null) {
-                    Toast.makeText(this, "null", Toast.LENGTH_LONG).show();
                     randonautfragment = new RandonautFragment();
                 }
 
@@ -82,7 +76,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 Fragment botfragment = (Fragment) fragmentManager.findFragmentByTag(tag);
                 if (botfragment == null) {
-                    Toast.makeText(this, "null", Toast.LENGTH_LONG).show();
                     botfragment = new MyBotFragment();
                 }
 
@@ -93,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.nav_slideshow:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                        new MyAttractorsListFragment()).commit();
+                        new MyList()).commit();
                 break;
             case R.id.nav_tools:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
@@ -110,6 +103,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+
+    public void sendData(int type, double power, double x, double y, double radiusm, double z_score, double pseudo) {
+        tag = "randonaut";
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        RandonautFragment randonautfragment = (RandonautFragment) fragmentManager.findFragmentByTag(tag);
+        randonautfragment.onShowProfileAttractors(type, power, x, y, radiusm, z_score, pseudo);
+
+        //Check if ram doesn't double each time and this actually resets the randonauts fragment
+        fragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, randonautfragment, tag)
+                .addToBackStack(tag)
+                .commit();
+    }
+
+    public void rng() {
+        tag = "camrng";
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        camRngFragment camRngFragment = new camRngFragment();
+
+        //Check if ram doesn't double each time and this actually resets the randonauts fragment
+        fragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, camRngFragment, tag)
+                .addToBackStack(tag)
+                .commit();
+    }
+
+
     @Override
     public void onBackPressed() {
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -121,8 +141,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             super.onBackPressed();
         }
     }
-
-
-
 
 }

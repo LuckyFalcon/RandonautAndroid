@@ -1,4 +1,4 @@
-package com.example.Randonaut;
+package com.randonautica.app;
 
 import android.annotation.SuppressLint;
 
@@ -28,6 +28,8 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSnapHelper;
@@ -35,11 +37,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
 
-import com.example.Randonaut.Classes.Attractors;
-import com.example.Randonaut.Classes.Entropy;
-import com.example.Randonaut.Classes.Psuedo;
-import com.example.Randonaut.Classes.RandoWrapperApi;
-import com.example.Randonaut.Classes.Sizes;
+import com.randonautica.app.Classes.Attractors;
+import com.randonautica.app.Classes.DatabaseHelper;
+import com.randonautica.app.Classes.Entropy;
+import com.randonautica.app.Classes.Psuedo;
+import com.randonautica.app.Classes.RandoWrapperApi;
+import com.randonautica.app.Classes.Sizes;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.DirectionsCriteria;
@@ -66,6 +69,7 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+import com.randonautica.app.Classes.runCamRng;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -99,7 +103,6 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineJoin;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
 
-
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -109,7 +112,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
-public class RandonautFragment extends Fragment implements OnMapReadyCallback, PermissionsListener  {
+public class RandonautFragment extends Fragment implements LifecycleOwner, OnMapReadyCallback, PermissionsListener  {
+
+
 
     //Fragment View
     private  View v;
@@ -155,6 +160,8 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
 
     private String auth_token;
     private TextView textViewProgress;
+    private TextView bitTextView;
+
     private SeekBar seekBarProgress;
 
     //Preferences Dialog variables
@@ -163,6 +170,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
     //Preferences Dialog Toggle buttons
     ToggleButton AttractorToggleButton;
     ToggleButton VoidToggleButton;
+    ToggleButton AnomalyToggleButton;
     ToggleButton PsuedoToggleButton;
 
     //Save data
@@ -194,6 +202,12 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
     private int spot;
     private int hexsize;
 
+    //Database storing
+    DatabaseHelper mDatabaseHelper;
+
+    String attractorTable = "Attractors";
+    String voidTable = "Voids";
+    String anomalyTable = "Anomalies";
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -216,6 +230,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
                 break;
         }
 
+
         loadData();
         return v;
     }
@@ -236,7 +251,15 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
                 @SuppressLint("CheckResult")
                 @Override
                 public void onClick(View v) {
-                    setPreferencesAlertDialog();
+                    //setPreferencesAlertDialog();
+                    SM.rng();
+                   // runCamRng.Companion.setContext(getContext());
+                  //  runCamRng.onStartR(getActivity());
+                 //   NoiseBasedCamRng rng = runCamRng.setup();
+                //    rng.getLiveBoolean().observe(getActivity(),  nameObserver);;
+
+                  //  setRngDialog();
+
                 }
             });
 
@@ -244,6 +267,11 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
                 @Override
                 public void onClick(View v) {
                     setPreferencesAlertDialog();
+                    runCamRng.Companion.setContext(getContext());
+                   // runCamRng.onStartR();
+
+
+
                 }
 
             });
@@ -284,6 +312,28 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
 
     }
 
+    //From profile attractors
+    protected void onShowProfileAttractors(int type, double power, double x, double y, double radiusm, double z_score, double pseudo){
+        Log.d("showprof", "value: " + x);
+
+        mapboxMap.addMarker(new MarkerOptions()
+                .position(new LatLng(x, y))
+                .title("Attractor"));
+        SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
+        singleLocation.setType((type));
+        singleLocation.setRadiusm((radiusm));
+        singleLocation.setPower((power));
+        singleLocation.setZ_score((z_score));
+        singleLocation.setLocationCoordinates(new LatLng(x, y));
+        singleLocation.setPsuedo(true);
+
+        locationList.add(singleLocation);
+        initRecyclerView();
+
+        startButton.setVisibility(View.GONE);
+        navigateButton.setVisibility(View.VISIBLE);
+        resetButton.setVisibility(View.VISIBLE);
+    }
 
     //Generate points functions
 
@@ -390,6 +440,9 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
                                         singleLocation.setPsuedo(false);
                                         //getRoutesToAllPoints(places[i].getCoordinate());
 
+                                        AddData(attractorTable, places[i].getType(), places[i].getPower(),  places[i].getCoordinate().getLatitude(), places[i].getCoordinate().getLongitude(),
+                                                places[i].getRadiusm(), places[i].getZ_score(), 0);
+
                                         locationList.add(singleLocation);
 
                                     }
@@ -408,6 +461,9 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
                                         singleLocation.setLocationCoordinates(places[i].getCoordinate());
                                         singleLocation.setPsuedo(false);
                                         locationList.add(singleLocation);
+
+                                        AddData(voidTable, places[i].getType(), places[i].getPower(),  places[i].getCoordinate().getLatitude(), places[i].getCoordinate().getLongitude(),
+                                                places[i].getRadiusm(), places[i].getZ_score(), 0);
                                     }
 
                                     i++;
@@ -529,22 +585,52 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
                                 }
                             }
 
-                            mapboxMap.addMarker(new MarkerOptions()
-                                    .position(new LatLng(x, y))
-                                    .title("Void"));
-                            amount++;
-                            psuedo++;
-                            SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
-                            singleLocation.setType((places[i].getType()));
-                            singleLocation.setRadiusm((places[i].getRadiusm()));
-                            singleLocation.setPower((places[i].getPower()));
-                            singleLocation.setZ_score((places[i].getZ_score()));
-                            singleLocation.setLocationCoordinates(places[i].getCoordinate());
-                            singleLocation.setPsuedo(true);
-                            locationList.add(singleLocation);
+                            if(type == 1) {
+                                mDatabaseHelper = new DatabaseHelper(getActivity(), attractorTable);
+                                mapboxMap.addMarker(new MarkerOptions()
+                                        .position(new LatLng(x, y))
+                                        .title("Attractor"));
+                                amount++;
+                                psuedo++;
+                                SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
+                                singleLocation.setType((places[i].getType()));
+                                singleLocation.setRadiusm((places[i].getRadiusm()));
+                                singleLocation.setPower((places[i].getPower()));
+                                singleLocation.setZ_score((places[i].getZ_score()));
+                                singleLocation.setLocationCoordinates(places[i].getCoordinate());
+                                singleLocation.setPsuedo(true);
 
-                            attractorsToJSONArray(places[i].getType(), places[i].getRadiusm(),
+                                locationList.add(singleLocation);
+
+                                AddData(attractorTable, places[i].getType(), places[i].getPower(),  places[i].getCoordinate().getLatitude(), places[i].getCoordinate().getLongitude(),
+                                        places[i].getRadiusm(), places[i].getZ_score(), 1);
+                                attractorsToJSONArray(places[i].getType(), places[i].getRadiusm(),
                                         places[i].getPower(), places[i].getZ_score(), places[i].getCoordinate());
+                            }
+
+                            if(type == 2) {
+                                mDatabaseHelper = new DatabaseHelper(getActivity(), voidTable);
+                                mapboxMap.addMarker(new MarkerOptions()
+                                        .position(new LatLng(x, y))
+                                        .title("Void"));
+                                amount++;
+                                psuedo++;
+                                SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
+                                singleLocation.setType((places[i].getType()));
+                                singleLocation.setRadiusm((places[i].getRadiusm()));
+                                singleLocation.setPower((places[i].getPower()));
+                                singleLocation.setZ_score((places[i].getZ_score()));
+                                singleLocation.setLocationCoordinates(places[i].getCoordinate());
+                                singleLocation.setPsuedo(true);
+
+                                locationList.add(singleLocation);
+
+                                AddData(voidTable, places[i].getType(), places[i].getPower(),  places[i].getCoordinate().getLatitude(), places[i].getCoordinate().getLongitude(),
+                                        places[i].getRadiusm(), places[i].getZ_score(), 1);
+                                attractorsToJSONArray(places[i].getType(), places[i].getRadiusm(),
+                                        places[i].getPower(), places[i].getZ_score(), places[i].getCoordinate());
+                            }
+
 
                             i++;
 
@@ -615,6 +701,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
             attractorObj.put("radiusm", radiusM);
             attractorObj.put("z_score", z_score);
             attractorObj.put("pseudo", true);
+
 
             attractorsArray.put(attractorObj);
         } catch (JSONException e) {
@@ -726,7 +813,15 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
     } //Fix this
 
 
+    public void AddData (String table, int type, double power, double x, double y, double radiusm, double z_score, double pseudo) {
+        boolean insertData = mDatabaseHelper.addData(table, type, power, x, y, radiusm, z_score, pseudo);
 
+        if (insertData){
+            Toast.makeText(getContext(), "succ", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(getContext(), "nosucc", Toast.LENGTH_LONG).show();
+        }
+    }
 
 
 
@@ -774,6 +869,25 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
     }
 
 
+//Testing
+
+
+    SendMessage SM;
+
+    interface SendMessage {
+        void rng();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        try {
+            SM = (SendMessage) getActivity();
+        } catch (ClassCastException e) {
+            throw new ClassCastException("Error in retrieving data. Please try again");
+        }
+    }
 
     //Dialogs
 
@@ -785,6 +899,35 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
 
         reportDialog.show();
     }
+
+    public void setRngDialog(){
+        reportDialog = new Dialog(getActivity());
+        reportDialog.setContentView(R.layout.dialog_loading);
+        reportDialog.setTitle("Loading RNG");
+
+
+
+
+        // Create the observer which updates the UI.
+
+        bitTextView = (TextView) reportDialog.findViewById(R.id.bitTextView);
+
+        //rng.getLiveBoolean().observe(this,  nameObserver);;
+        //rng.getLiveByte().observe(reportDialog.getContext()) {
+         //   byteTextView.text = it.toString()
+        //}
+
+        reportDialog.show();
+    }
+
+    final Observer<Boolean> nameObserver = new Observer<Boolean>() {
+        @Override
+        public void onChanged(@Nullable final Boolean newName) {
+            // Update the UI, in this case, a TextView.
+            Toast.makeText(getContext(), "update", Toast.LENGTH_SHORT).show();
+            bitTextView.setText(newName.toString());
+        }
+    };
 
     public void onCreateDialog() {
 
@@ -825,6 +968,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
         //Toggle Buttons
         AttractorToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.AttractorToggleButton);
         VoidToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.VoidToggleButton);
+        AnomalyToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.AnomalyToggleButton);
         PsuedoToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.PsuedoToggleButton);
 
         //Set Attractor as default button
@@ -834,6 +978,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
         //Check for click
         AttractorToggleButton.setOnCheckedChangeListener(changeChecker);
         VoidToggleButton.setOnCheckedChangeListener(changeChecker);
+        AnomalyToggleButton.setOnCheckedChangeListener(changeChecker);
         PsuedoToggleButton.setOnCheckedChangeListener(changeChecker);
 
         start.setOnClickListener(new View.OnClickListener(){
@@ -893,16 +1038,25 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
                     selected = "Attractor";
                     VoidToggleButton.setChecked(false);
                     PsuedoToggleButton.setChecked(false);
+                    AnomalyToggleButton.setChecked(false);
                 }
                 if (buttonView == VoidToggleButton) {
                     selected = "Void";
                     AttractorToggleButton.setChecked(false);
                     PsuedoToggleButton.setChecked(false);
+                    AnomalyToggleButton.setChecked(false);
                 }
                 if (buttonView == PsuedoToggleButton) {
                     selected = "Psuedo";
                     VoidToggleButton.setChecked(false);
                     AttractorToggleButton.setChecked(false);
+                    AnomalyToggleButton.setChecked(false);
+                }
+                if (buttonView == AnomalyToggleButton) {
+                    selected = "Anomaly";
+                    VoidToggleButton.setChecked(false);
+                    AttractorToggleButton.setChecked(false);
+                    PsuedoToggleButton.setChecked(false);
                 }
             }
         }
@@ -934,7 +1088,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
 
     private void initRecyclerView() {
 
-        RecyclerView recyclerView = getView().findViewById(R.id.rv_on_top_of_map);
+        RecyclerView recyclerView = v.findViewById(R.id.rv_on_top_of_map);
         recyclerView.setOnFlingListener(null);
         LocationRecyclerViewAdapter locationAdapter =
                 new LocationRecyclerViewAdapter(this, createRecyclerViewLocations(), mapboxMap);
@@ -949,7 +1103,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
 
     private void removeRecyclerView() {
 
-        RecyclerView recyclerView = getView().findViewById(R.id.rv_on_top_of_map);
+        RecyclerView recyclerView = v.findViewById(R.id.rv_on_top_of_map);
         recyclerView.setAdapter(null);
 
     }
@@ -972,7 +1126,6 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
         private boolean isPsuedo;
 
         private LatLng locationCoordinates;
-
 
         public int getType() {
             return type;
@@ -1184,10 +1337,10 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, P
             // locationComponent.getLastKnownLocation();
             CameraPosition position = new CameraPosition.Builder()
                     .target(new LatLng(locationComponent.getLastKnownLocation()))
-                    .zoom(15)
+                    .zoom(13)
                     .build();
 
-            mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 10000);
+            mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 5000);
         } else {
             permissionsManager = new PermissionsManager(this);
             permissionsManager.requestLocationPermissions(getActivity());

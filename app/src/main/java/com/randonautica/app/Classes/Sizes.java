@@ -1,4 +1,4 @@
-package com.example.Randonaut.Classes;
+package com.randonautica.app.Classes;
 
 public class Sizes {
 

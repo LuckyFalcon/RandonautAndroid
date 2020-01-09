@@ -1,9 +1,4 @@
-package com.example.Randonaut.Classes;
-
-import com.example.Randonaut.Classes.Attractors;
-import com.example.Randonaut.Classes.Entropy;
-import com.example.Randonaut.Classes.Psuedo;
-import com.example.Randonaut.Classes.Sizes;
+package com.randonautica.app.Classes;
 
 import java.util.List;
 
