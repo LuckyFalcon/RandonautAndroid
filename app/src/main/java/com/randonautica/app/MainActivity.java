@@ -10,6 +10,9 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -96,11 +99,27 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                         new MyProfileFragment()).commit();
                 break;
+            case R.id.nav_share:
+                onCreateDialog();
+                break;
         }
 
         drawer.closeDrawer(GravityCompat.START);
 
         return true;
+    }
+
+    public Dialog onCreateDialog() {
+        // Use the Builder class for convenient dialog construction
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Coming soon!")
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                       dialog.dismiss();
+                    }
+                }).show();
+        // Create the AlertDialog object and return it
+        return builder.create();
     }
 
 
@@ -120,13 +139,9 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
     public void rng() {
         tag = "camrng";
         FragmentManager fragmentManager = getSupportFragmentManager();
-        camRngFragment camRngFragment = new camRngFragment();
+        camRngDialog camRngDialog = new camRngDialog();
+        camRngDialog.show(fragmentManager, tag);
 
-        //Check if ram doesn't double each time and this actually resets the randonauts fragment
-        fragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, camRngFragment, tag)
-                .addToBackStack(tag)
-                .commit();
     }
 
 

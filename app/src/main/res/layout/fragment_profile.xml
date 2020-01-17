@@ -61,7 +61,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="3260"
-                android:textColor="@color/colorAccent"
+                android:textColor="@color/profileRed"
                 android:textSize="24sp" />
 
             <TextView
@@ -92,7 +92,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="20M"
-                android:textColor="@color/colorPrimary"
+                android:textColor="@color/profileGreen"
                 android:textSize="24sp" />
 
             <TextView
@@ -136,7 +136,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="20M"
-                android:textColor="@color/colorPrimary"
+                android:textColor="@color/profileGreen"
                 android:textSize="24sp" />
 
             <TextView
@@ -167,7 +167,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="3260"
-                android:textColor="@color/colorAccent"
+                android:textColor="@color/profileRed"
                 android:textSize="24sp" />
 
             <TextView
@@ -211,7 +211,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="20M"
-                android:textColor="@color/colorPrimary"
+                android:textColor="@color/profileRed"
                 android:textSize="24sp" />
 
             <TextView
@@ -242,7 +242,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="3260"
-                android:textColor="@color/colorAccent"
+                android:textColor="@color/profileGreen"
                 android:textSize="24sp" />
 
             <TextView
@@ -273,6 +273,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="204dp"
         android:text="Follow me"
+        android:visibility="gone"
         android:textColor="#ffff" />
 
 </RelativeLayout>

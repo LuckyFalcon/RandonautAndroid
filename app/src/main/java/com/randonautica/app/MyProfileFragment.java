@@ -44,7 +44,6 @@ public class MyProfileFragment extends Fragment {
         TextView Entropy = (TextView)getActivity().findViewById(R.id.tv5);
         TextView Reports = (TextView)getActivity().findViewById(R.id.tv6);
 
-
         Double envtropy = Double.valueOf(entropy);
         String totalEntropyGenerated = df2.format((envtropy/1000000))+"M";
 

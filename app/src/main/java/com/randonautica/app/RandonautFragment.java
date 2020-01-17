@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PointF;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -40,6 +41,7 @@ import androidx.recyclerview.widget.SnapHelper;
 import com.randonautica.app.Classes.Attractors;
 import com.randonautica.app.Classes.DatabaseHelper;
 import com.randonautica.app.Classes.Entropy;
+import com.randonautica.app.Classes.Pools;
 import com.randonautica.app.Classes.Psuedo;
 import com.randonautica.app.Classes.RandoWrapperApi;
 import com.randonautica.app.Classes.Sizes;
@@ -69,7 +71,7 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-import com.randonautica.app.Classes.runCamRng;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -90,6 +92,8 @@ import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import static com.mapbox.core.constants.Constants.PRECISION_6;
@@ -113,8 +117,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
 public class RandonautFragment extends Fragment implements LifecycleOwner, OnMapReadyCallback, PermissionsListener  {
-
-
 
     //Fragment View
     private  View v;
@@ -172,6 +174,12 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
     ToggleButton VoidToggleButton;
     ToggleButton AnomalyToggleButton;
     ToggleButton PsuedoToggleButton;
+
+    //RNG Dialog Toggle Buttons
+    ToggleButton QuantumToggleButton;
+    ToggleButton PoolToggleButton;
+    ToggleButton GCPToggleButton;
+    ToggleButton CameraToggleButton;
 
     //Save data
     JSONObject attractorObj = new JSONObject();
@@ -251,14 +259,9 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                 @SuppressLint("CheckResult")
                 @Override
                 public void onClick(View v) {
-                    //setPreferencesAlertDialog();
-                    SM.rng();
-                   // runCamRng.Companion.setContext(getContext());
-                  //  runCamRng.onStartR(getActivity());
-                 //   NoiseBasedCamRng rng = runCamRng.setup();
-                //    rng.getLiveBoolean().observe(getActivity(),  nameObserver);;
+                    setPreferencesAlertDialog();
+               //    SM.rng(); Starts camRNG instance fragment
 
-                  //  setRngDialog();
 
                 }
             });
@@ -267,10 +270,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                 @Override
                 public void onClick(View v) {
                     setPreferencesAlertDialog();
-                    runCamRng.Companion.setContext(getContext());
-                   // runCamRng.onStartR();
-
-
 
                 }
 
@@ -314,7 +313,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
     //From profile attractors
     protected void onShowProfileAttractors(int type, double power, double x, double y, double radiusm, double z_score, double pseudo){
-        Log.d("showprof", "value: " + x);
 
         mapboxMap.addMarker(new MarkerOptions()
                 .position(new LatLng(x, y))
@@ -337,7 +335,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
     //Generate points functions
 
-    public void getAttractors(){
+    public void getAttractors(boolean pool){
 
         //Empty previous run
         locationList = new ArrayList<>();
@@ -351,162 +349,133 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         progressdialog.setCancelable(false);
         progressdialog.setCanceledOnTouchOutside(false);
 
-        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
-                .connectTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
-                .writeTimeout(60, TimeUnit.SECONDS)
-                .build();
+//        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+//                .connectTimeout(60, TimeUnit.SECONDS)
+//                .readTimeout(60, TimeUnit.SECONDS)
+//                .writeTimeout(60, TimeUnit.SECONDS)
+//                .build();
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.1.117:3000/")
-                .client(okHttpClient)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+//        Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl("http://192.168.1.117:3000/")
+//                .client(okHttpClient)
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build();
 
-        randoWrapperApi = retrofit.create(RandoWrapperApi.class);
+        //randoWrapperApi = retrofit.create(RandoWrapperApi.class);
 
-        Call<Sizes> callGetSizes = randoWrapperApi.getSizes(distance);
+        Call<List<Attractors>> callGetAttractors = randoWrapperApi.getAttractors(GID,
+                                mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), distance, pool);
 
-        callGetSizes.enqueue(new Callback<Sizes>() {
+        Log.d("advd", ""+pool);
+
+        callGetAttractors.enqueue(new Callback<List<Attractors>>() {
             @Override
-            public void onResponse(Call<Sizes> call, Response<Sizes> response) {
-                Type = response.body().getType();
-                N = response.body().getN();
-                spot = response.body().getSpot();
-                hexsize = response.body().getHexsize();
+            public void onResponse(Call<List<Attractors>> call, Response<List<Attractors>> response) {
 
-                Call<Entropy> callGetEntropy = randoWrapperApi.getEntropy(hexsize, false);
+                int i = 0;
+                int count = 0;
+                int amount = 0;
 
-                callGetEntropy.enqueue(new Callback<Entropy>() {
-                    @Override
-                    public void onResponse(Call<Entropy> call, Response<Entropy> response) {
-                        GID = response.body().getGid();
-                        entropy = entropy+hexsize;
-                        saveData();
+                for(Attractors attractors: response.body()){
+                    count ++;
+                }
 
-                        Call<List<Attractors>> callGetAttractors = randoWrapperApi.getAttractors(GID,
-                                mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), distance);
-
-                        callGetAttractors.enqueue(new Callback<List<Attractors>>() {
-                            @Override
-                            public void onResponse(Call<List<Attractors>> call, Response<List<Attractors>> response) {
-
-                                int i = 0;
-                                int count = 0;
-                                int amount = 0;
-
-                                for(Attractors attractors: response.body()){
-                                    count ++;
-                                }
-
-                                Place places[] =new Place[count];
+                Place places[] =new Place[count];
 
 
-                                for(Attractors attractors: response.body()){
+                for(Attractors attractors: response.body()){
 
-                                    double x = attractors.getAttractors().getCenter().getLatlng().getPoint().getLatitude();
-                                    double y = attractors.getAttractors().getCenter().getLatlng().getPoint().getLongitude();
-                                    int type = attractors.getAttractors().getType();
-                                    double radiusm = attractors.getAttractors().getRadiusM();
-                                    double power = attractors.getAttractors().getPower();
-                                    double z_score = attractors.getAttractors().getZ_score();
+                    double x = attractors.getAttractors().getCenter().getLatlng().getPoint().getLatitude();
+                    double y = attractors.getAttractors().getCenter().getLatlng().getPoint().getLongitude();
+                    int type = attractors.getAttractors().getType();
+                    double radiusm = attractors.getAttractors().getRadiusM();
+                    double power = attractors.getAttractors().getPower();
+                    double z_score = attractors.getAttractors().getZ_score();
 
-                                    Log.d("testingall", "value: " + x);
-                                    Log.d("testingall", "value: " + y);
+                    Log.d("testingall", "value: " + x);
+                    Log.d("testingall", "value: " + y);
 
-                                    places[i]=new Place(new LatLng(x, y), type, radiusm, power, z_score);
+                    places[i]=new Place(new LatLng(x, y), type, radiusm, power, z_score);
 
-                                    if(waterPointsEnabled){
-                                        LatLng center = new LatLng(x, y);
-                                        final PointF pixel = mapboxMap.getProjection().toScreenLocation(center);
-                                        List<Feature> features = mapboxMap.queryRenderedFeatures(pixel, "water");
-                                        Log.d("water", "value: " + features);
-                                        if(!features.isEmpty()){
-                                            continue;
-                                        }
-                                    }
-                                    if(selected == "Attractor" && type == 1){
-                                        mapboxMap.addMarker(new MarkerOptions()
-                                                .position(new LatLng(x, y))
-                                                .title("Attractor"));
-                                        amount++;
-                                        atts++;
-                                        SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
-                                        singleLocation.setType((places[i].getType()));
-                                        singleLocation.setRadiusm((places[i].getRadiusm()));
-                                        singleLocation.setPower((places[i].getPower()));
-                                        singleLocation.setZ_score((places[i].getZ_score()));
-                                        singleLocation.setLocationCoordinates(places[i].getCoordinate());
-                                        singleLocation.setPsuedo(false);
-                                        //getRoutesToAllPoints(places[i].getCoordinate());
+                    if(waterPointsEnabled){
+                        LatLng center = new LatLng(x, y);
+                        final PointF pixel = mapboxMap.getProjection().toScreenLocation(center);
+                        List<Feature> features = mapboxMap.queryRenderedFeatures(pixel, "water");
+                        Log.d("water", "value: " + features);
+                        if(!features.isEmpty()){
+                            continue;
+                        }
+                    }
+                    if(selected == "Attractor" && type == 1){
+                        mDatabaseHelper = new DatabaseHelper(getActivity(), attractorTable);
 
-                                        AddData(attractorTable, places[i].getType(), places[i].getPower(),  places[i].getCoordinate().getLatitude(), places[i].getCoordinate().getLongitude(),
-                                                places[i].getRadiusm(), places[i].getZ_score(), 0);
+                        mapboxMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(x, y))
+                                .title("Attractor"));
+                        amount++;
+                        atts++;
+                        SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
+                        singleLocation.setType((places[i].getType()));
+                        singleLocation.setRadiusm((places[i].getRadiusm()));
+                        singleLocation.setPower((places[i].getPower()));
+                        singleLocation.setZ_score((places[i].getZ_score()));
+                        singleLocation.setLocationCoordinates(places[i].getCoordinate());
+                        singleLocation.setPsuedo(false);
+                        //getRoutesToAllPoints(places[i].getCoordinate());
 
-                                        locationList.add(singleLocation);
+                        AddData(attractorTable, places[i].getType(), places[i].getPower(),  places[i].getCoordinate().getLatitude(), places[i].getCoordinate().getLongitude(),
+                                places[i].getRadiusm(), places[i].getZ_score(), 0);
 
-                                    }
+                        locationList.add(singleLocation);
 
-                                    if(selected == "Void" && type == 2){
-                                        mapboxMap.addMarker(new MarkerOptions()
-                                                    .position(new LatLng(x, y))
-                                                    .title("Void"));
-                                        amount++;
-                                        voids++;
-                                        SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
-                                        singleLocation.setType((places[i].getType()));
-                                        singleLocation.setRadiusm((places[i].getRadiusm()));
-                                        singleLocation.setPower((places[i].getPower()));
-                                        singleLocation.setZ_score((places[i].getZ_score()));
-                                        singleLocation.setLocationCoordinates(places[i].getCoordinate());
-                                        singleLocation.setPsuedo(false);
-                                        locationList.add(singleLocation);
-
-                                        AddData(voidTable, places[i].getType(), places[i].getPower(),  places[i].getCoordinate().getLatitude(), places[i].getCoordinate().getLongitude(),
-                                                places[i].getRadiusm(), places[i].getZ_score(), 0);
-                                    }
-
-                                    i++;
-                                }
-                                if(amount > 0){
-                                    initRecyclerView();
-                                    startButton.setVisibility(View.GONE);
-                                    navigateButton.setVisibility(View.VISIBLE);
-                                    resetButton.setVisibility(View.VISIBLE);
-                                } else {
-                                    //Nothhing was found
-                                    onCreateDialog();
-                                }
-
-                                saveData();
-                                progressdialog.dismiss();
-
-
-                            }
-
-                            @Override
-                            public void onFailure(Call<List<Attractors>> call, Throwable t) {
-                                Log.d("Errorget", t.getMessage());
-                            }
-
-
-                        });
                     }
 
-                    @Override
-                    public void onFailure(Call<Entropy> call, Throwable t) {
-                        Log.d("Errorget", t.getMessage());
+                    if(selected == "Void" && type == 2){
+                        mDatabaseHelper = new DatabaseHelper(getActivity(), voidTable);
+                        mapboxMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(x, y))
+                                .title("Void"));
+                        amount++;
+                        voids++;
+                        SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
+                        singleLocation.setType((places[i].getType()));
+                        singleLocation.setRadiusm((places[i].getRadiusm()));
+                        singleLocation.setPower((places[i].getPower()));
+                        singleLocation.setZ_score((places[i].getZ_score()));
+                        singleLocation.setLocationCoordinates(places[i].getCoordinate());
+                        singleLocation.setPsuedo(false);
+                        locationList.add(singleLocation);
+
+                        AddData(voidTable, places[i].getType(), places[i].getPower(),  places[i].getCoordinate().getLatitude(), places[i].getCoordinate().getLongitude(),
+                                places[i].getRadiusm(), places[i].getZ_score(), 0);
                     }
-                });
+
+                    i++;
+                }
+                if(amount > 0){
+                    initRecyclerView();
+                    startButton.setVisibility(View.GONE);
+                    navigateButton.setVisibility(View.VISIBLE);
+                    resetButton.setVisibility(View.VISIBLE);
+                } else {
+                    //Nothhing was found
+                    onCreateDialog();
+                }
+
+                saveData();
+                progressdialog.dismiss();
+
+
             }
 
             @Override
-            public void onFailure(Call<Sizes> call, Throwable t) {
-                Toast.makeText(getContext(), "ex", Toast.LENGTH_SHORT).show();
+            public void onFailure(Call<List<Attractors>> call, Throwable t) {
+                Log.d("Errorget", "Attrf" + t.getMessage());
+                progressdialog.dismiss();
             }
+
+
         });
-
-
     }
 
     public void getPsuedo() {
@@ -530,7 +499,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.1.117:3000/")
+                .baseUrl("http://api.randonauts.com/")
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -654,7 +623,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
                     @Override
                     public void onFailure(Call<List<Psuedo>> call, Throwable t) {
-
+                        progressdialog.dismiss();
                     }
                 });
 
@@ -869,9 +838,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
     }
 
 
-//Testing
-
-
     SendMessage SM;
 
     interface SendMessage {
@@ -910,7 +876,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
         // Create the observer which updates the UI.
 
-        bitTextView = (TextView) reportDialog.findViewById(R.id.bitTextView);
+        //bitTextView = (TextView) reportDialog.findViewById(R.id.bitTextView);
 
         //rng.getLiveBoolean().observe(this,  nameObserver);;
         //rng.getLiveByte().observe(reportDialog.getContext()) {
@@ -985,11 +951,15 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
             @Override
             public void onClick(View v) {
                 if (PsuedoToggleButton.isChecked()) {
+                    preferencesDialog.cancel();
                     getPsuedo();
-                    preferencesDialog.cancel();
+                //    setRngPreferencesDialog(PsuedoToggleButton);
+
                 } else {
-                    getAttractors();
+                    //getAttractors();
                     preferencesDialog.cancel();
+                    setRngPreferencesDialog();
+
                 }
             }
         });
@@ -1029,6 +999,315 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
     }
 
+    public void setRngPreferencesDialog(){
+        preferencesDialog = new Dialog(getActivity());
+        preferencesDialog.setContentView(R.layout.dialog_rngpreferences);
+        preferencesDialog.setTitle("Preferences");
+
+        //Buttons
+        Button start = (Button) preferencesDialog.findViewById(R.id.RNGpreferencesDialogStartButton);
+        Button cancel = (Button) preferencesDialog.findViewById(R.id.RNGpreferencesDialogCancelButton);
+
+        //Toggle Buttons
+        QuantumToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.AnuToggleButton);
+        PoolToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.PoolToggleButton);
+        GCPToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.gcpToggleButton);
+        CameraToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.cmrngToggleButton);
+
+        preferencesDialog.show();
+
+        //Set Attractor as default button
+        QuantumToggleButton.setChecked(true);
+
+        //Check for click
+        QuantumToggleButton.setOnCheckedChangeListener(RNGchangeChecker);
+        PoolToggleButton.setOnCheckedChangeListener(RNGchangeChecker);
+        GCPToggleButton.setOnCheckedChangeListener(RNGchangeChecker);
+        CameraToggleButton.setOnCheckedChangeListener(RNGchangeChecker);
+
+        start.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                if (QuantumToggleButton.isChecked()) {
+                    preferencesDialog.cancel();
+                    getANUQuantumEntropy();
+                } else if (PoolToggleButton.isChecked()) {
+                    preferencesDialog.cancel();
+                    poolQuantumEntropy();
+                } else if (CameraToggleButton.isChecked()) {
+                    preferencesDialog.cancel();
+                    setQuantumEntropy();
+                } else if (GCPToggleButton.isChecked()) {
+                    preferencesDialog.cancel();
+                    getGCPEntropy();
+                }
+            }
+        });
+        cancel.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                preferencesDialog.cancel();
+
+            }
+
+        });
+
+
+    }
+
+    public void getANUQuantumEntropy(){
+
+        //Start ProgressDialog
+        progressdialog = new ProgressDialog(getActivity());
+        progressdialog.setMessage("Getting quantum entropy. please wait....");
+        progressdialog.show();
+        progressdialog.setCancelable(false);
+        progressdialog.setCanceledOnTouchOutside(false);
+
+        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+                .connectTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
+                .writeTimeout(20, TimeUnit.SECONDS)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://devapi.randonauts.com/")
+                .client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        randoWrapperApi = retrofit.create(RandoWrapperApi.class);
+
+        Call<Sizes> callGetSizes = randoWrapperApi.getSizes(distance);
+
+        callGetSizes.enqueue(new Callback<Sizes>() {
+            @Override
+            public void onResponse(Call<Sizes> call, Response<Sizes> response) {
+                Type = response.body().getType();
+                N = response.body().getN();
+                spot = response.body().getSpot();
+                hexsize = response.body().getHexsize();
+
+                Call<Entropy> callGetEntropy = randoWrapperApi.getEntropy(hexsize, false, false);
+
+                callGetEntropy.enqueue(new Callback<Entropy>() {
+                    @Override
+                    public void onResponse(Call<Entropy> call, Response<Entropy> response) {
+                        GID = response.body().getGid();
+                        Log.d("Errorget", ""+GID);
+                        entropy = entropy + hexsize;
+                        saveData();
+                        progressdialog.dismiss();
+                        //getAttractors(false);
+                        getAttractors(false);
+                    }
+                    @Override
+                    public void onFailure(Call<Entropy> call, Throwable t) {
+                        Log.d("Errorget", t.getMessage());
+                        progressdialog.dismiss();
+                    }
+                });
+            }
+            @Override
+            public void onFailure(Call<Sizes> call, Throwable t) {
+                Toast.makeText(getContext(), "ex", Toast.LENGTH_SHORT).show();
+                progressdialog.dismiss();
+            }
+        });
+
+
+
+    }
+
+    public void getGCPEntropy(){
+
+        //Start ProgressDialog
+        progressdialog = new ProgressDialog(getActivity());
+        progressdialog.setMessage("Getting GCP entropy. please wait....");
+        progressdialog.show();
+        progressdialog.setCancelable(false);
+        progressdialog.setCanceledOnTouchOutside(false);
+
+        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+                .connectTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
+                .writeTimeout(20, TimeUnit.SECONDS)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://devapi.randonauts.com")
+                .client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        randoWrapperApi = retrofit.create(RandoWrapperApi.class);
+
+        Call<Sizes> callGetSizes = randoWrapperApi.getSizes(distance);
+
+        callGetSizes.enqueue(new Callback<Sizes>() {
+            @Override
+            public void onResponse(Call<Sizes> call, Response<Sizes> response) {
+                Type = response.body().getType();
+                N = response.body().getN();
+                spot = response.body().getSpot();
+                hexsize = response.body().getHexsize();
+
+                Call<Entropy> callGetEntropy = randoWrapperApi.getEntropy(hexsize, false, true);
+
+                callGetEntropy.enqueue(new Callback<Entropy>() {
+                    @Override
+                    public void onResponse(Call<Entropy> call, Response<Entropy> response) {
+                        GID = response.body().getGid();
+                        Log.d("Errorget", ""+GID);
+                        entropy = entropy + hexsize;
+                        saveData();
+                        progressdialog.dismiss();
+                        //getAttractors(false);
+                        getAttractors(false);
+                    }
+                    @Override
+                    public void onFailure(Call<Entropy> call, Throwable t) {
+                        Log.d("Errorget", t.getMessage());
+                        progressdialog.dismiss();
+                    }
+                });
+            }
+            @Override
+            public void onFailure(Call<Sizes> call, Throwable t) {
+                Toast.makeText(getContext(), "ex", Toast.LENGTH_SHORT).show();
+                progressdialog.dismiss();
+            }
+        });
+
+
+
+    }
+
+    public void setQuantumEntropy(){
+        SM.rng(); //Starts camRNG instance fragment
+
+        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://192.168.1.117:3000/")
+                .client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        randoWrapperApi = retrofit.create(RandoWrapperApi.class);
+
+        Call<Sizes> callGetSizes = randoWrapperApi.getSizes(distance);
+
+        callGetSizes.enqueue(new Callback<Sizes>() {
+            @Override
+            public void onResponse(Call<Sizes> call, Response<Sizes> response) {
+                Type = response.body().getType();
+                N = response.body().getN();
+                spot = response.body().getSpot();
+                hexsize = response.body().getHexsize();
+
+                Call<Entropy> callGetEntropy = randoWrapperApi.getEntropy(hexsize, false, false);
+
+                callGetEntropy.enqueue(new Callback<Entropy>() {
+                    @Override
+                    public void onResponse(Call<Entropy> call, Response<Entropy> response) {
+                        GID = response.body().getGid();
+                        entropy = entropy + hexsize;
+                        saveData();
+                        getAttractors(false);
+                    }
+                    @Override
+                    public void onFailure(Call<Entropy> call, Throwable t) {
+                        Log.d("Errorget", t.getMessage());
+                    }
+                });
+            }
+            @Override
+            public void onFailure(Call<Sizes> call, Throwable t) {
+                Toast.makeText(getContext(), "ex", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+
+    }
+
+    //POOLS ARE NOT SELECTED RANDOMLY, INTEGER IS THE SAME ON STARTUP!!!
+    public void poolQuantumEntropy(){
+        //Start ProgressDialog
+        progressdialog = new ProgressDialog(getActivity());
+        progressdialog.setMessage("Getting pool quantum entropy. please wait....");
+        progressdialog.show();
+        progressdialog.setCancelable(false);
+        progressdialog.setCanceledOnTouchOutside(false);
+
+        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://devapi.randonauts.com/")
+                .client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        randoWrapperApi = retrofit.create(RandoWrapperApi.class);
+
+
+        Call<List<Pools>> callGetPools = randoWrapperApi.getPools();
+
+        Call<Sizes> callGetSizes = randoWrapperApi.getSizes(distance);
+
+        callGetPools.enqueue(new Callback<List<Pools>>() {
+
+            @Override
+            public void onResponse(Call<List<Pools>> call, Response<List<Pools>> response) {
+
+                int count = 0;
+                int current = 0;
+                int amount = 0;
+
+                for(Pools pool: response.body()){
+                    count ++;
+                }
+
+                int randomNum = 0;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                    randomNum = ThreadLocalRandom.current().nextInt(0, count);
+                } else {
+                    randomNum = 2;
+                }
+                Log.d("advd", ""+count);
+                Log.d("advd", ""+randomNum);
+                for(Pools pools: response.body()){
+                    if(current == randomNum){
+
+                        GID = pools.getPool().substring(0, (pools.getPool().length() -5));
+                        Log.d("advd", GID);
+
+                        saveData();
+                        progressdialog.dismiss();
+                        getAttractors(true);
+                        //Size is not yet implemented, so use entire pool.
+                    }
+                    current++;
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Pools>> call, Throwable t) {
+                Log.d("Errorget", t.getMessage());
+                progressdialog.dismiss();
+            }
+        });
+    }
+
     CompoundButton.OnCheckedChangeListener changeChecker = new CompoundButton.OnCheckedChangeListener() {
 
         @Override
@@ -1062,6 +1341,34 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         }
     };
 
+    CompoundButton.OnCheckedChangeListener RNGchangeChecker = new CompoundButton.OnCheckedChangeListener() {
+
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            if (isChecked){
+                if (buttonView == QuantumToggleButton) {
+                    PoolToggleButton.setChecked(false);
+                    CameraToggleButton.setChecked(false);
+                    GCPToggleButton.setChecked(false);
+                }
+                if (buttonView == PoolToggleButton) {
+                    QuantumToggleButton.setChecked(false);
+                    CameraToggleButton.setChecked(false);
+                    GCPToggleButton.setChecked(false);
+                }
+                if (buttonView == CameraToggleButton) {
+                    QuantumToggleButton.setChecked(false);
+                    PoolToggleButton.setChecked(false);
+                    GCPToggleButton.setChecked(false);
+                }
+                if (buttonView == GCPToggleButton) {
+                    QuantumToggleButton.setChecked(false);
+                    PoolToggleButton.setChecked(false);
+                    CameraToggleButton.setChecked(false);
+                }
+            }
+        }
+    };
 
     //Shared preferences
 
@@ -1306,7 +1613,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(getContext())) {
 
-
             LocationComponentOptions locationComponentOptions = LocationComponentOptions.builder(getContext())
                     .accuracyAnimationEnabled(true)
                     .build();
@@ -1346,8 +1652,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
             permissionsManager.requestLocationPermissions(getActivity());
         }
     }
-
-
 
 
     //Mapbox Route generation (works but not yet used)

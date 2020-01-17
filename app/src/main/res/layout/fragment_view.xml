@@ -8,6 +8,8 @@
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tablayout"
         android:layout_width="match_parent"
+        app:tabSelectedTextColor="@color/listSelected"
+        app:tabTextColor="@color/tabsColorNotSelected"
         android:layout_height="wrap_content" />
 
     <androidx.viewpager.widget.ViewPager
@@ -15,6 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
+
 
 
 </LinearLayout>

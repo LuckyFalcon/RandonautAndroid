@@ -16,4 +16,10 @@
 
     <color name="navSelected">#000000</color>
     <color name="navNotSelected">#000000</color>
+
+    <color name="profileGreen">#00574B</color>
+    <color name="profileRed">#D81B60</color>
+
+    <color name="listSelected">#3CB8EB</color>
+    <color name="tabsColorNotSelected">#444343</color>
 </resources>

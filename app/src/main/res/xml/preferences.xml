@@ -3,10 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <SwitchPreferenceCompat
-        app:key="notifications"
-        app:title="Enable message notifications"/>
-
-    <SwitchPreferenceCompat
         app:key="enableDarkMode"
         app:title="Enable dark mode" />
 
@@ -19,19 +15,13 @@
     <SwitchPreferenceCompat
         android:visibility="visible"
         app:key="enableAds"
-        app:summary="Enables advertisements to support the project"
-        app:title="Enable ads" />
-
-    <SwitchPreferenceCompat
-        android:visibility="visible"
-        app:key="enableAds"
-        app:summary="Enable random points to McDonald's restaurants to be generated"
+        app:summary="Enable random points to McDondalds restaurants to be generated. (Coming soon)"
         app:title="Enable Randonalds" />
 
     <SwitchPreferenceCompat
         android:visibility="visible"
         app:key="enableSend"
-        app:summary="Enables the sending of attractor data to stored and analyzed"
+        app:summary="Enables the sending of attractor data to stored and analyzed (Coming soon)"
         app:title="Send attractor data" />
 
     <Preference

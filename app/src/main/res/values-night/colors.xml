@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#333333</color>
-    <color name="colorPrimaryDark">#404040</color>
+    <color name="colorPrimaryDark">#02404040</color>
     <color name="colorAccent">#9C27B0</color>
 
     <color name="colorBackground">#666666</color>
@@ -16,4 +16,10 @@
 
     <color name="navSelected">#ffffff</color>
     <color name="navNotSelected">#ffffff</color>
+
+    <color name="profileGreen">#00574B</color>
+    <color name="profileRed">#D81B60</color>
+
+    <color name="listSelected">#9C27B0</color>
+    <color name="tabsColorNotSelected">#ffffff</color>
 </resources>

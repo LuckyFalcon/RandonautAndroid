@@ -40,7 +40,7 @@ public class MyBotFragment extends Fragment {
             });
 
             //Set webView url
-            botWebView.loadUrl("https://devbot.randonauts.com/");
+            botWebView.loadUrl("https://bot.randonauts.com/");
 
         }
 
