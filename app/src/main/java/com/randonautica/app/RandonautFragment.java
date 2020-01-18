@@ -252,7 +252,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         waterPointsEnabled = sharedPreferences.getBoolean("enableWaterPoints", false);
 
             startButton = (Button) view.findViewById(R.id.startButton);
-            navigateButton = (Button) view.findViewById(R.id.startNavigation);
+           // navigateButton = (Button) view.findViewById(R.id.startNavigation);
             resetButton = (Button) view.findViewById(R.id.resetRandonaut);
 
             startButton.setOnClickListener(new View.OnClickListener() {
@@ -266,20 +266,20 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                 }
             });
 
-            navigateButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    setPreferencesAlertDialog();
-
-                }
-
-            });
+//            navigateButton.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    setPreferencesAlertDialog();
+//
+//                }
+//
+//            });
 
             resetButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     resetRandonaut();
-                    navigateButton.setVisibility(View.GONE);
+                  //  navigateButton.setVisibility(View.GONE);
                     resetButton.setVisibility(View.GONE);
                     startButton.setVisibility(View.VISIBLE);
                 }
@@ -329,7 +329,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         initRecyclerView();
 
         startButton.setVisibility(View.GONE);
-        navigateButton.setVisibility(View.VISIBLE);
+       // navigateButton.setVisibility(View.VISIBLE);
         resetButton.setVisibility(View.VISIBLE);
     }
 
@@ -348,20 +348,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         progressdialog.show();
         progressdialog.setCancelable(false);
         progressdialog.setCanceledOnTouchOutside(false);
-
-//        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
-//                .connectTimeout(60, TimeUnit.SECONDS)
-//                .readTimeout(60, TimeUnit.SECONDS)
-//                .writeTimeout(60, TimeUnit.SECONDS)
-//                .build();
-
-//        Retrofit retrofit = new Retrofit.Builder()
-//                .baseUrl("http://192.168.1.117:3000/")
-//                .client(okHttpClient)
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .build();
-
-        //randoWrapperApi = retrofit.create(RandoWrapperApi.class);
 
         Call<List<Attractors>> callGetAttractors = randoWrapperApi.getAttractors(GID,
                                 mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), distance, pool);
@@ -455,7 +441,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                 if(amount > 0){
                     initRecyclerView();
                     startButton.setVisibility(View.GONE);
-                    navigateButton.setVisibility(View.VISIBLE);
+                   // navigateButton.setVisibility(View.VISIBLE);
                     resetButton.setVisibility(View.VISIBLE);
                 } else {
                     //Nothhing was found
@@ -608,7 +594,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                         if(amount > 0){
                             initRecyclerView();
                             startButton.setVisibility(View.GONE);
-                            navigateButton.setVisibility(View.VISIBLE);
+                         //   navigateButton.setVisibility(View.VISIBLE);
                             resetButton.setVisibility(View.VISIBLE);
                         } else {
                             //Nothhing was found
@@ -916,7 +902,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
     public void setPreferencesAlertDialog(){
         preferencesDialog = new Dialog(getActivity());
         preferencesDialog.setContentView(R.layout.dialog_preferences);
-        preferencesDialog.setTitle("Preferences");
+        preferencesDialog.setTitle("Generate");
 
         distance = 3000;
 
@@ -1002,7 +988,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
     public void setRngPreferencesDialog(){
         preferencesDialog = new Dialog(getActivity());
         preferencesDialog.setContentView(R.layout.dialog_rngpreferences);
-        preferencesDialog.setTitle("Preferences");
+        preferencesDialog.setTitle("Select RNG");
 
         //Buttons
         Button start = (Button) preferencesDialog.findViewById(R.id.RNGpreferencesDialogStartButton);
