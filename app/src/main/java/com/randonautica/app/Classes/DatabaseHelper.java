@@ -23,6 +23,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COL5 = "radiusm";
     private static final String COL6 = "z_score";
     private static final String COL7 = "pseudo";
+    private static final String COL8 = "gid";
+    private static final String COL9 = "report";
 
     public DatabaseHelper(Context context, String table) {
         super(context, table, null, 1);
@@ -38,7 +40,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL4 + " FLOAT, " +
                 COL5 + " FLOAT, " +
                 COL6 + " FLOAT, " +
-                COL7 + " BIT)";
+                COL7 + " BIT,   " +
+                COL8+  " TEXT,   " +
+                COL9 + " BIT)";
 
         String createTable2 = "CREATE TABLE " + voidTable  + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COL1 + " INT, " +
@@ -71,7 +75,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public boolean addData(String table, int type, double power, double x, double y, double radiusm, double z_score, double pseudo) {
+    public boolean addData(String table, int type, double power, double x, double y, double radiusm, double z_score, double pseudo, String gid, int report) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL1, type);
@@ -81,6 +85,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COL5, radiusm);
         contentValues.put(COL6, z_score);
         contentValues.put(COL7, pseudo);
+        contentValues.put(COL8, gid);
+        contentValues.put(COL9, report);
 
         Log.d(TAG, "addData: Adding " + type + " to " + table);
 
@@ -93,13 +99,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    public boolean setReport(String table, int id){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "UPDATE " + table + " SET " + COL9 + " = " + " 1 " + "WHERE " + COL0 + " = " + id;
+        ContentValues cv = new ContentValues();
+        cv.put("report", "1");
+        long result = db.update(table, cv, "id=" + id, null);
+        if (result == -1){
+            return false;
+        } else {
+            return true;
+        }
+
+    }
+
 
     public Cursor getData(String table){
         SQLiteDatabase db = this.getWritableDatabase();
         String query = "SELECT * FROM " + table + " ORDER BY " + COL0 + " DESC" + " LIMIT 10";
         Cursor data = db.rawQuery(query, null);
         return data;
-
     }
+
 
 }

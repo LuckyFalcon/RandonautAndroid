@@ -42,7 +42,7 @@
         />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/startNavigation"
+        android:id="@+id/reportButton"
         style="@style/Widget.MaterialComponents.Button"
         android:layout_width="336dp"
         android:layout_height="wrap_content"

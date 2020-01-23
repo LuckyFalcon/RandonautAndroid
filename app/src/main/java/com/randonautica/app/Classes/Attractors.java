@@ -11,13 +11,26 @@ public class Attractors {
     }
 
     public class atts {
+
+        private String GID;
+
+        private String TID;
+
+        private String LID;
+
         private int type;
 
-        private double radiusM;
+        private double x;
 
-        private double power;
+        private double y;
 
-        private double z_score;
+        public double getX() {
+            return x;
+        }
+
+        public double getY() {
+            return y;
+        }
 
         public int getType() {
             return type;
@@ -52,6 +65,7 @@ public class Attractors {
             public class Latlng{
 
                 private Point point;
+                private Bearting bearting;
 
                 public Point getPoint() {
                     return point;
@@ -71,8 +85,114 @@ public class Attractors {
                     }
                 }
 
-            }
+                public Bearting getBearting() {
+                    return bearting;
+                }
 
+                public class Bearting {
+
+                    private double distance;
+                    private double initialBearing;
+                    private double finalBearing;
+
+                    public double getDistance() {
+                        return distance;
+                    }
+
+                    public double getInitialBearing() {
+                        return initialBearing;
+                    }
+
+                    public double getFinalBearing() {
+                        return finalBearing;
+                    }
+                }
+
+            }
+        }
+
+        private int side;
+
+        private double distanceErr;
+
+        private double radiusM;
+
+        private int N;
+
+        private double mean;
+
+        private int rarity;
+
+        private double power_old;
+
+        private double power;
+
+        private double z_score;
+
+        private double probability_single;
+
+        private double integral_score;
+
+        private double significance;
+
+        private double probability;
+
+        private int FILTERING_SIGNIFICANCE;
+
+        public String getGID() {
+            return GID;
+        }
+
+        public String getTID() {
+            return TID;
+        }
+
+        public String getLID() {
+            return LID;
+        }
+
+        public int getSide() {
+            return side;
+        }
+
+        public double getDistanceErr() {
+            return distanceErr;
+        }
+
+        public int getN() {
+            return N;
+        }
+
+        public double getMean() {
+            return mean;
+        }
+
+        public int getRarity() {
+            return rarity;
+        }
+
+        public double getPower_old() {
+            return power_old;
+        }
+
+        public double getProbability_single() {
+            return probability_single;
+        }
+
+        public double getIntegral_score() {
+            return integral_score;
+        }
+
+        public double getSignificance() {
+            return significance;
+        }
+
+        public double getProbability() {
+            return probability;
+        }
+
+        public int getFILTERING_SIGNIFICANCE() {
+            return FILTERING_SIGNIFICANCE;
         }
     }
 }

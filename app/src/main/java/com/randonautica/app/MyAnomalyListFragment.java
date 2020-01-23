@@ -1,6 +1,7 @@
 package com.randonautica.app;
 
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -19,6 +20,8 @@ import androidx.fragment.app.Fragment;
 
 import com.randonautica.app.Classes.Attractor;
 import com.randonautica.app.Classes.DatabaseHelper;
+import com.randonautica.app.Classes.RandoWrapperApi;
+import com.randonautica.app.Classes.Sizes;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -32,9 +35,16 @@ import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
+import retrofit2.Call;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MyAnomalyListFragment extends Fragment {
 
+    ProgressDialog progressdialog;
 
     //Store attractors
     JSONObject attractorObj = new JSONObject();
@@ -48,6 +58,7 @@ public class MyAnomalyListFragment extends Fragment {
 
     DatabaseHelper mDatabaseHelper;
 
+    private RandoWrapperApi randoWrapperApi;
 
     String anomalyTable = "Anomalies";
 
@@ -165,30 +176,32 @@ public class MyAnomalyListFragment extends Fragment {
         reportDialog.show();
     }
 
-    private String read(Context context, String fileName) {
-        try {
-            FileInputStream fis = context.openFileInput(fileName);
-            InputStreamReader isr = new InputStreamReader(fis);
-            BufferedReader bufferedReader = new BufferedReader(isr);
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                sb.append(line);
-            }
-            return sb.toString();
-        } catch (FileNotFoundException fileNotFound) {
-            return null;
-        } catch (IOException ioException) {
-            return null;
-        }
-    }
+    public void sendReport() {
 
-    public boolean isFilePresent(Context context, String fileName) {
-        String path = context.getFilesDir().getAbsolutePath() + "/" + fileName;
-        File file = new File(path);
-        return file.exists();
-    }
+        //Start ProgressDialog
+        progressdialog = new ProgressDialog(getActivity());
+        progressdialog.setMessage("Getting GCP entropy. please wait....");
+        progressdialog.show();
+        progressdialog.setCancelable(false);
+        progressdialog.setCanceledOnTouchOutside(false);
 
+        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+                .connectTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
+                .writeTimeout(20, TimeUnit.SECONDS)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://api.randonauts.com")
+                .client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        randoWrapperApi = retrofit.create(RandoWrapperApi.class);
+
+        //Call<Sizes> callGetSizes = randoWrapperApi.getSizes(distance);
+
+    }
 
 }
 

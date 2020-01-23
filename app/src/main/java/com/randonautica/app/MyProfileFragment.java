@@ -22,14 +22,16 @@ public class MyProfileFragment extends Fragment {
     private long anomalies;
     private long entropy;
     private long reports;
+    private View view;
 
     private static DecimalFormat df2 = new DecimalFormat("#.##");
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         getActivity().setTitle("Profile");
         loadData();
+        view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        return inflater.inflate(R.layout.fragment_profile, container, false);
+        return view;
     }
 
     @Override
@@ -37,12 +39,12 @@ public class MyProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Set textviews
-        TextView Attractors = (TextView)getActivity().findViewById(R.id.tv1);
-        TextView Voids = (TextView)getActivity().findViewById(R.id.tv2);
-        TextView Psuedo = (TextView)getActivity().findViewById(R.id.tv3);
-        TextView Anomalies = (TextView)getActivity().findViewById(R.id.tv4);
-        TextView Entropy = (TextView)getActivity().findViewById(R.id.tv5);
-        TextView Reports = (TextView)getActivity().findViewById(R.id.tv6);
+        TextView Attractors = (TextView) view.findViewById(R.id.tv1);
+        TextView Voids = (TextView) view.findViewById(R.id.tv2);
+        TextView Psuedo = (TextView) view.findViewById(R.id.tv3);
+        TextView Anomalies = (TextView) view.findViewById(R.id.tv4);
+        TextView Entropy = (TextView) view.findViewById(R.id.tv5);
+        TextView Reports = (TextView) view.findViewById(R.id.tv6);
 
         Double envtropy = Double.valueOf(entropy);
         String totalEntropyGenerated = df2.format((envtropy/1000000))+"M";

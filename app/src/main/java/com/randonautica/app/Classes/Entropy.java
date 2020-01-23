@@ -20,4 +20,3 @@ public class Entropy {
         return Gid;
     }
 }
-

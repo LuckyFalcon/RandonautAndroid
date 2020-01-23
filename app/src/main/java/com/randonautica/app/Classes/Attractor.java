@@ -10,6 +10,8 @@ public class Attractor {
     public String x;
     public String y;
     public String pseudo;
+    public String gid;
+    public String report;
 
     public String getType() {
         return type;
@@ -41,6 +43,14 @@ public class Attractor {
 
     public String getPseudo() {
         return pseudo;
+    }
+
+    public String getGid() {
+        return gid;
+    }
+
+    public String getReport() {
+        return report;
     }
 
 }

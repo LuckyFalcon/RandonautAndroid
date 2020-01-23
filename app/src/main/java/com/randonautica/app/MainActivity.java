@@ -14,13 +14,21 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.google.android.material.navigation.NavigationView;
 
+import java.util.UUID;
+
 public class MainActivity extends AppCompatActivity implements RandonautFragment.SendMessage, MyAttractorsListFragment.SendMessage, NavigationView.OnNavigationItemSelectedListener  {
+
+
     private DrawerLayout drawer;
     private String tag;
+
+    private NavigationView navigationView;
 
     private FragmentManager fragmentManager;
 
@@ -46,6 +54,12 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
 
         drawer.addDrawerListener(toggle);
         toggle.syncState();
+
+
+        //UserID
+        String uniqueID = UUID.randomUUID().toString();
+
+        Log.d("test", ""+uniqueID);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                 new RandonautFragment(), "randonaut")
@@ -129,6 +143,8 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
         RandonautFragment randonautfragment = (RandonautFragment) fragmentManager.findFragmentByTag(tag);
         randonautfragment.onShowProfileAttractors(type, power, x, y, radiusm, z_score, pseudo);
 
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setCheckedItem(R.id.nav_randonaut);
         //Check if ram doesn't double each time and this actually resets the randonauts fragment
         fragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, randonautfragment, tag)
