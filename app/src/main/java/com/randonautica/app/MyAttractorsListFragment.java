@@ -203,7 +203,7 @@ public class MyAttractorsListFragment extends Fragment {
             return convertView;
         }
 
-        public void setReportAlertDialog(final int position, final Button showButton) {
+        public void setReportAlertDialog(final int position, final Button button) {
             reportDialog = new Dialog(getActivity());
             final ArrayList<String> ar = new ArrayList<String>();
             reportDialog.requestWindowFeature(Window.FEATURE_NO_TITLE); //before
@@ -233,7 +233,7 @@ public class MyAttractorsListFragment extends Fragment {
                     rQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
 
                     if (currentQeustion[0] == 3) {
-                        reportDialogWindowIntent(currentQeustion, position, showButton, ar);
+                        reportDialogWindowIntent(currentQeustion, position, button, ar);
                         qeustionViewScore.setText("Question " + (currentQeustion[0] + 1) + "/9");
 
                     } else {
@@ -253,7 +253,7 @@ public class MyAttractorsListFragment extends Fragment {
                     if (currentQeustion[0] == 3) {
                         ar.add("0");
                         reportDialog.setContentView(R.layout.dialog_qeustionreportwindow);
-                        reportDialogWindow(currentQeustion, position, showButton, ar);
+                        reportDialogWindow(currentQeustion, position, button, ar);
                         qeustionViewScore.setText("Question " + (currentQeustion[0] + 1) + "/9");
                     } else {
                         currentQeustion[0]++;
@@ -267,7 +267,7 @@ public class MyAttractorsListFragment extends Fragment {
             reportDialog.show();
         }
 
-        public void reportDialogWindowIntent(final int[] currentQeustion, final int position, final Button showButton, final ArrayList<String> ar) {
+        public void reportDialogWindowIntent(final int[] currentQeustion, final int position, final Button button, final ArrayList<String> ar) {
             reportDialog.setContentView(R.layout.dialog_intentinput);
             final EditText userInput = (EditText) reportDialog.findViewById(R.id.editIntent);
 
@@ -279,7 +279,7 @@ public class MyAttractorsListFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     ar.add(userInput.getText().toString());
-                    reportDialogWindow(currentQeustion, position, showButton, ar);
+                    reportDialogWindow(currentQeustion, position, button, ar);
                 }
             });
             //Button listener for skipButton
@@ -287,7 +287,7 @@ public class MyAttractorsListFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     ar.add("Skipped");
-                    reportDialogWindow(currentQeustion, position, showButton, ar);
+                    reportDialogWindow(currentQeustion, position, button, ar);
                 }
             });
 
@@ -297,8 +297,7 @@ public class MyAttractorsListFragment extends Fragment {
 
 
 
-        public void reportDialogWindow(final int[] currentQeustion, final int position, final Button showButton, final ArrayList<String> ar){
-            Log.d("Test", ""+ar);
+        public void reportDialogWindow(final int[] currentQeustion, final int position, final Button button, final ArrayList<String> ar){
             reportDialog.setContentView(R.layout.dialog_qeustionreportwindow);
             final ReportQuestions rReportQuestions = new ReportQuestions();
             final TextView wQuestionView;
@@ -323,13 +322,12 @@ public class MyAttractorsListFragment extends Fragment {
 
                     if(currentQeustion[0] == 8){
                         ar.add(windowButton1.getText().toString());
-                        reportDialogInput(position, showButton, ar);
+                        reportDialogInput(position, button, ar);
                     } else {
                         ar.add(windowButton1.getText().toString());
                         wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
                         updateAnwserButtons(windowButton1, windowButton2, windowButton3, windowButton4, windowButton5, windowButton6, currentQeustion, rReportQuestions);
                         qeustionViewScore.setText("Question " + (currentQeustion[0] + 2) + "/9");
-                        Log.d("Test", ""+ar);
                     }
                 }
             });
@@ -340,7 +338,7 @@ public class MyAttractorsListFragment extends Fragment {
                     currentQeustion[0]++;
                     if(currentQeustion[0] == 8){
                         ar.add(windowButton2.getText().toString());
-                        reportDialogInput(position, showButton, ar);
+                        reportDialogInput(position, button, ar);
                     } else {
                         ar.add(windowButton2.getText().toString());
                         wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
@@ -356,7 +354,7 @@ public class MyAttractorsListFragment extends Fragment {
                     currentQeustion[0]++;
                     if(currentQeustion[0] == 8){
                         ar.add(windowButton3.getText().toString());
-                        reportDialogInput(position, showButton, ar);
+                        reportDialogInput(position, button, ar);
                     } else {
                         ar.add(windowButton3.getText().toString());
                         wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
@@ -373,7 +371,7 @@ public class MyAttractorsListFragment extends Fragment {
                     currentQeustion[0]++;
                     if(currentQeustion[0] == 8){
                         ar.add(windowButton4.getText().toString());
-                        reportDialogInput(position, showButton, ar);
+                        reportDialogInput(position, button, ar);
                     } else {
                     ar.add(windowButton4.getText().toString());
                     wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
@@ -389,7 +387,7 @@ public class MyAttractorsListFragment extends Fragment {
                     currentQeustion[0]++;
                     if(currentQeustion[0] == 8){
                         ar.add(windowButton5.getText().toString());
-                        reportDialogInput(position, showButton, ar);
+                        reportDialogInput(position, button, ar);
                     } else {
                         ar.add(windowButton5.getText().toString());
                         wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
@@ -406,7 +404,7 @@ public class MyAttractorsListFragment extends Fragment {
                     currentQeustion[0]++;
                     if(currentQeustion[0] == 8){
                         ar.add(rReportQuestions.getbutton2Anwser(5));
-                        reportDialogInput(position, showButton, ar);
+                        reportDialogInput(position, button, ar);
                     } else {
                         ar.add(windowButton6.getText().toString());
                         wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
@@ -419,10 +417,9 @@ public class MyAttractorsListFragment extends Fragment {
 
         }
 
-        public void reportDialogInput(final int position, final Button showButton, final ArrayList<String> ar){
+        public void reportDialogInput(final int position, final Button button, final ArrayList<String> ar){
             reportDialog.setContentView(R.layout.dialog_textinput);
             final JSONObject obj = new JSONObject();
-            Log.d("Test", ""+ar);
             final ReportQuestions rReportQuestions = new ReportQuestions();
             final EditText userInput = (EditText) reportDialog.findViewById(R.id.editText2);
             final Button sendReportButton = (Button) reportDialog.findViewById(R.id.sendReportButton);
@@ -509,8 +506,7 @@ public class MyAttractorsListFragment extends Fragment {
                         {
                             try
                             {
-                                //get your response....
-                                Log.d("Testpost", "RetroFit2.0 :RetroGetLogin: " + rawResponse);
+                                button.setVisibility(View.GONE);
                                 onCreateDialog();
                             }
                             catch (Exception e)
@@ -529,7 +525,6 @@ public class MyAttractorsListFragment extends Fragment {
                     mDatabaseHelper.setReport("Attractors", Integer.valueOf(getItem(position).getId()));
                     //post req here
 
-                    Log.d("Test", ""+ar);
                     reportDialog.cancel();
                 }
             });
@@ -570,6 +565,7 @@ public class MyAttractorsListFragment extends Fragment {
     public void updateAnwserButtons(Button windowButton1, Button windowButton2, Button windowButton3,
                                     Button windowButton4, Button windowButton5, Button windowButton6,
                                     final int[] currentQeustion, final ReportQuestions rReportQuestions ){
+
         if(currentQeustion[0] == 4){
             windowButton1.setText(rReportQuestions.getbutton2Anwser(0));
             windowButton2.setText(rReportQuestions.getbutton2Anwser(1));
@@ -584,12 +580,16 @@ public class MyAttractorsListFragment extends Fragment {
             windowButton2.setText(rReportQuestions.getbutton3Anwser(1));
             windowButton3.setText(rReportQuestions.getbutton3Anwser(2));
             windowButton4.setText(rReportQuestions.getbutton3Anwser(3));
+            windowButton5.setText(rReportQuestions.getbutton3Anwser(4));
+            windowButton6.setText(rReportQuestions.getbutton3Anwser(5));
         }
         if(currentQeustion[0] == 6){
             windowButton1.setText(rReportQuestions.getbutton4Anwser(0));
             windowButton2.setText(rReportQuestions.getbutton4Anwser(1));
             windowButton3.setText(rReportQuestions.getbutton4Anwser(2));
             windowButton4.setText(rReportQuestions.getbutton4Anwser(3));
+            windowButton5.setText(rReportQuestions.getbutton4Anwser(4));
+            windowButton6.setText(rReportQuestions.getbutton4Anwser(5));
         }
         if(currentQeustion[0] == 7){
             windowButton1.setText(rReportQuestions.getbutton5Anwser(0));
@@ -597,6 +597,8 @@ public class MyAttractorsListFragment extends Fragment {
             windowButton3.setText(rReportQuestions.getbutton5Anwser(2));
             windowButton4.setText(rReportQuestions.getbutton5Anwser(3));
             windowButton5.setText(rReportQuestions.getbutton5Anwser(4));
+            windowButton5.setText(rReportQuestions.getbutton5Anwser(4));
+            windowButton6.setText(rReportQuestions.getbutton5Anwser(5));
 
         }
 

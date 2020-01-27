@@ -152,14 +152,6 @@ class Place implements Comparable<Place> {
         return z_score;
     }
 
-//    public Place(LatLng coordinate, int type, double radiusm, double power, double z_score) {
-//        this.coordinate = coordinate;
-//        this.type = type;
-//        this.radiusm = radiusm;
-//        this.power = power;
-//        this.z_score = z_score;
-//    }
-
     public Place(LatLng coordinate, String GID, String TID, String LID, double x, double y, double distance, double initialBearing, double finalBearing, int side, double distanceErr, double radiusM, int n, double mean, int rarity, double power_old, double probability_single, double integral_score, double significance, double probability, int FILTERING_SIGNIFICANCE, int type, double radiusm, double power, double z_score) {
         this.coordinate = coordinate;
         this.GID = GID;

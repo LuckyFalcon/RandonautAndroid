@@ -22,7 +22,6 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
@@ -332,7 +331,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
     /** all the generate attractor functions */
 
-    public void getAttractors(boolean pool){
+    public void getAttractors(boolean pool, boolean gcp){
 
         //Empty previous run
         locationList = new ArrayList<>();
@@ -347,7 +346,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         progressdialog.setCanceledOnTouchOutside(false);
 
         Call<List<Attractors>> callGetAttractors = randoWrapperApi.getAttractorsTest(GID,
-                mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), distance);
+                mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), distance, pool, gcp);
 
         callGetAttractors.enqueue(new Callback<List<Attractors>>() {
             @Override
@@ -404,7 +403,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                         LatLng center = new LatLng(x, y);
                         final PointF pixel = mapboxMap.getProjection().toScreenLocation(center);
                         List<Feature> features = mapboxMap.queryRenderedFeatures(pixel, "water");
-                        Log.d("water", "value: " + features);
                         if(!features.isEmpty()){
                             continue;
                         }
@@ -533,7 +531,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
                 //Check for anomaly
                 if(selected == "Anomalie"){
-                    Log.d("Anomaly", "f");
                     for (int c = count - 1; c > 0; c--) { //Start bubblesort
                         for (int j = 0; j < c; j++) {
                             if (places[j + 1] == null) {
@@ -549,7 +546,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                     for(i = 0; i < count; i++){
 
                         //Make databaseHelper
-                        mDatabaseHelper = new DatabaseHelper(getActivity(), attractorTable);
+                        mDatabaseHelper = new DatabaseHelper(getActivity(), anomalyTable);
 
                         //Generate Marker
                         mapboxMap.addMarker(new MarkerOptions()
@@ -627,7 +624,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
             @Override
             public void onFailure(Call<List<Attractors>> call, Throwable t) {
-                Log.d("Errorget", "Attrf" + t.getMessage());
                 progressdialog.dismiss();
             }
 
@@ -732,7 +728,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                                 LatLng center = new LatLng(x, y);
                                 final PointF pixel = mapboxMap.getProjection().toScreenLocation(center);
                                 List<Feature> features = mapboxMap.queryRenderedFeatures(pixel, "water");
-                                Log.d("water", "value: " + features);
                                 if (!features.isEmpty()) {
                                     continue;
                                 }
@@ -900,9 +895,9 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         boolean insertData = mDatabaseHelper.addData(table, x,  y,  GID,  TID,  LID,  x_,  y_,  distance,  initialBearing,  finalBearing,  side,  distanceErr,  radiusM,  n,  mean,  rarity,  power_old,  probability_single,  integral_score,  significance,  probability,  FILTERING_SIGNIFICANCE,  type,  radiusm,  power,  z_score, pseudo,  report);
 
         if (insertData){
-            Toast.makeText(getContext(), "succ", Toast.LENGTH_LONG).show();
+
         } else {
-            Toast.makeText(getContext(), "nosucc", Toast.LENGTH_LONG).show();
+
         }
     }
 
@@ -1103,22 +1098,20 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                     @Override
                     public void onResponse(Call<Entropy> call, Response<Entropy> response) {
                         GID = response.body().getGid();
-                        Log.d("Errorget", ""+GID);
                         entropy = entropy + hexsize;
                         saveData();
                         progressdialog.dismiss();
-                        getAttractors(false);
+                        getAttractors(false, false);
                     }
                     @Override
                     public void onFailure(Call<Entropy> call, Throwable t) {
-                        Log.d("Errorget", t.getMessage());
                         progressdialog.dismiss();
                     }
                 });
             }
             @Override
             public void onFailure(Call<Sizes> call, Throwable t) {
-                Toast.makeText(getContext(), "ex", Toast.LENGTH_SHORT).show();
+
                 progressdialog.dismiss();
             }
         });
@@ -1137,13 +1130,14 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         progressdialog.setCanceledOnTouchOutside(false);
 
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
-                .connectTimeout(20, TimeUnit.SECONDS)
-                .readTimeout(20, TimeUnit.SECONDS)
-                .writeTimeout(20, TimeUnit.SECONDS)
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(new String(Base64.decode(getBaseApi(),Base64.DEFAULT)))
+              //  .baseUrl(new String(Base64.decode(getBaseApi(),Base64.DEFAULT)))
+                .baseUrl("http://192.168.1.117:3000/")
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -1166,23 +1160,21 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                     @Override
                     public void onResponse(Call<Entropy> call, Response<Entropy> response) {
                         GID = response.body().getGid();
-                        Log.d("Errorget", ""+GID);
                         entropy = entropy + hexsize;
                         saveData();
                         progressdialog.dismiss();
                         //getAttractors(false);
-                        getAttractors(false);
+                        getAttractors(false, true);
                     }
                     @Override
                     public void onFailure(Call<Entropy> call, Throwable t) {
-                        Log.d("Errorget", t.getMessage());
                         progressdialog.dismiss();
                     }
                 });
             }
             @Override
             public void onFailure(Call<Sizes> call, Throwable t) {
-                Toast.makeText(getContext(), "ex", Toast.LENGTH_SHORT).show();
+
                 progressdialog.dismiss();
             }
         });
@@ -1226,17 +1218,17 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                         GID = response.body().getGid();
                         entropy = entropy + hexsize;
                         saveData();
-                        getAttractors(false);
+                        getAttractors(false, false);
                     }
                     @Override
                     public void onFailure(Call<Entropy> call, Throwable t) {
-                        Log.d("Errorget", t.getMessage());
+
                     }
                 });
             }
             @Override
             public void onFailure(Call<Sizes> call, Throwable t) {
-                Toast.makeText(getContext(), "ex", Toast.LENGTH_SHORT).show();
+
             }
         });
 
@@ -1260,7 +1252,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.randonauts.com/")
+                .baseUrl(new String(Base64.decode(getBaseApi(),Base64.DEFAULT)))
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -1291,17 +1283,17 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                 } else {
                     randomNum = 2;
                 }
-                Log.d("advd", ""+count);
-                Log.d("advd", ""+randomNum);
+
+
                 for(Pools pools: response.body()){
                     if(current == randomNum){
 
                         GID = pools.getPool().substring(0, (pools.getPool().length() -5));
-                        Log.d("advd", GID);
+
 
                         saveData();
                         progressdialog.dismiss();
-                        getAttractors(true);
+                        getAttractors(true, false);
                         //Size is not yet implemented, so use entire pool.
                     }
                     current++;
@@ -1310,7 +1302,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
             @Override
             public void onFailure(Call<List<Pools>> call, Throwable t) {
-                Log.d("Errorget", t.getMessage());
+
                 progressdialog.dismiss();
             }
         });
@@ -1716,14 +1708,12 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
     }
 
-
-
     /**
      * Permissions for setting the location
      */
     @Override
     public void onExplanationNeeded(List<String> permissionsToExplain) {
-        Toast.makeText(getContext(), "Granted", Toast.LENGTH_LONG).show();
+
     }
 
     @Override
@@ -1736,7 +1726,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                 }
             });
         } else {
-            Toast.makeText(getContext(), "Not Granted", Toast.LENGTH_LONG).show();
+
             getActivity().finish();
         }
     }
@@ -1790,6 +1780,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
             permissionsManager.requestLocationPermissions(getActivity());
         }
     }
+
 
     /**
      * Send message to the mainactivity, used for camrng

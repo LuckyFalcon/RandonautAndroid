@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Randonauts</string>
+    <string name="app_name">Randonautica</string>
     <string name="mapbox_access_token">MAPBOX_ACCESS_TOKEN</string>
     <string name="mapbox_style">MAPBOX_STREETS</string>
     <string name="title_activity_main2">Main2Activity</string>

@@ -22,9 +22,11 @@ public class ReportQuestions {
 
     private String q1Answers [] = {
             "Enriching",
-            "Meaningfull",
+            "Meaningful",
             "Casual",
-            "Meaningless"
+            "Meaningless",
+            "Special",
+            "Somewhat Meaningful"
     };
 
     public String getbutton1Anwser(int a) {
@@ -78,9 +80,11 @@ public class ReportQuestions {
     private String q5Answers [] = {
             "Dirk gently",
             "Mind-blowing",
+            "Unbelievable",
             "Somewhat",
             "Nothing",
-            "Boredom"
+            "Boredom",
+
     };
 
     public String getbutton5Anwser(int a) {

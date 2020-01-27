@@ -29,12 +29,16 @@ public interface RandoWrapperApi {
                                          @Query("center[0]") double  center0,
                                          @Query("center[1]") double center1,
                                          @Query("radius") int radius,
-                                         @Query("pool") boolean pool);
+                                         @Query("pool") boolean pool,
+                                         @Query("gcp") boolean gcp);
     @GET("attractors")
     Call<List<Attractors>> getAttractorsTest(@Query("gid") String gid,
-                                         @Query("center[0]") double  center0,
-                                         @Query("center[1]") double center1,
-                                         @Query("radius") int radius);
+                                            @Query("center[0]") double  center0,
+                                            @Query("center[1]") double center1,
+                                             @Query("radius") int radius,
+                                             @Query("pool") boolean pool,
+                                             @Query("gcp") boolean gcp);
+
 
     @GET("pseudo")
     Call<List<Psuedo>> getPsuedo(@Query("n") int n,

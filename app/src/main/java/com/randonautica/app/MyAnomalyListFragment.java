@@ -149,7 +149,7 @@ public class MyAnomalyListFragment extends Fragment {
         @Override
         public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
             String type;
-            Log.d("testtt", getItem(position).getType());
+
             if(getItem(position).getType() == "1"){
                 type = "Attractor " + getItem(position).getId();
             } else {
@@ -311,7 +311,7 @@ public class MyAnomalyListFragment extends Fragment {
 
 
         public void reportDialogWindow(final int[] currentQeustion, final int position, final Button showButton, final ArrayList<String> ar){
-            Log.d("Test", ""+ar);
+
             reportDialog.setContentView(R.layout.dialog_qeustionreportwindow);
             final ReportQuestions rReportQuestions = new ReportQuestions();
             final TextView wQuestionView;
@@ -342,7 +342,7 @@ public class MyAnomalyListFragment extends Fragment {
                         wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
                         updateAnwserButtons(windowButton1, windowButton2, windowButton3, windowButton4, windowButton5, windowButton6, currentQeustion, rReportQuestions);
                         qeustionViewScore.setText("Question " + (currentQeustion[0] + 2) + "/9");
-                        Log.d("Test", ""+ar);
+
                     }
                 }
             });
@@ -435,7 +435,7 @@ public class MyAnomalyListFragment extends Fragment {
         public void reportDialogInput(final int position, final Button showButton, final ArrayList<String> ar){
             reportDialog.setContentView(R.layout.dialog_textinput);
             final JSONObject obj = new JSONObject();
-            Log.d("Test", ""+ar);
+
             final ReportQuestions rReportQuestions = new ReportQuestions();
             final EditText userInput = (EditText) reportDialog.findViewById(R.id.editText2);
             final Button sendReportButton = (Button) reportDialog.findViewById(R.id.sendReportButton);
@@ -523,7 +523,7 @@ public class MyAnomalyListFragment extends Fragment {
                             try
                             {
                                 //get your response....
-                                Log.d("Testpost", "RetroFit2.0 :RetroGetLogin: " + rawResponse);
+
                                 onCreateDialog();
                             }
                             catch (Exception e)
@@ -542,7 +542,7 @@ public class MyAnomalyListFragment extends Fragment {
                     mDatabaseHelper.setReport("Attractors", Integer.valueOf(getItem(position).getId()));
                     //post req here
 
-                    Log.d("Test", ""+ar);
+
                     reportDialog.cancel();
                 }
             });
@@ -597,12 +597,16 @@ public class MyAnomalyListFragment extends Fragment {
             windowButton2.setText(rReportQuestions.getbutton3Anwser(1));
             windowButton3.setText(rReportQuestions.getbutton3Anwser(2));
             windowButton4.setText(rReportQuestions.getbutton3Anwser(3));
+            windowButton5.setText(rReportQuestions.getbutton3Anwser(4));
+            windowButton6.setText(rReportQuestions.getbutton3Anwser(5));
         }
         if(currentQeustion[0] == 6){
             windowButton1.setText(rReportQuestions.getbutton4Anwser(0));
             windowButton2.setText(rReportQuestions.getbutton4Anwser(1));
             windowButton3.setText(rReportQuestions.getbutton4Anwser(2));
             windowButton4.setText(rReportQuestions.getbutton4Anwser(3));
+            windowButton5.setText(rReportQuestions.getbutton4Anwser(4));
+            windowButton6.setText(rReportQuestions.getbutton4Anwser(5));
         }
         if(currentQeustion[0] == 7){
             windowButton1.setText(rReportQuestions.getbutton5Anwser(0));
@@ -610,6 +614,8 @@ public class MyAnomalyListFragment extends Fragment {
             windowButton3.setText(rReportQuestions.getbutton5Anwser(2));
             windowButton4.setText(rReportQuestions.getbutton5Anwser(3));
             windowButton5.setText(rReportQuestions.getbutton5Anwser(4));
+            windowButton5.setText(rReportQuestions.getbutton5Anwser(4));
+            windowButton6.setText(rReportQuestions.getbutton5Anwser(5));
 
         }
 

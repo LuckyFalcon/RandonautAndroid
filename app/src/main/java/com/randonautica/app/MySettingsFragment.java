@@ -80,7 +80,6 @@ public class MySettingsFragment extends PreferenceFragmentCompat {
         editor.putBoolean(SWTICHEnableWaterPoints, waterSwitchOnOff);
 
         editor.apply();
-        Toast.makeText(getContext(), "Data Saved", Toast.LENGTH_SHORT).show();
 
     }
     public void loadData() {
