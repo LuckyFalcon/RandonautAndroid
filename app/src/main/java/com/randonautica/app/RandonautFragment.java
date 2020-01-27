@@ -253,7 +253,9 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                 @Override
                 public void onClick(View v) {
                     setPreferencesAlertDialog();
-
+                    if(mapboxMap.getLocationComponent().isLocationComponentActivated() == false){
+                        enableLocationComponent(mapboxMap.getStyle());
+                    }
                 }
             });
 
