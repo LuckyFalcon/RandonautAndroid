@@ -1,7 +1,10 @@
 package com.randonautica.app;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,16 +24,31 @@ import androidx.fragment.app.Fragment;
 
 import com.randonautica.app.Classes.Attractor;
 import com.randonautica.app.Classes.DatabaseHelper;
+import com.randonautica.app.Classes.RandoWrapperApi;
 import com.randonautica.app.Classes.ReportQuestions;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MyVoidsListFragment extends Fragment {
+    private RandoWrapperApi randoWrapperApi;
 
     ArrayList<Attractor> attractorArray = new ArrayList<Attractor>();
     Dialog reportDialog;
@@ -39,11 +57,12 @@ public class MyVoidsListFragment extends Fragment {
     String voidTable = "Voids";
     private View view;
     private static DecimalFormat df2 = new DecimalFormat("#.##");
+    private String userid;
+    public static final String STATS = "stats";
     MyAttractorsListFragment.SendMessage SM;
 
-
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_list_voids, container, false);
+        view = inflater.inflate(R.layout.fragment_list_attractors, container, false);
         getActivity().setTitle("My Attractors");
         return view;
     }
@@ -52,9 +71,9 @@ public class MyVoidsListFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mDatabaseHelper = new DatabaseHelper(getActivity(), voidTable);
-        mListView = (ListView) view.findViewById(R.id.voidsList);
+        mListView = (ListView) view.findViewById(R.id.attractorsList);
+        loadData();
         populateListView();
-
     }
 
     private void populateListView() {
@@ -103,7 +122,7 @@ public class MyVoidsListFragment extends Fragment {
 
     }
 
-    class AttractorListAdapter extends ArrayAdapter<Attractor>{
+    class AttractorListAdapter extends ArrayAdapter<Attractor> {
 
         private static final String TAG = "AttractorListAdapter";
 
@@ -121,20 +140,20 @@ public class MyVoidsListFragment extends Fragment {
         @Override
         public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-            String type = "Void " +  getItem(position).getId();
+            String type = "Void " + getItem(position).getId();
 
             String power = "Power: " + df2.format(Double.valueOf(getItem(position).getPower()));
             String radiusm = "Radius: " + df2.format(Double.valueOf(getItem(position).getRadiusm()));
             String z_score = "Z_Score: " + df2.format(Double.valueOf(getItem(position).getZ_score()));
             String pseudo;
-            if(Double.valueOf(getItem(position).getPseudo()) == 1){
+            if (Double.valueOf(getItem(position).getPseudo()) == 1) {
                 pseudo = "Pseudo: " + "Yes";
             } else {
                 pseudo = "Pseudo: " + "No";
             }
 
             LayoutInflater inflater = LayoutInflater.from(mContext);
-            convertView = inflater.inflate(mResource,parent,false);
+            convertView = inflater.inflate(mResource, parent, false);
 
             TextView textViewType = (TextView) convertView.findViewById(R.id.textViewType);
             TextView textViewPower = (TextView) convertView.findViewById(R.id.textViewPower);
@@ -149,7 +168,7 @@ public class MyVoidsListFragment extends Fragment {
             textViewPsuedo.setText(pseudo);
 
             final Button button = (Button) convertView.findViewById(R.id.reportButtonInList);
-            if(Double.valueOf(getItem(position).getReport()) == 1){
+            if (Double.valueOf(getItem(position).getReport()) == 1) {
                 button.setText("Reported");
                 button.setPressed(true);
                 button.setEnabled(false);
@@ -185,8 +204,6 @@ public class MyVoidsListFragment extends Fragment {
         public void setReportAlertDialog(final int position, final Button showButton) {
             reportDialog = new Dialog(getActivity());
             final ArrayList<String> ar = new ArrayList<String>();
-            // reportDialog.setContentView(R.layout.dialog_report);
-            //reportDialog.setTitle("Report");
             reportDialog.requestWindowFeature(Window.FEATURE_NO_TITLE); //before
             reportDialog.setContentView(R.layout.dialog_questionreport);
 
@@ -205,7 +222,7 @@ public class MyVoidsListFragment extends Fragment {
             rQuestionView = (TextView) reportDialog.findViewById(R.id.rQuestionView);
             qeustionViewScore = (TextView) reportDialog.findViewById(R.id.qeustionView1);
 
-            qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
+            qeustionViewScore.setText("Question " + (currentQeustion[0] + 1) + "/9");
 
             //Button listener for yes
             yesAnwserButton.setOnClickListener(new View.OnClickListener() {
@@ -213,17 +230,17 @@ public class MyVoidsListFragment extends Fragment {
                 public void onClick(View view) {
                     rQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
 
-                    if(currentQeustion[0] == 3){
-                        ar.add("1");
-                        reportDialogWindow(currentQeustion, position, showButton, ar);
-                        qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
+                    if (currentQeustion[0] == 3) {
+                        reportDialogWindowIntent(currentQeustion, position, showButton, ar);
+                        qeustionViewScore.setText("Question " + (currentQeustion[0] + 1) + "/9");
 
                     } else {
                         currentQeustion[0]++;
                         ar.add("1");
-                        qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
+                        qeustionViewScore.setText("Question " + (currentQeustion[0] + 1) + "/9");
                     }
-                }});
+                }
+            });
 
             //Button listener for no
             noAnwserButton.setOnClickListener(new View.OnClickListener() {
@@ -231,21 +248,52 @@ public class MyVoidsListFragment extends Fragment {
                 public void onClick(View view) {
 
                     rQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
-                    if(currentQeustion[0] == 3){
+                    if (currentQeustion[0] == 3) {
                         ar.add("0");
                         reportDialog.setContentView(R.layout.dialog_qeustionreportwindow);
                         reportDialogWindow(currentQeustion, position, showButton, ar);
-                        qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
+                        qeustionViewScore.setText("Question " + (currentQeustion[0] + 1) + "/9");
                     } else {
                         currentQeustion[0]++;
                         ar.add("0");
-                        qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
+                        qeustionViewScore.setText("Question " + (currentQeustion[0] + 1) + "/9");
                     }
-                }});
+                }
+            });
 
 
             reportDialog.show();
         }
+
+        public void reportDialogWindowIntent(final int[] currentQeustion, final int position, final Button showButton, final ArrayList<String> ar) {
+            reportDialog.setContentView(R.layout.dialog_intentinput);
+            final EditText userInput = (EditText) reportDialog.findViewById(R.id.editIntent);
+
+            final Button nextButton = (Button) reportDialog.findViewById(R.id.intentNext);
+            final Button skipButton = (Button) reportDialog.findViewById(R.id.intentSkip);
+
+            //Button listener for nextButton
+            nextButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ar.add(userInput.getText().toString());
+                    reportDialogWindow(currentQeustion, position, showButton, ar);
+                }
+            });
+            //Button listener for skipButton
+            skipButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ar.add("Skipped");
+                    reportDialogWindow(currentQeustion, position, showButton, ar);
+                }
+            });
+
+        }
+
+
+
+
 
         public void reportDialogWindow(final int[] currentQeustion, final int position, final Button showButton, final ArrayList<String> ar){
             Log.d("Test", ""+ar);
@@ -264,7 +312,7 @@ public class MyVoidsListFragment extends Fragment {
             qeustionViewScore = (TextView) reportDialog.findViewById(R.id.qeustionView2);
 
 
-            qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
+            qeustionViewScore.setText("Question "+(currentQeustion[0]+2)+"/9");
             //Button listener for windowButton1
             windowButton1.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -278,7 +326,7 @@ public class MyVoidsListFragment extends Fragment {
                         ar.add(windowButton1.getText().toString());
                         wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
                         updateAnwserButtons(windowButton1, windowButton2, windowButton3, windowButton4, windowButton5, windowButton6, currentQeustion, rReportQuestions);
-                        qeustionViewScore.setText("Question " + (currentQeustion[0] + 1) + "/8");
+                        qeustionViewScore.setText("Question " + (currentQeustion[0] + 2) + "/9");
                         Log.d("Test", ""+ar);
                     }
                 }
@@ -295,7 +343,7 @@ public class MyVoidsListFragment extends Fragment {
                         ar.add(windowButton2.getText().toString());
                         wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
                         updateAnwserButtons(windowButton1, windowButton2, windowButton3, windowButton4, windowButton5, windowButton6, currentQeustion, rReportQuestions);
-                        qeustionViewScore.setText("Question " + (currentQeustion[0] + 1) + "/8");
+                        qeustionViewScore.setText("Question " + (currentQeustion[0] + 2) + "/9");
                     }
                 }
             });
@@ -311,7 +359,7 @@ public class MyVoidsListFragment extends Fragment {
                         ar.add(windowButton3.getText().toString());
                         wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
                         updateAnwserButtons(windowButton1, windowButton2, windowButton3, windowButton4, windowButton5, windowButton6, currentQeustion,rReportQuestions);
-                        qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
+                        qeustionViewScore.setText("Question "+(currentQeustion[0]+2)+"/9");
                     }
                 }
 
@@ -328,7 +376,7 @@ public class MyVoidsListFragment extends Fragment {
                         ar.add(windowButton4.getText().toString());
                         wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
                         updateAnwserButtons(windowButton1, windowButton2, windowButton3, windowButton4, windowButton5, windowButton6, currentQeustion,rReportQuestions);
-                        qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
+                        qeustionViewScore.setText("Question "+(currentQeustion[0]+2)+"/9");
                     }
                 }
             });
@@ -344,7 +392,7 @@ public class MyVoidsListFragment extends Fragment {
                         ar.add(windowButton5.getText().toString());
                         wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
                         updateAnwserButtons(windowButton1, windowButton2, windowButton3, windowButton4, windowButton5, windowButton6, currentQeustion,rReportQuestions);
-                        qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
+                        qeustionViewScore.setText("Question "+(currentQeustion[0]+2)+"/9");
                     }
                 }
 
@@ -361,7 +409,7 @@ public class MyVoidsListFragment extends Fragment {
                         ar.add(windowButton6.getText().toString());
                         wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
                         updateAnwserButtons(windowButton1, windowButton2, windowButton3, windowButton4, windowButton5, windowButton6, currentQeustion,rReportQuestions);
-                        qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
+                        qeustionViewScore.setText("Question "+(currentQeustion[0]+2)+"/9");
                     }
                 }
 
@@ -385,16 +433,20 @@ public class MyVoidsListFragment extends Fragment {
                     ar.add(userInput.getText().toString());
                     try {
                         //General
-                        obj.put("user_id", "132");
-                        obj.put("platform", "8");
-                        obj.put("datetime", "datetime");
+                        obj.put("user_id", userid);
+                        obj.put("platform", 8);
+
+                        Date currentTime = Calendar.getInstance().getTime();
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                        String currentDateandTime = sdf.format(new Date());
+                        obj.put("datetime", currentDateandTime);
 
                         //Question anwsers
-                        obj.put("visited", ar.get(0));
+                        obj.put("visited", Double.valueOf(ar.get(0)));
                         obj.put("point_type", "Attractor");
-                        obj.put("intent_set", ar.get(1));
-                        obj.put("artifact_collected", ar.get(2));
-                        obj.put("fucking_amazing", ar.get(3));
+                        obj.put("artifact_collected", ar.get(1));
+                        obj.put("fucking_amazing", ar.get(2));
+                        obj.put("intent_set", ar.get(3));
                         obj.put("rating_meaningfulness", ar.get(4));
                         obj.put("rating_emotional", ar.get(5));
                         obj.put("rating_importance", ar.get(6));
@@ -403,41 +455,79 @@ public class MyVoidsListFragment extends Fragment {
                         obj.put("text", ar.get(9));
 
                         //Attractor
-                        obj.put("short_hash_id", "132");
-                        obj.put("gid", getItem(position).getGID());
-                        obj.put("tid", getItem(position).getTID());
-                        obj.put("lid", getItem(position).getLID());
-                        obj.put("type", getItem(position).getType());
-                        obj.put("x", getItem(position).getX_());
-                        obj.put("y", getItem(position).getY_());
-                        obj.put("latitude", getItem(position).getLatitude());
-                        obj.put("longitude", getItem(position).getLongitude());
-                        obj.put("distance", getItem(position).getDistance());
-                        obj.put("initial_bearing", getItem(position).getInitialBearing());
-                        obj.put("final_bearing", getItem(position).getFinalBearing());
-                        obj.put("side", getItem(position).getSide());
-                        obj.put("distance_err", getItem(position).getDistanceErr());
-                        obj.put("radiusM", getItem(position).getRadiusM());
-                        obj.put("n", getItem(position).getN());
-                        obj.put("mean", getItem(position).getMean());
-                        obj.put("rarity", getItem(position).getRarity());
-                        obj.put("power_old", getItem(position).getPower_old());
-                        obj.put("power", getItem(position).getPower());
-                        obj.put("z_score", getItem(position).getZ_score());
-                        obj.put("probability_single", getItem(position).getProbability_single());
-                        obj.put("integral_score", getItem(position).getIntegral_score());
-                        obj.put("significance", getItem(position).getSignificance());
-                        obj.put("probability", getItem(position).getProbability());
+                        obj.put("tid", Double.valueOf(getItem(position).getTID()));
+                        obj.put("lid", Double.valueOf(getItem(position).getLID()));
+                        obj.put("type", Double.valueOf(getItem(position).getType()));
+                        obj.put("x", Double.valueOf(getItem(position).getX_()));
+                        obj.put("y", Double.valueOf(getItem(position).getY_()));
+                        obj.put("latitude", Double.valueOf(getItem(position).getLatitude()));
+                        obj.put("longitude", Double.valueOf(getItem(position).getLongitude()));
+                        obj.put("distance", Double.valueOf(getItem(position).getDistance()));
+                        obj.put("initial_bearing", Double.valueOf(getItem(position).getInitialBearing()));
+                        obj.put("final_bearing", Double.valueOf(getItem(position).getFinalBearing()));
+                        obj.put("side", Double.valueOf(getItem(position).getSide()));
+                        obj.put("distance_err", Double.valueOf(getItem(position).getDistanceErr()));
+                        obj.put("radiusM", Double.valueOf(getItem(position).getRadiusM()));
+                        obj.put("n", Double.valueOf(getItem(position).getN()));
+                        obj.put("mean", Double.valueOf(getItem(position).getMean()));
+                        obj.put("rarity", Double.valueOf(getItem(position).getRarity()));
+                        obj.put("power_old", Double.valueOf(getItem(position).getPower_old()));
+                        obj.put("power", Double.valueOf(getItem(position).getPower()));
+                        obj.put("z_score", Double.valueOf(getItem(position).getZ_score()));
+                        obj.put("probability_single", Double.valueOf(getItem(position).getProbability_single()));
+                        obj.put("integral_score", Double.valueOf(getItem(position).getIntegral_score()));
+                        obj.put("significance", Double.valueOf(getItem(position).getSignificance()));
+                        obj.put("probability", Double.valueOf(getItem(position).getProbability()));
 
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
 
+                    OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+                            .connectTimeout(60, TimeUnit.SECONDS)
+                            .readTimeout(60, TimeUnit.SECONDS)
+                            .writeTimeout(60, TimeUnit.SECONDS)
+                            .build();
+
+                    Retrofit retrofit = new Retrofit.Builder()
+                            .baseUrl("https://devapi.randonauts.com/")
+                            .client(okHttpClient)
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build();
+
+                    randoWrapperApi = retrofit.create(RandoWrapperApi.class);
+
+                    RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), obj.toString());
+                    Call<ResponseBody> response = randoWrapperApi.postJson(body);
+
+                    response.enqueue(new Callback<ResponseBody>()
+                    {
+                        @Override
+                        public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> rawResponse)
+                        {
+                            try
+                            {
+                                //get your response....
+                                Log.d("Testpost", "RetroFit2.0 :RetroGetLogin: " + rawResponse);
+                                onCreateDialog();
+                            }
+                            catch (Exception e)
+                            {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseBody> call, Throwable throwable)
+                        {
+                            // other stuff...
+                        }
+                    });
+
                     mDatabaseHelper.setReport("Attractors", Integer.valueOf(getItem(position).getId()));
                     //post req here
 
                     Log.d("Test", ""+ar);
-                    showButton.setVisibility(view.GONE);
                     reportDialog.cancel();
                 }
             });
@@ -456,6 +546,23 @@ public class MyVoidsListFragment extends Fragment {
         }
 
 
+    }
+    public void onCreateDialog() {
+
+        new AlertDialog.Builder(getContext())
+                .setTitle("Report send")
+                .setMessage("The report was successfully send! Thank you!")
+
+                // Specifying a listener allows you to take an action before dismissing the dialog.
+                // The dialog is automatically dismissed when a dialog button is clicked.
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Continue with delete operation
+                    }
+                })
+
+                .setIcon(android.R.drawable.stat_sys_upload)
+                .show();
     }
 
     public void updateAnwserButtons(Button windowButton1, Button windowButton2, Button windowButton3,
@@ -534,9 +641,13 @@ public class MyVoidsListFragment extends Fragment {
         }
     }
 
+    private void loadData() {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(STATS, Context.MODE_PRIVATE);
+        userid = sharedPreferences.getString("USERID", null);
+
+    }
+
 }
-
-
 
 
 

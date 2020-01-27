@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="370dp"
+    android:layout_height="250dp">
+
+    <!-- These are the buttons -->
+
+    <Button
+        android:id="@+id/sendReportButton"
+        android:layout_width="133dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginEnd="38dp"
+        android:layout_marginRight="38dp"
+
+        android:layout_marginBottom="12dp"
+        android:backgroundTint="@color/buttonColor"
+        android:text="Send"
+        android:textColor="@color/buttonText"></Button>
+
+    <Button
+        android:id="@+id/cancelReportButton"
+        android:layout_width="133dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginEnd="193dp"
+        android:layout_marginRight="193dp"
+
+        android:layout_marginBottom="12dp"
+        android:backgroundTint="@color/buttonColor"
+        android:text="Cancel"
+        android:textColor="@color/buttonText"></Button>
+
+    <TextView
+        android:id="@+id/rQuestionView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="52dp"
+        android:layout_marginLeft="52dp"
+        android:layout_marginTop="31dp"
+        android:text="Do you want to add anything?"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/editText2"
+        android:layout_width="wrap_content"
+        android:layout_height="110dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="72dp"
+        android:ems="10"
+        android:gravity="start|top"
+        android:inputType="textMultiLine" />
+
+</RelativeLayout>

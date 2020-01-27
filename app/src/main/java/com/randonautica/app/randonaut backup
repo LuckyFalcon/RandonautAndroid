@@ -11,8 +11,8 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PointF;
+import android.location.Location;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,11 +31,13 @@ import androidx.cardview.widget.CardView;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
+
 
 import com.mapbox.mapboxsdk.annotations.PolygonOptions;
 import com.randonautica.app.Classes.Attractors;
@@ -48,9 +50,13 @@ import com.randonautica.app.Classes.ReportQuestions;
 import com.randonautica.app.Classes.Sizes;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
+import com.mapbox.api.directions.v5.DirectionsCriteria;
+import com.mapbox.api.directions.v5.MapboxDirections;
+import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
@@ -69,17 +75,37 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
+import static com.mapbox.core.constants.Constants.PRECISION_6;
 import static com.mapbox.mapboxsdk.style.layers.Property.LINE_JOIN_ROUND;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconSize;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineJoin;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
@@ -94,13 +120,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
 public class RandonautFragment extends Fragment implements LifecycleOwner, OnMapReadyCallback, PermissionsListener  {
-    //Load keys
-    static {
-        System.loadLibrary("keys");
-    }
-    //Native Modules
-    protected native String getApiKey();
-    protected native String getBaseApi();
 
     //Fragment View
     private  View v;
@@ -140,8 +159,9 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
     //Buttons
     private Button startButton;
-    private Button reportButton;
+    private Button navigateButton;
     private Button resetButton;
+
 
     private String auth_token;
     private TextView textViewProgress;
@@ -200,15 +220,12 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
     String voidTable = "Voids";
     String anomalyTable = "Anomalies";
 
-    //Message to mainactivity
-    SendMessage SM;
 
-    /** create view */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (v == null) {
-            createMapInstance();
+            Mapbox.getInstance(getContext(), "pk.eyJ1IjoiZGF2aWRmYWxjb24iLCJhIjoiY2szbjRzZmd2MTcwNDNkcXhnbTFzbHR0cCJ9.ZgbfsJXtrCFgI0rRJkwUyg");
             v = inflater.inflate(R.layout.fragment_randonaut, container, false);
             mapView = (MapView) v.findViewById(R.id.mapView);
             mapView.getMapAsync(this);
@@ -230,14 +247,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         return v;
     }
 
-
-    protected void createMapInstance(){
-
-        Mapbox.getInstance(getContext(), new String(Base64.decode(getApiKey(),Base64.DEFAULT)));
-
-    }
-
-    /** after view is created - set waterpoints and buttons */
+    /** after view is created - set map view */
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -246,17 +256,28 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         waterPointsEnabled = sharedPreferences.getBoolean("enableWaterPoints", false);
 
             startButton = (Button) view.findViewById(R.id.startButton);
+           // navigateButton = (Button) view.findViewById(R.id.startNavigation);
             resetButton = (Button) view.findViewById(R.id.resetRandonaut);
-            reportButton = (Button) view.findViewById(R.id.reportButton);
 
             startButton.setOnClickListener(new View.OnClickListener() {
                 @SuppressLint("CheckResult")
                 @Override
                 public void onClick(View v) {
                     setPreferencesAlertDialog();
+               //    SM.rng(); Starts camRNG instance fragment
+
 
                 }
             });
+
+//            navigateButton.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    setPreferencesAlertDialog();
+//
+//                }
+//
+//            });
 
             resetButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -268,11 +289,8 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                 }
             });
 
-
-
     }
 
-    /** set map view */
     @Override
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
 
@@ -297,8 +315,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
     }
 
-
-    /** set attractor from my attractors */
     //From profile attractors
     protected void onShowProfileAttractors(int type, double power, double x, double y, double radiusm, double z_score, double pseudo){
 
@@ -311,26 +327,17 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         singleLocation.setPower((power));
         singleLocation.setZ_score((z_score));
         singleLocation.setLocationCoordinates(new LatLng(x, y));
-        if(pseudo == 1){
-            singleLocation.setPsuedo(true);
-        } else {
-            singleLocation.setPsuedo(false);
-        }
-
-        //Set circle of radius
-        mapboxMap.addPolygon(generatePerimeter(
-                new LatLng(x, y),
-                (radiusm/1000),
-                64));
+        singleLocation.setPsuedo(true);
 
         locationList.add(singleLocation);
         initRecyclerView();
 
         startButton.setVisibility(View.GONE);
+       // navigateButton.setVisibility(View.VISIBLE);
         resetButton.setVisibility(View.VISIBLE);
     }
 
-    /** all the generate attractor functions */
+    //Generate points functions
 
     public void getAttractors(boolean pool){
 
@@ -346,8 +353,10 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         progressdialog.setCancelable(false);
         progressdialog.setCanceledOnTouchOutside(false);
 
-        Call<List<Attractors>> callGetAttractors = randoWrapperApi.getAttractorsTest(GID,
-                mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), distance);
+        Call<List<Attractors>> callGetAttractors = randoWrapperApi.getAttractors(GID,
+                                mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), distance, pool);
+
+       Log.d("advd", ""+pool);
 
         callGetAttractors.enqueue(new Callback<List<Attractors>>() {
             @Override
@@ -363,42 +372,20 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
                 Place places[] =new Place[count];
 
+
                 for(Attractors attractors: response.body()){
 
-                    //First Part
-                    String GID = attractors.getAttractors().getGID();
-                    String TID = attractors.getAttractors().getTID();
-                    String LID = attractors.getAttractors().getLID();
+                    double x = attractors.getAttractors().getCenter().getLatlng().getPoint().getLatitude();
+                    double y = attractors.getAttractors().getCenter().getLatlng().getPoint().getLongitude();
                     int type = attractors.getAttractors().getType();
-                    double x_ = attractors.getAttractors().getX();
-                    double y_ = attractors.getAttractors().getY();
-
-
-                    //Second part
-                    double x = attractors.getAttractors().getCenter().getLatlng().getPoint().getLatitude(); //Used in map
-                    double y = attractors.getAttractors().getCenter().getLatlng().getPoint().getLongitude(); //Used in map
-
-                    double distance = attractors.getAttractors().getCenter().getLatlng().getBearing().getDistance();
-                    double initialBearing = attractors.getAttractors().getCenter().getLatlng().getBearing().getInitialBearing();
-                    double finalBearing = attractors.getAttractors().getCenter().getLatlng().getBearing().getFinalBearing();
-
-                    //Third part
-                    int side = attractors.getAttractors().getSide();
-                    double distanceErr = attractors.getAttractors().getDistanceErr();
-                    double radiusM = attractors.getAttractors().getRadiusM();
-                    int n = attractors.getAttractors().getN();
-                    double mean = attractors.getAttractors().getMean();
-                    int rarity = attractors.getAttractors().getRarity();
-                    double power_old = attractors.getAttractors().getPower_old();
+                    double radiusm = attractors.getAttractors().getRadiusM();
                     double power = attractors.getAttractors().getPower();
                     double z_score = attractors.getAttractors().getZ_score();
-                    double probability_single = attractors.getAttractors().getProbability_single();
-                    double integral_score = attractors.getAttractors().getIntegral_score();
-                    double significance = attractors.getAttractors().getSignificance();
-                    double probability = attractors.getAttractors().getProbability();
-                    int FILTERING_SIGNIFICANCE = attractors.getAttractors().getFILTERING_SIGNIFICANCE();
 
-                    places[i]=new Place(new LatLng(x, y), GID,  TID,  LID,  x_,  y_,  distance,  initialBearing,  finalBearing, side,  distanceErr,  radiusM, n,  mean, rarity,  power_old,  probability_single,  integral_score,  significance,  probability, FILTERING_SIGNIFICANCE, type, radiusM,  power,  z_score);
+                    Log.d("testingall", "value: " + x);
+                    Log.d("testingall", "value: " + y);
+
+                    places[i]=new Place(new LatLng(x, y), type, radiusm, power, z_score);
 
                     if(waterPointsEnabled){
                         LatLng center = new LatLng(x, y);
@@ -409,62 +396,28 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                             continue;
                         }
                     }
-
                     if(selected == "Attractor" && type == 1){
-                        //Make databaseHelper
                         mDatabaseHelper = new DatabaseHelper(getActivity(), attractorTable);
 
-                        //Generate Marker
-                        mapboxMap.addMarker(new MarkerOptions()
-                                .position(new LatLng(x, y))
-                                .title("Attractor"));
-
-                        //Generate Circle
                         mapboxMap.addPolygon(generatePerimeter(
                                 new LatLng(x, y),
-                                (radiusM/1000),
+                                100,
                                 64));
+
 
                         amount++;
                         atts++;
                         SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
                         singleLocation.setType((places[i].getType()));
-                        singleLocation.setRadiusm((places[i].getRadiusM()));
+                        singleLocation.setRadiusm((places[i].getRadiusm()));
                         singleLocation.setPower((places[i].getPower()));
                         singleLocation.setZ_score((places[i].getZ_score()));
                         singleLocation.setLocationCoordinates(places[i].getCoordinate());
                         singleLocation.setPsuedo(false);
                         //getRoutesToAllPoints(places[i].getCoordinate());
 
-                        AddData(attractorTable,
-                                places[i].getCoordinate().getLatitude(),
-                                places[i].getCoordinate().getLongitude(),
-                                places[i].getGID(),
-                                places[i].getTID(),
-                                places[i].getLID(),
-
-                                places[i].getX(),
-                                places[i].getY(),
-                                places[i].getDistance(),
-                                places[i].getInitialBearing(),
-                                places[i].getFinalBearing(),
-                                places[i].getSide(),
-                                places[i].getDistanceErr(),
-                                places[i].getRadiusM(),
-                                places[i].getN(),
-                                places[i].getMean(),
-                                places[i].getRarity(),
-                                places[i].getPower_old(),
-                                places[i].getProbability_single(),
-                                places[i].getIntegral_score(),
-                                places[i].getSignificance(),
-                                places[i].getProbability(),
-                                places[i].getFILTERING_SIGNIFICANCE(),
-                                places[i].getType(),
-                                places[i].getRadiusM(),
-                                places[i].getPower(),
-                                places[i].getZ_score(),
-                                0, 0);
+                        AddData(attractorTable, places[i].getType(), places[i].getPower(),  places[i].getCoordinate().getLatitude(), places[i].getCoordinate().getLongitude(),
+                                places[i].getRadiusm(), places[i].getZ_score(), 0, GID, 0);
 
                         locationList.add(singleLocation);
 
@@ -472,149 +425,30 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
                     if(selected == "Void" && type == 2){
                         mDatabaseHelper = new DatabaseHelper(getActivity(), voidTable);
-
-                        //Generate Marker
                         mapboxMap.addMarker(new MarkerOptions()
                                 .position(new LatLng(x, y))
                                 .title("Void"));
-
-                        //Generate Circle
-                        mapboxMap.addPolygon(generatePerimeter(
-                                new LatLng(x, y),
-                                (places[i].getRadiusM()/1000),
-                                64));
-
                         amount++;
                         voids++;
                         SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
                         singleLocation.setType((places[i].getType()));
-                        singleLocation.setRadiusm((places[i].getRadiusM()));
+                        singleLocation.setRadiusm((places[i].getRadiusm()));
                         singleLocation.setPower((places[i].getPower()));
                         singleLocation.setZ_score((places[i].getZ_score()));
                         singleLocation.setLocationCoordinates(places[i].getCoordinate());
                         singleLocation.setPsuedo(false);
-
-                        AddData(voidTable,
-                                places[i].getCoordinate().getLatitude(),
-                                places[i].getCoordinate().getLongitude(),
-                                places[i].getGID(),
-                                places[i].getTID(),
-                                places[i].getLID(),
-
-                                places[i].getX(),
-                                places[i].getY(),
-                                places[i].getDistance(),
-                                places[i].getInitialBearing(),
-                                places[i].getFinalBearing(),
-                                places[i].getSide(),
-                                places[i].getDistanceErr(),
-                                places[i].getRadiusM(),
-                                places[i].getN(),
-                                places[i].getMean(),
-                                places[i].getRarity(),
-                                places[i].getPower_old(),
-                                places[i].getProbability_single(),
-                                places[i].getIntegral_score(),
-                                places[i].getSignificance(),
-                                places[i].getProbability(),
-                                places[i].getFILTERING_SIGNIFICANCE(),
-                                places[i].getType(),
-                                places[i].getRadiusM(),
-                                places[i].getPower(),
-                                places[i].getZ_score(),
-                                0, 0);
-
                         locationList.add(singleLocation);
 
+                        AddData(voidTable, places[i].getType(), places[i].getPower(),  places[i].getCoordinate().getLatitude(), places[i].getCoordinate().getLongitude(),
+                                places[i].getRadiusm(), places[i].getZ_score(), 0, GID, 0);
                     }
 
                     i++;
                 }
-
-                //Check for anomaly
-                if(selected == "Anomalie"){
-                    Log.d("Anomaly", "f");
-                    for (int c = count - 1; c > 0; c--) { //Start bubblesort
-                        for (int j = 0; j < c; j++) {
-                            if (places[j + 1] == null) {
-                                continue;
-                            }
-                            if (places[j] == null ||places[j + 1].compareTo(places[j]) < 0) {
-                                Place temp = places[j + 1];
-                                places[j + 1] = places[j];
-                                places[j] = temp;
-                            }
-                        }
-                    } //End bubblesort
-                    for(i = 0; i < count; i++){
-
-                        //Make databaseHelper
-                        mDatabaseHelper = new DatabaseHelper(getActivity(), attractorTable);
-
-                        //Generate Marker
-                        mapboxMap.addMarker(new MarkerOptions()
-                                .position(new LatLng(places[i].getCoordinate().getLatitude(),  places[i].getCoordinate().getLongitude()))
-                                .title("Attractor"));
-
-                        //Generate Circle
-                        mapboxMap.addPolygon(generatePerimeter(
-                                new LatLng( places[i].getCoordinate().getLatitude(),  places[i].getCoordinate().getLongitude()),
-                                (places[i].getRadiusM()/1000),
-                                64));
-
-                        amount++;
-                        anomalies++;
-                        SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
-                        singleLocation.setType((places[i].getType()));
-                        singleLocation.setRadiusm((places[i].getRadiusM()));
-                        singleLocation.setPower((places[i].getPower()));
-                        singleLocation.setZ_score((places[i].getZ_score()));
-                        singleLocation.setLocationCoordinates(places[i].getCoordinate());
-                        singleLocation.setPsuedo(false);
-
-                        AddData(anomalyTable,
-                                places[i].getCoordinate().getLatitude(),
-                                places[i].getCoordinate().getLongitude(),
-                                places[i].getGID(),
-                                places[i].getTID(),
-                                places[i].getLID(),
-
-                                places[i].getX(),
-                                places[i].getY(),
-                                places[i].getDistance(),
-                                places[i].getInitialBearing(),
-                                places[i].getFinalBearing(),
-                                places[i].getSide(),
-                                places[i].getDistanceErr(),
-                                places[i].getRadiusM(),
-                                places[i].getN(),
-                                places[i].getMean(),
-                                places[i].getRarity(),
-                                places[i].getPower_old(),
-                                places[i].getProbability_single(),
-                                places[i].getIntegral_score(),
-                                places[i].getSignificance(),
-                                places[i].getProbability(),
-                                places[i].getFILTERING_SIGNIFICANCE(),
-                                places[i].getType(),
-                                places[i].getRadiusM(),
-                                places[i].getPower(),
-                                places[i].getZ_score(),
-                                0, 0);
-
-                        locationList.add(singleLocation);
-
-                        i ++;
-                    }
-
-
-
-                } //End anomaly
-
                 if(amount > 0){
                     initRecyclerView();
                     startButton.setVisibility(View.GONE);
-                    // navigateButton.setVisibility(View.VISIBLE);
+                   // navigateButton.setVisibility(View.VISIBLE);
                     resetButton.setVisibility(View.VISIBLE);
                 } else {
                     //Nothhing was found
@@ -623,6 +457,8 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
                 saveData();
                 progressdialog.dismiss();
+
+
             }
 
             @Override
@@ -656,7 +492,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(new String(Base64.decode(getBaseApi(),Base64.DEFAULT)))
+                .baseUrl("http://api.randonauts.com/")
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -692,41 +528,14 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
                         for (Psuedo psuedos : response.body()) {
 
-                            //First Part
-                            String GID = psuedos.getGID();
-                            String TID = psuedos.getTID();
-                            String LID = psuedos.getLID();
+                            double x = psuedos.getLatitude();
+                            double y = psuedos.getLongitude();
                             int type = psuedos.getType();
-                            double x_ = psuedos.getX();
-                            double y_ = psuedos.getY();
-
-
-                            //Second part
-                            double x = psuedos.getLatitude(); //Used in map
-                            double y = psuedos.getLongitude(); //Used in map
-
-                            double distance = psuedos.getDistance();
-                            double initialBearing = psuedos.getInitialBearing();
-                            double finalBearing = psuedos.getFinalBearing();
-
-                            //Third part
-                            int side = psuedos.getSide();
-                            double distanceErr = psuedos.getDistanceErr();
-                            double radiusM = psuedos.getRadiusM();
-                            int n = psuedos.getN();
-                            double mean = psuedos.getMean();
-                            int rarity = psuedos.getRarity();
-                            double power_old = psuedos.getPower_old();
+                            double radiusm = psuedos.getRadiusM();
                             double power = psuedos.getPower();
                             double z_score = psuedos.getZ_score();
-                            double probability_single = psuedos.getProbability_single();
-                            double integral_score = psuedos.getIntegral_score();
-                            double significance = psuedos.getSignificance();
-                            double probability = psuedos.getProbability();
-                            int FILTERING_SIGNIFICANCE = psuedos.getFILTERING_SIGNIFICANCE();
 
-                            places[i]=new Place(new LatLng(x, y), GID,  TID,  LID,  x_,  y_,  distance,  initialBearing,  finalBearing, side,  distanceErr,  radiusM, n,  mean, rarity,  power_old,  probability_single,  integral_score,  significance,  probability, FILTERING_SIGNIFICANCE, type, radiusM,  power,  z_score);
-
+                            places[i] = new Place(new LatLng(x, y), type, radiusm, power, z_score);
 
                             if (waterPointsEnabled) {
                                 LatLng center = new LatLng(x, y);
@@ -743,11 +552,9 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                                 mapboxMap.addMarker(new MarkerOptions()
                                         .position(new LatLng(x, y))
                                         .title("Attractor"));
-
-                                //Generate Circle
                                 mapboxMap.addPolygon(generatePerimeter(
                                         new LatLng(x, y),
-                                        (radiusM/1000),
+                                        (radiusm/1000),
                                         64));
 
                                 amount++;
@@ -762,35 +569,10 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
                                 locationList.add(singleLocation);
 
-                                AddData(voidTable,
-                                        places[i].getCoordinate().getLatitude(),
-                                        places[i].getCoordinate().getLongitude(),
-                                        places[i].getGID(),
-                                        places[i].getTID(),
-                                        places[i].getLID(),
-
-                                        places[i].getX(),
-                                        places[i].getY(),
-                                        places[i].getDistance(),
-                                        places[i].getInitialBearing(),
-                                        places[i].getFinalBearing(),
-                                        places[i].getSide(),
-                                        places[i].getDistanceErr(),
-                                        places[i].getRadiusM(),
-                                        places[i].getN(),
-                                        places[i].getMean(),
-                                        places[i].getRarity(),
-                                        places[i].getPower_old(),
-                                        places[i].getProbability_single(),
-                                        places[i].getIntegral_score(),
-                                        places[i].getSignificance(),
-                                        places[i].getProbability(),
-                                        places[i].getFILTERING_SIGNIFICANCE(),
-                                        places[i].getType(),
-                                        places[i].getRadiusM(),
-                                        places[i].getPower(),
-                                        places[i].getZ_score(),
-                                        1, 0);
+                                AddData(attractorTable, places[i].getType(), places[i].getPower(),  places[i].getCoordinate().getLatitude(), places[i].getCoordinate().getLongitude(),
+                                        places[i].getRadiusm(), places[i].getZ_score(), 1, GID, 0);
+                                attractorsToJSONArray(places[i].getType(), places[i].getRadiusm(),
+                                        places[i].getPower(), places[i].getZ_score(), places[i].getCoordinate());
                             }
 
                             if(type == 2) {
@@ -798,13 +580,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                                 mapboxMap.addMarker(new MarkerOptions()
                                         .position(new LatLng(x, y))
                                         .title("Void"));
-
-                                //Generate Circle
-                                mapboxMap.addPolygon(generatePerimeter(
-                                        new LatLng(x, y),
-                                        (places[i].getRadiusM()/1000),
-                                        64));
-
                                 amount++;
                                 psuedo++;
                                 SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
@@ -817,36 +592,10 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
                                 locationList.add(singleLocation);
 
-                                AddData(voidTable,
-                                        places[i].getCoordinate().getLatitude(),
-                                        places[i].getCoordinate().getLongitude(),
-                                        places[i].getGID(),
-                                        places[i].getTID(),
-                                        places[i].getLID(),
-
-                                        places[i].getX(),
-                                        places[i].getY(),
-                                        places[i].getDistance(),
-                                        places[i].getInitialBearing(),
-                                        places[i].getFinalBearing(),
-                                        places[i].getSide(),
-                                        places[i].getDistanceErr(),
-                                        places[i].getRadiusM(),
-                                        places[i].getN(),
-                                        places[i].getMean(),
-                                        places[i].getRarity(),
-                                        places[i].getPower_old(),
-                                        places[i].getProbability_single(),
-                                        places[i].getIntegral_score(),
-                                        places[i].getSignificance(),
-                                        places[i].getProbability(),
-                                        places[i].getFILTERING_SIGNIFICANCE(),
-                                        places[i].getType(),
-                                        places[i].getRadiusM(),
-                                        places[i].getPower(),
-                                        places[i].getZ_score(),
-                                        1, 0);
-
+                                AddData(voidTable, places[i].getType(), places[i].getPower(),  places[i].getCoordinate().getLatitude(), places[i].getCoordinate().getLongitude(),
+                                        places[i].getRadiusm(), places[i].getZ_score(), 1, GID, 0);
+                                attractorsToJSONArray(places[i].getType(), places[i].getRadiusm(),
+                                        places[i].getPower(), places[i].getZ_score(), places[i].getCoordinate());
                             }
 
 
@@ -864,6 +613,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                             onCreateDialog();
                         }
                         saveData();
+                        writeJsonFile();
                         progressdialog.dismiss();
 
 
@@ -884,7 +634,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
             }
 
         });
-    } //PSEUDOOOOOOOOOOOO
+    }
 
     public void resetRandonaut() {
         //Empty previous run
@@ -893,11 +643,170 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         removeRecyclerView();
         attractorsArray = new JSONArray();
         attractorObj = new JSONObject();
+
+    }
+
+    private PolygonOptions generatePerimeter(LatLng centerCoordinates, double radiusInKilometers, int numberOfSides) {
+        List<LatLng> positions = new ArrayList<>();
+        double distanceX = radiusInKilometers / (111.319 * Math.cos(centerCoordinates.getLatitude() * Math.PI / 180));
+        double distanceY = radiusInKilometers / 110.574;
+
+        double slice = (2 * Math.PI) / numberOfSides;
+
+        double theta;
+        double x;
+        double y;
+        LatLng position;
+        for (int i = 0; i < numberOfSides; ++i) {
+            theta = i * slice;
+            x = distanceX * Math.cos(theta);
+            y = distanceY * Math.sin(theta);
+
+            position = new LatLng(centerCoordinates.getLatitude() + y,
+                    centerCoordinates.getLongitude() + x);
+            positions.add(position);
+        }
+        return new PolygonOptions()
+                .addAll(positions)
+                .fillColor(Color.BLUE)
+                .alpha(0.4f);
     }
 
     //Disk reading/writing/creating
-    public void AddData (String table,double x, double y, String GID, String TID, String LID, double x_, double y_, double distance, double initialBearing, double finalBearing, int side, double distanceErr, double radiusM, int n, double mean, int rarity, double power_old, double probability_single, double integral_score, double significance, double probability, int FILTERING_SIGNIFICANCE, int type, double radiusm, double power, double z_score,double pseudo, int report) {
-        boolean insertData = mDatabaseHelper.addData(table, x,  y,  GID,  TID,  LID,  x_,  y_,  distance,  initialBearing,  finalBearing,  side,  distanceErr,  radiusM,  n,  mean,  rarity,  power_old,  probability_single,  integral_score,  significance,  probability,  FILTERING_SIGNIFICANCE,  type,  radiusm,  power,  z_score, pseudo,  report);
+
+    public void attractorsToJSONArray(int type, double radiusM, double power, double z_score, LatLng coordinates){
+
+        try {
+            String attractor_type;
+            if (type == 1) {
+                attractor_type = "Attractor";
+
+            } else {
+                attractor_type = "Void";
+            }
+            attractorObj = new JSONObject();
+            attractorObj.put("id", psuedo);
+            attractorObj.put("type", attractor_type);
+            attractorObj.put("power", power);
+            attractorObj.put("x", coordinates.getLatitude());
+            attractorObj.put("y", coordinates.getLongitude());
+            attractorObj.put("radiusm", radiusM);
+            attractorObj.put("z_score", z_score);
+            attractorObj.put("pseudo", true);
+
+
+            attractorsArray.put(attractorObj);
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            Log.d("wrote", "" + e);
+            e.printStackTrace();
+        }
+
+    }
+
+    public void writeJsonFile(){
+
+        FileReader fileReader = null;
+        FileWriter fileWriter = null;
+        BufferedReader bufferedReader = null;
+        BufferedWriter bufferedWriter = null;
+
+        try{
+        boolean isFilePresent = isFilePresent(getActivity(), "storage.json");
+        if(isFilePresent) {
+            Log.d("wrote", "FileisPresent" );
+            String jsonString = read(getActivity(), "storage.json");
+            //do the json parsing here and do the rest of functionality of app
+            Log.d("wrote", "" + jsonString );
+            Object json = new JSONTokener(jsonString).nextValue();
+
+            if (json instanceof JSONObject){
+                Log.d("wrote", "o" );
+                JSONObject jsonObject = new JSONObject(jsonString);
+               // jsonObject = (attractorObj);
+                JSONArray jsonArray = new JSONArray();
+                attractorsArray.put(jsonObject);
+                File file = new File(getActivity().getFilesDir(), "storage.json");
+                try {
+
+                    fileWriter = new FileWriter(file.getAbsoluteFile());
+                    bufferedWriter = new BufferedWriter(fileWriter);
+                    bufferedWriter.write(attractorsArray.toString());
+                    bufferedWriter.close();
+                    Log.d("wrote", "" + jsonObject );
+                } catch (IOException e){
+
+                    e.printStackTrace();
+
+                }
+
+            }
+
+            else if (json instanceof JSONArray){
+                Log.d("wrote", "d" );
+                //JSONArray jsonArray = new JSONArray(jsonString);
+
+             //   JSONArray jsonArray = new JSONArray(jsonString);
+             //   jsonArray.put(attractorsArray);
+
+                JSONArray sourceArray = new JSONArray(jsonString);
+
+                String s3 = attractorsArray.toString();
+                JSONArray destinationArray = new JSONArray(s3);
+
+
+               for (int i = 0; i < sourceArray.length(); i++) {
+                   JSONObject jsonObject = sourceArray.getJSONObject(i);
+                   destinationArray.put(jsonObject);
+                }
+
+                File file = new File(getActivity().getFilesDir(), "storage.json");
+                try {
+
+                    fileWriter = new FileWriter(file.getAbsoluteFile());
+                    bufferedWriter = new BufferedWriter(fileWriter);
+                    bufferedWriter.write(destinationArray.toString());
+                    bufferedWriter.close();
+                    Log.d("wrote", "success" + destinationArray );
+                } catch (IOException e){
+
+                    e.printStackTrace();
+
+                }
+
+            }
+
+        } else {
+            Log.d("wrote", "Fileisnotpresent" );
+            boolean isFileCreated = create(getActivity(), "storage.json", "{}");
+            if (isFileCreated) {
+                Log.d("wrote", "willcreatenewfile" );
+                //proceed with storing the first todo  or show ui
+                File file = new File(getActivity().getFilesDir(), "storage.json");
+                try {
+                    file.createNewFile();
+                    fileWriter = new FileWriter(file.getAbsoluteFile());
+                    bufferedWriter = new BufferedWriter(fileWriter);
+                    bufferedWriter.write(attractorsArray.toString());
+                    bufferedWriter.close();
+                } catch (IOException e){
+                    e.printStackTrace();
+                }
+                String response = null;
+            } else {
+                //show error or try again.
+            }
+        }
+    } catch (JSONException e) {
+        // TODO Auto-generated catch block
+        Log.d("wrote", "error" + e);
+        e.printStackTrace();
+    }
+    } //Fix this
+
+
+    public void AddData (String table, int type, double power, double x, double y, double radiusm, double z_score, double pseudo, String gid, int report) {
+        boolean insertData = mDatabaseHelper.addData(table, type, power, x, y, radiusm, z_score, pseudo, gid, report);
 
         if (insertData){
             Toast.makeText(getContext(), "succ", Toast.LENGTH_LONG).show();
@@ -906,6 +815,145 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         }
     }
 
+
+
+    private String read(Context context, String fileName) {
+        try {
+            FileInputStream fis = context.openFileInput(fileName);
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader bufferedReader = new BufferedReader(isr);
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                sb.append(line);
+            }
+            return sb.toString();
+        } catch (FileNotFoundException fileNotFound) {
+            return null;
+        } catch (IOException ioException) {
+            return null;
+        }
+    }
+
+    private boolean create(Context context, String fileName, String jsonString){
+        String FILENAME = "storage.json";
+        Log.d("wrote", "testwrote" );
+        try {
+            FileOutputStream fos = context.openFileOutput(fileName,Context.MODE_PRIVATE);
+            if (jsonString != null) {
+                fos.write(jsonString.getBytes());
+            }
+            fos.close();
+            return true;
+        } catch (FileNotFoundException fileNotFound) {
+            return false;
+        } catch (IOException ioException) {
+            return false;
+        }
+
+    }
+
+    public boolean isFilePresent(Context context, String fileName) {
+        Log.d("wrote", "isFilePresent" );
+        String path = context.getFilesDir().getAbsolutePath() + "/" + fileName;
+        File file = new File(path);
+        return file.exists();
+    }
+
+
+    SendMessage SM;
+
+    interface SendMessage {
+        void rng();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        try {
+            SM = (SendMessage) getActivity();
+        } catch (ClassCastException e) {
+            throw new ClassCastException("Error in retrieving data. Please try again");
+        }
+    }
+
+    //Dialogs
+
+    public void setReportAlertDialog(){
+        reportDialog = new Dialog(getActivity());
+       // reportDialog.setContentView(R.layout.dialog_report);
+        //reportDialog.setTitle("Report");
+        reportDialog.requestWindowFeature(Window.FEATURE_NO_TITLE); //before
+        reportDialog.setContentView(R.layout.dialog_questionreport);
+
+        final ReportQuestions rReportQuestions = new ReportQuestions();
+
+        final TextView rQuestionView;
+        Button yesAnwserButton;
+        Button noAnwserButton;
+
+        final int[] currentQeustion = {0};
+        int maxQeustions = 5;
+
+        yesAnwserButton = (Button) reportDialog.findViewById(R.id.yesAnwserButton);
+        noAnwserButton = (Button) reportDialog.findViewById(R.id.noAnwserButton);
+        rQuestionView = (TextView) reportDialog.findViewById(R.id.rQuestionView);
+
+        //Button listener for yes
+        yesAnwserButton.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View view){
+               currentQeustion[0]++;
+               rQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
+
+           }
+
+        });
+
+        //Button listener for no
+        noAnwserButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view){
+                currentQeustion[0]++;
+                rQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
+
+            }
+
+        });
+
+        reportDialog.show();
+    }
+
+
+    public void setRngDialog(){
+        reportDialog = new Dialog(getActivity());
+        reportDialog.setContentView(R.layout.dialog_loading);
+        reportDialog.setTitle("Loading RNG");
+
+
+
+
+        // Create the observer which updates the UI.
+
+        //bitTextView = (TextView) reportDialog.findViewById(R.id.bitTextView);
+
+        //rng.getLiveBoolean().observe(this,  nameObserver);;
+        //rng.getLiveByte().observe(reportDialog.getContext()) {
+         //   byteTextView.text = it.toString()
+        //}
+
+        reportDialog.show();
+    }
+
+    final Observer<Boolean> nameObserver = new Observer<Boolean>() {
+        @Override
+        public void onChanged(@Nullable final Boolean newName) {
+            // Update the UI, in this case, a TextView.
+            Toast.makeText(getContext(), "update", Toast.LENGTH_SHORT).show();
+            bitTextView.setText(newName.toString());
+        }
+    };
 
     public void onCreateDialog() {
 
@@ -965,10 +1013,13 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                 if (PsuedoToggleButton.isChecked()) {
                     preferencesDialog.cancel();
                     getPsuedo();
+                //    setRngPreferencesDialog(PsuedoToggleButton);
+
                 } else {
                     //getAttractors();
                     preferencesDialog.cancel();
                     setRngPreferencesDialog();
+
                 }
             }
         });
@@ -1080,7 +1131,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(new String(Base64.decode(getBaseApi(),Base64.DEFAULT)))
+                .baseUrl("https://api.randonauts.com/")
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -1107,6 +1158,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                         entropy = entropy + hexsize;
                         saveData();
                         progressdialog.dismiss();
+                        //getAttractors(false);
                         getAttractors(false);
                     }
                     @Override
@@ -1143,7 +1195,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(new String(Base64.decode(getBaseApi(),Base64.DEFAULT)))
+                .baseUrl("https://api.randonauts.com")
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -1316,11 +1368,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         });
     }
 
-
-    /**
-     * Compound buttons listeners
-     */
-
     CompoundButton.OnCheckedChangeListener changeChecker = new CompoundButton.OnCheckedChangeListener() {
 
         @Override
@@ -1345,7 +1392,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                     AnomalyToggleButton.setChecked(false);
                 }
                 if (buttonView == AnomalyToggleButton) {
-                    selected = "Anomalie";
+                    selected = "Anomaly";
                     VoidToggleButton.setChecked(false);
                     AttractorToggleButton.setChecked(false);
                     PsuedoToggleButton.setChecked(false);
@@ -1383,9 +1430,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         }
     };
 
-    /**
-     * Saving and loading shared preferences
-     */
+    //Shared preferences
 
     public void saveData() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(STATS, Context.MODE_PRIVATE);
@@ -1406,9 +1451,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         psuedo = sharedPreferences.getLong("PSEUDO", 0);
     }
 
-    /**
-     * Recyclerview containing all the attractors/voids
-     */
+    //Recyclerview
 
     private void initRecyclerView() {
 
@@ -1448,7 +1491,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         private double  power;
         private double z_score;
         private boolean isPsuedo;
-        private Button reportButtton = reportButton;
 
         private LatLng locationCoordinates;
 
@@ -1470,10 +1512,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
         public double getRadiusm() {
             return radiusm;
-        }
-
-        public Button getReportButtton() {
-            return reportButtton;
         }
 
         public void setRadiusm(double radiusm) {
@@ -1503,72 +1541,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         public void setLocationCoordinates(LatLng locationCoordinates) {
             this.locationCoordinates = locationCoordinates;
         }
-
-        public void setReportAlertDialog() {
-            Dialog reportDialog;
-            reportDialog = new Dialog(getApplicationContext());
-            JSONObject obj = new JSONObject();
-
-            // reportDialog.setContentView(R.layout.dialog_report);
-            //reportDialog.setTitle("Report");
-            reportDialog.requestWindowFeature(Window.FEATURE_NO_TITLE); //before
-            reportDialog.setContentView(R.layout.dialog_questionreport);
-
-            final ReportQuestions rReportQuestions = new ReportQuestions();
-
-            final TextView rQuestionView;
-            final TextView qeustionViewScore;
-            Button yesAnwserButton;
-            Button noAnwserButton;
-
-            final int[] currentQeustion = {0};
-            int maxQeustions = 5;
-
-            yesAnwserButton = (Button) reportDialog.findViewById(R.id.yesAnwserButton);
-            noAnwserButton = (Button) reportDialog.findViewById(R.id.noAnwserButton);
-            rQuestionView = (TextView) reportDialog.findViewById(R.id.rQuestionView);
-            qeustionViewScore = (TextView) reportDialog.findViewById(R.id.qeustionView1);
-
-            qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
-
-            //Button listener for yes
-            yesAnwserButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    currentQeustion[0]++;
-                    rQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
-                    if(currentQeustion[0] == 3){
-
-                        //    reportDialogWindow(currentQeustion, position, showButton);
-                        qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
-
-                    }
-                    qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
-                }
-
-            });
-
-            //Button listener for no
-            noAnwserButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    currentQeustion[0]++;
-                    rQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
-                    if(currentQeustion[0] == 3){
-                        //   reportDialog.setContentView(R.layout.dialog_qeustionreportwindow);
-                        //    reportDialogWindow(currentQeustion, position, showButton);
-                        qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
-
-                    }
-                    qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
-                }
-
-            });
-
-
-            reportDialog.show();
-        }
-
 
     }
 
@@ -1611,14 +1583,12 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
             String radiusm = "Radius: " +  (int) singleRecyclerViewLocation.getRadiusm();
             String power = "Power: " + String.format("%.2f", singleRecyclerViewLocation.getPower());
             String z_score = "Z Score: " + String.format("%.2f", singleRecyclerViewLocation.getZ_score());
-            final Button reportButton = singleRecyclerViewLocation.getReportButtton();
 
             holder.type.setText(type);
             holder.radiusm.setText(radiusm);
             holder.power.setText(power);
             holder.z_score.setText(z_score);
 
-                singleRecyclerViewLocation.getReportButtton();
 
             holder.setClickListener(new ItemClickListener() {
                 @Override
@@ -1630,23 +1600,9 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                             .target(selectedLocationLatLng)
                             .build();
                     map.easeCamera(CameraUpdateFactory.newCameraPosition(newCameraPosition));
-                   // reportButton.setVisibility(view.VISIBLE);  //Not yet working, report function while clicking an attractor.
-                }
-
-
-            });
-
-            reportButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-
-
                 }
             });
         }
-
-
 
         @Override
         public int getItemCount() {
@@ -1680,47 +1636,19 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
             @Override
             public void onClick(View view) {
                 clickListener.onClick(view, getLayoutPosition());
-//                reportButton.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//
-//                        setReportAlertDialog(1);
-//
-//                    }
-//                });
-
-
             }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         }
     }
 
-
-
     public interface ItemClickListener {
         void onClick(View view, int position);
-
     }
 
 
 
-    /**
-     * Permissions for setting the location
-     */
+
+
+    //Permissions for location
     @Override
     public void onExplanationNeeded(List<String> permissionsToExplain) {
         Toast.makeText(getContext(), "Granted", Toast.LENGTH_LONG).show();
@@ -1791,59 +1719,95 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         }
     }
 
-    /**
-     * Send message to the mainactivity, used for camrng
-     * */
 
-    interface SendMessage {
-        void rng();
+    //Mapbox Route generation (works but not yet used)
+
+    /**
+     * Loop through the possible destination list of LatLng locations and get
+     * the route for each destination.
+     */
+    private void getRoutesToAllPoints(LatLng test) {
+
+        getRoute(Point.fromLngLat(test.getLongitude(), test.getLatitude()));
+
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try {
-            SM = (SendMessage) getActivity();
-        } catch (ClassCastException e) {
-            throw new ClassCastException("Error in retrieving data. Please try again");
+    /**
+     * Make a call to the Mapbox Directions API to get the route from the person location icon
+     * to the marker's location and then add the route to the route list.
+     *
+     * @param destination the marker associated with the recyclerview card that was tapped on.
+     */
+    @SuppressWarnings({"MissingPermission"})
+    private void getRoute(Point destination) {
+        directionsOriginPoint = Point.fromLngLat(mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(),
+                mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude());
+        MapboxDirections client = MapboxDirections.builder()
+                .origin(directionsOriginPoint)
+                .destination(destination)
+                .overview(DirectionsCriteria.OVERVIEW_FULL)
+                .profile(DirectionsCriteria.PROFILE_DRIVING)
+                .accessToken("pk.eyJ1IjoiZGF2aWRmYWxjb24iLCJhIjoiY2szbjRzZmd2MTcwNDNkcXhnbTFzbHR0cCJ9.ZgbfsJXtrCFgI0rRJkwUyg")
+                .build();
+        client.enqueueCall(new Callback<DirectionsResponse>() {
+            @Override
+            public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+                if (response.body() == null) {
+                    Log.d(TAG, "No routes found, make sure you set the right user and access token.");
+                    return;
+                } else if (response.body().routes().size() < 1) {
+                    Log.d(TAG, "No routes found");
+                    return;
+                }
+                // Add the route to the list.
+                directionsRouteList.add(response.body().routes().get(0));
+            }
+
+            @Override
+            public void onFailure(Call<DirectionsResponse> call, Throwable throwable) {
+                Log.d(TAG, "Error: " + throwable.getMessage());
+                if (!throwable.getMessage().equals("Coordinate is invalid: 0,0")) {
+                    Toast.makeText(getContext(),
+                            "Error: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    /**
+     * Update the GeoJSON data for the direction route LineLayer.
+     *
+     * @param route The route to be drawn in the map's LineLayer that was set up above.
+     */
+    private void drawNavigationPolylineRoute(final DirectionsRoute route) {
+
+        if (mapboxMap != null) {
+            mapboxMap.getStyle(new Style.OnStyleLoaded() {
+                @Override
+                public void onStyleLoaded(@NonNull Style style) {
+                    List<Feature> directionsRouteFeatureList = new ArrayList<>();
+                    LineString lineString = LineString.fromPolyline(route.geometry(), PRECISION_6);
+                    List<Point> lineStringCoordinates = lineString.coordinates();
+                    for (int i = 0; i < lineStringCoordinates.size(); i++) {
+                        directionsRouteFeatureList.add(Feature.fromGeometry(
+                                LineString.fromLngLats(lineStringCoordinates)));
+                    }
+                    dashedLineDirectionsFeatureCollection =
+                            FeatureCollection.fromFeatures(directionsRouteFeatureList);
+                    GeoJsonSource source = style.getSourceAs(DASHED_DIRECTIONS_LINE_LAYER_SOURCE_ID);
+                    if (source != null) {
+                        source.setGeoJson(dashedLineDirectionsFeatureCollection);
+                    }
+                }
+            });
         }
     }
 
 
-    /**
-     * Draw circle on the mapview
-     */
-
-    private PolygonOptions generatePerimeter(LatLng centerCoordinates, double radiusInKilometers, int numberOfSides) {
-        List<LatLng> positions = new ArrayList<>();
-        double distanceX = radiusInKilometers / (111.319 * Math.cos(centerCoordinates.getLatitude() * Math.PI / 180));
-        double distanceY = radiusInKilometers / 110.574;
-
-        double slice = (2 * Math.PI) / numberOfSides;
-
-        double theta;
-        double x;
-        double y;
-        LatLng position;
-        for (int i = 0; i < numberOfSides; ++i) {
-            theta = i * slice;
-            x = distanceX * Math.cos(theta);
-            y = distanceY * Math.sin(theta);
-
-            position = new LatLng(centerCoordinates.getLatitude() + y,
-                    centerCoordinates.getLongitude() + x);
-            positions.add(position);
-        }
-        return new PolygonOptions()
-                .addAll(positions)
-                .fillColor(Color.BLUE)
-                .alpha(0.4f);
-    }
 
 
-    /**
-     *  Contains all the mapbox functions
-     */
+
+    //Mapbox functions
 
     @Override
     public void onStart() {
