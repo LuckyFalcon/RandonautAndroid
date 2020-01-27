@@ -67,21 +67,21 @@ class camRngDialog : DialogFragment() {
 
             val entropy = String()
             val sb = StringBuilder()
-
+            var bytes = byteArrayOf()
             compositeDisposable.add(
                     camRng.getBytes()
                             .subscribeOn(Schedulers.newThread())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe {
                                 byteTextView.text = it.toString()
-                                var bytes = byteArrayOf()
                                 bytes += it.toByte()
                                 var st = String()
-                                for (b in bytes) {
-                                    val st = String.format("%02X", b);
-                                    sb.append(st)
-                                }
-                                Log.d("entropy", ""+sb.length);
+                                Log.d("entropy", ""+bytes.size);
+//                                for (b in bytes) {
+//                                    val st = String.format("%02X", b);
+//                                    sb.append(st)
+//                                }
+//                                Log.d("entropy", ""+sb.length);
                             }
             )
 

@@ -21,7 +21,7 @@
         android:layout_marginRight="16dp"
         android:layout_marginBottom="3dp"
         android:text="Meaningless"
-        android:textSize="10sp" />
+        android:textSize="9sp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/windowButton5"
@@ -37,7 +37,7 @@
         android:layout_marginEnd="129dp"
         android:layout_marginBottom="3dp"
         android:text="Somewhat meaningful"
-        android:textSize="10sp" />
+        android:textSize="9sp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/windowButton4"
@@ -53,7 +53,7 @@
         android:layout_marginEnd="247dp"
         android:layout_marginBottom="3dp"
         android:text="Special"
-        android:textSize="10sp" />
+        android:textSize="9sp" />
 
     <TextView
         android:id="@+id/wQuestionView"
@@ -82,7 +82,7 @@
         android:layout_marginEnd="246dp"
         android:layout_marginBottom="49dp"
         android:text="Meaningful"
-        android:textSize="10sp" />
+        android:textSize="9sp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/windowButton2"
@@ -98,7 +98,7 @@
         android:layout_marginEnd="130dp"
         android:layout_marginBottom="50dp"
         android:text="Enriching"
-        android:textSize="10sp" />
+        android:textSize="9sp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/windowButton3"
@@ -115,7 +115,7 @@
         android:layout_marginRight="16dp"
         android:layout_marginBottom="48dp"
         android:text="Casual"
-        android:textSize="10sp" />
+        android:textSize="9sp" />
 
     <TextView
         android:id="@+id/qeustionView2"

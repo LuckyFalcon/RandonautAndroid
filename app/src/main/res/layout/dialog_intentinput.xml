@@ -64,8 +64,9 @@
         android:layout_marginLeft="51dp"
         android:layout_marginBottom="82dp"
         android:ems="10"
-        android:maxLength="20"
         android:gravity="start|top"
-        android:inputType="textMultiLine" />
+        android:hint="Fill in here"
+        android:inputType="textMultiLine"
+        android:maxLength="20" />
 
 </RelativeLayout>

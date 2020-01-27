@@ -81,9 +81,9 @@ public class ReportQuestions {
             "Dirk gently",
             "Mind-blowing",
             "Unbelievable",
+            "Dream-like",
             "Somewhat",
             "Nothing",
-            "Boredom",
 
     };
 

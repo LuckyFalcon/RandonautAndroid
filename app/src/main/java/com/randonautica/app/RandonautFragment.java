@@ -1185,52 +1185,52 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
     public void setQuantumEntropy(){
         SM.rng(); //Starts camRNG instance fragment
-
-        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
-                .connectTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
-                .writeTimeout(60, TimeUnit.SECONDS)
-                .build();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.1.117:3000/")
-                .client(okHttpClient)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        randoWrapperApi = retrofit.create(RandoWrapperApi.class);
-
-        Call<Sizes> callGetSizes = randoWrapperApi.getSizes(distance);
-
-        callGetSizes.enqueue(new Callback<Sizes>() {
-            @Override
-            public void onResponse(Call<Sizes> call, Response<Sizes> response) {
-                Type = response.body().getType();
-                N = response.body().getN();
-                spot = response.body().getSpot();
-                hexsize = response.body().getHexsize();
-
-                Call<Entropy> callGetEntropy = randoWrapperApi.getEntropy(hexsize, false, false);
-
-                callGetEntropy.enqueue(new Callback<Entropy>() {
-                    @Override
-                    public void onResponse(Call<Entropy> call, Response<Entropy> response) {
-                        GID = response.body().getGid();
-                        entropy = entropy + hexsize;
-                        saveData();
-                        getAttractors(false, false);
-                    }
-                    @Override
-                    public void onFailure(Call<Entropy> call, Throwable t) {
-
-                    }
-                });
-            }
-            @Override
-            public void onFailure(Call<Sizes> call, Throwable t) {
-
-            }
-        });
+//
+//        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+//                .connectTimeout(60, TimeUnit.SECONDS)
+//                .readTimeout(60, TimeUnit.SECONDS)
+//                .writeTimeout(60, TimeUnit.SECONDS)
+//                .build();
+//
+//        Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl("http://192.168.1.117:3000/")
+//                .client(okHttpClient)
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build();
+//
+//        randoWrapperApi = retrofit.create(RandoWrapperApi.class);
+//
+//        Call<Sizes> callGetSizes = randoWrapperApi.getSizes(distance);
+//
+//        callGetSizes.enqueue(new Callback<Sizes>() {
+//            @Override
+//            public void onResponse(Call<Sizes> call, Response<Sizes> response) {
+//                Type = response.body().getType();
+//                N = response.body().getN();
+//                spot = response.body().getSpot();
+//                hexsize = response.body().getHexsize();
+//
+//                Call<Entropy> callGetEntropy = randoWrapperApi.getEntropy(hexsize, false, false);
+//
+//                callGetEntropy.enqueue(new Callback<Entropy>() {
+//                    @Override
+//                    public void onResponse(Call<Entropy> call, Response<Entropy> response) {
+//                        GID = response.body().getGid();
+//                        entropy = entropy + hexsize;
+//                        saveData();
+//                        getAttractors(false, false);
+//                    }
+//                    @Override
+//                    public void onFailure(Call<Entropy> call, Throwable t) {
+//
+//                    }
+//                });
+//            }
+//            @Override
+//            public void onFailure(Call<Sizes> call, Throwable t) {
+//
+//            }
+//        });
 
 
 
@@ -1384,6 +1384,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putLong("ATTRACTORS", atts);
         editor.putLong("VOID", voids);
+        editor.putLong("ANOMALIES", anomalies);
         editor.putLong("PSEUDO", psuedo);
         editor.putLong("ENTROPY", entropy);
 
@@ -1393,6 +1394,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
     public void loadData() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(STATS, Context.MODE_PRIVATE);
         atts = sharedPreferences.getLong("ATTRACTORS", 0);
+        anomalies = sharedPreferences.getLong("ANOMALIES", 0);
         voids = sharedPreferences.getLong("VOID", 0);
         entropy = sharedPreferences.getLong("ENTROPY", 0);
         psuedo = sharedPreferences.getLong("PSEUDO", 0);
