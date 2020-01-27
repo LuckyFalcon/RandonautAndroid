@@ -12,11 +12,11 @@ import androidx.fragment.app.FragmentManager;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -24,9 +24,14 @@ import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity implements RandonautFragment.SendMessage, MyAttractorsListFragment.SendMessage, NavigationView.OnNavigationItemSelectedListener  {
 
-
+    public static final String SHARED_PREFS = "sharedPrefs";
+    public static final String STATS = "stats";
+    private String userid;
     private DrawerLayout drawer;
     private String tag;
+    private boolean switchOnOff;
+    public static final String SWTICHEnableDarkMode = "enableDarkMode";
+
 
     private NavigationView navigationView;
 
@@ -55,11 +60,17 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+        loadData();
+        if(userid == null){
+            //UserID
+            userid = UUID.randomUUID().toString();
+            saveData();
+        }
+        if(switchOnOff){
 
-        //UserID
-        String uniqueID = UUID.randomUUID().toString();
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
 
-        Log.d("test", ""+uniqueID);
+        }
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                 new RandonautFragment(), "randonaut")
@@ -171,6 +182,24 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
         } else {
             super.onBackPressed();
         }
+    }
+
+    private void saveData() {
+        SharedPreferences sharedPreferences = this.getSharedPreferences(STATS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("USERID", userid);
+
+        editor.apply();
+    }
+
+    private void loadData() {
+        SharedPreferences sharedPreferences = this.getSharedPreferences(STATS, Context.MODE_PRIVATE);
+        userid = sharedPreferences.getString("USERID", null);
+
+
+        sharedPreferences = this.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
+        switchOnOff = sharedPreferences.getBoolean(SWTICHEnableDarkMode, false);
+
     }
 
 }

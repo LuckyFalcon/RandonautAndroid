@@ -89,8 +89,8 @@ public class MyAnomalyListFragment extends Fragment {
             resultRow.id = data.getString(0);
             resultRow.type = data.getString(1);
             resultRow.power = data.getString(2);
-            resultRow.x = data.getString(3);
-            resultRow.y = data.getString(4);
+            resultRow.latitude = data.getString(3);
+            resultRow.longitude = data.getString(4);
             resultRow.radiusm = data.getString(5);
             resultRow.z_score = data.getString(6);
             resultRow.pseudo = data.getString(7);

@@ -3,12 +3,13 @@ package com.randonautica.app.Classes;
 public class ReportQuestions {
 
     private String rQeustions [] = {
-            "Did  you set an intent?",
             "Did you collect any artificats",
             "Was your trip 'wow and astounding!'?",
+            "Did  you set an intent?",
             "Rate the meaningfulness of your trip",
             "Rate the emotional factor",
             "Rate the importance",
+            "Rate the strangeness",
             "Rate the synchronicity factor",
             "Do you want to add anything?"
     };

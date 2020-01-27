@@ -36,10 +36,6 @@ public class Attractors {
             return type;
         }
 
-        public double getRadiusM() {
-            return radiusM;
-        }
-
         public double getPower() {
             return power;
         }
@@ -65,7 +61,7 @@ public class Attractors {
             public class Latlng{
 
                 private Point point;
-                private Bearting bearting;
+                private Bearing bearing;
 
                 public Point getPoint() {
                     return point;
@@ -85,11 +81,11 @@ public class Attractors {
                     }
                 }
 
-                public Bearting getBearting() {
-                    return bearting;
+                public Bearing getBearing() {
+                    return bearing;
                 }
 
-                public class Bearting {
+                public class Bearing {
 
                     private double distance;
                     private double initialBearing;
@@ -117,7 +113,7 @@ public class Attractors {
 
         private double radiusM;
 
-        private int N;
+        private int n;
 
         private double mean;
 
@@ -159,8 +155,12 @@ public class Attractors {
             return distanceErr;
         }
 
+        public double getRadiusM() {
+            return radiusM;
+        }
+
         public int getN() {
-            return N;
+            return n;
         }
 
         public double getMean() {

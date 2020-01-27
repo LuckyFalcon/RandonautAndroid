@@ -1,9 +1,13 @@
 package com.randonautica.app;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +15,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -20,44 +25,45 @@ import androidx.fragment.app.Fragment;
 
 import com.randonautica.app.Classes.Attractor;
 import com.randonautica.app.Classes.DatabaseHelper;
+import com.randonautica.app.Classes.RandoWrapperApi;
 import com.randonautica.app.Classes.ReportQuestions;
+import com.randonautica.app.Classes.SendReport;
 
-import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MyAttractorsListFragment extends Fragment {
-
-
-    //Store attractors
-    JSONObject attractorObj = new JSONObject();
-    JSONArray attractorsArray = new JSONArray();
+    private RandoWrapperApi randoWrapperApi;
 
     ArrayList<Attractor> attractorArray = new ArrayList<Attractor>();
-
     Dialog reportDialog;
-
     private ListView mListView;
-
     DatabaseHelper mDatabaseHelper;
-
     String attractorTable = "Attractors";
-
     private View view;
-
     private static DecimalFormat df2 = new DecimalFormat("#.##");
+    SendMessage SM;
+    private String userid;
+    public static final String STATS = "stats";
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
         view = inflater.inflate(R.layout.fragment_list_attractors, container, false);
         getActivity().setTitle("My Attractors");
         return view;
@@ -68,11 +74,11 @@ public class MyAttractorsListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         mDatabaseHelper = new DatabaseHelper(getActivity(), attractorTable);
         mListView = (ListView) view.findViewById(R.id.attractorsList);
+        loadData();
         populateListView();
     }
 
     private void populateListView() {
-        Log.d("test", "populateListView: Displaying data in the ListView.");
         attractorArray = new ArrayList<Attractor>();
         Cursor data = mDatabaseHelper.getData(attractorTable);
 
@@ -80,16 +86,34 @@ public class MyAttractorsListFragment extends Fragment {
             Attractor resultRow = new Attractor();
 
             resultRow.id = data.getString(0);
-            resultRow.type = data.getString(1);
-            resultRow.power = data.getString(2);
-            resultRow.x = data.getString(3);
-            resultRow.y = data.getString(4);
-            resultRow.radiusm = data.getString(5);
-            resultRow.z_score = data.getString(6);
-            resultRow.pseudo = data.getString(7);
-            resultRow.gid = data.getString(8);
-            resultRow.report = data.getString(9);
-
+            resultRow.GID = data.getString(1);
+            resultRow.TID = data.getString(2);
+            resultRow.LID = data.getString(3);
+            resultRow.x_ = data.getString(4);
+            resultRow.y_ = data.getString(5);
+            resultRow.distance = data.getString(6);
+            resultRow.initialBearing = data.getString(7);
+            resultRow.finalBearing = data.getString(8);
+            resultRow.side = data.getString(9);
+            resultRow.distanceErr = data.getString(10);
+            resultRow.radiusM = data.getString(11);
+            resultRow.N = data.getString(12);
+            resultRow.mean = data.getString(13);
+            resultRow.rarity = data.getString(14);
+            resultRow.power_old = data.getString(15);
+            resultRow.probability_single = data.getString(16);
+            resultRow.integral_score = data.getString(17);
+            resultRow.significance = data.getString(18);
+            resultRow.probability = data.getString(19);
+            resultRow.FILTERING_SIGNIFICANCE = data.getString(20);
+            resultRow.type = data.getString(21);
+            resultRow.radiusm = data.getString(22);
+            resultRow.power = data.getString(23);
+            resultRow.z_score = data.getString(24);
+            resultRow.latitude = data.getString(25);
+            resultRow.longitude = data.getString(26);
+            resultRow.pseudo = data.getString(27);
+            resultRow.report = data.getString(28);
 
             attractorArray.add(resultRow);
 
@@ -98,10 +122,9 @@ public class MyAttractorsListFragment extends Fragment {
         AttractorListAdapter adapter = new AttractorListAdapter(getContext(), R.layout.my_attractors_list_item_test, attractorArray);
         mListView.setAdapter(adapter);
 
-
     }
 
-    class AttractorListAdapter extends ArrayAdapter<Attractor>{
+    class AttractorListAdapter extends ArrayAdapter<Attractor> {
 
         private static final String TAG = "AttractorListAdapter";
 
@@ -119,22 +142,20 @@ public class MyAttractorsListFragment extends Fragment {
         @Override
         public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-            String type = "Attractor " +  getItem(position).getId();
+            String type = "Attractor " + getItem(position).getId();
 
             String power = "Power: " + df2.format(Double.valueOf(getItem(position).getPower()));
             String radiusm = "Radius: " + df2.format(Double.valueOf(getItem(position).getRadiusm()));
             String z_score = "Z_Score: " + df2.format(Double.valueOf(getItem(position).getZ_score()));
             String pseudo;
-            if(Double.valueOf(getItem(position).getPseudo()) == 1){
+            if (Double.valueOf(getItem(position).getPseudo()) == 1) {
                 pseudo = "Pseudo: " + "Yes";
             } else {
                 pseudo = "Pseudo: " + "No";
             }
 
-
-
             LayoutInflater inflater = LayoutInflater.from(mContext);
-            convertView = inflater.inflate(mResource,parent,false);
+            convertView = inflater.inflate(mResource, parent, false);
 
             TextView textViewType = (TextView) convertView.findViewById(R.id.textViewType);
             TextView textViewPower = (TextView) convertView.findViewById(R.id.textViewPower);
@@ -149,7 +170,7 @@ public class MyAttractorsListFragment extends Fragment {
             textViewPsuedo.setText(pseudo);
 
             final Button button = (Button) convertView.findViewById(R.id.reportButtonInList);
-            if(Double.valueOf(getItem(position).getReport()) == 1){
+            if (Double.valueOf(getItem(position).getReport()) == 1) {
                 button.setText("Reported");
                 button.setPressed(true);
                 button.setEnabled(false);
@@ -170,8 +191,8 @@ public class MyAttractorsListFragment extends Fragment {
 
                     setShowAlertDialog(Integer.parseInt(getItem(position).getId()),
                             Double.valueOf(getItem(position).getPower()),
-                            Double.valueOf(getItem(position).getX()),
-                            Double.valueOf(getItem(position).getY()),
+                            Double.valueOf(getItem(position).getLatitude()),
+                            Double.valueOf(getItem(position).getLongitude()),
                             Double.valueOf(getItem(position).getRadiusm()),
                             Double.valueOf(getItem(position).getZ_score()),
                             Double.valueOf(getItem(position).getPseudo()));
@@ -184,10 +205,7 @@ public class MyAttractorsListFragment extends Fragment {
 
         public void setReportAlertDialog(final int position, final Button showButton) {
             reportDialog = new Dialog(getActivity());
-            JSONObject obj = new JSONObject();
-
-            // reportDialog.setContentView(R.layout.dialog_report);
-            //reportDialog.setTitle("Report");
+            final ArrayList<String> ar = new ArrayList<String>();
             reportDialog.requestWindowFeature(Window.FEATURE_NO_TITLE); //before
             reportDialog.setContentView(R.layout.dialog_questionreport);
 
@@ -206,49 +224,82 @@ public class MyAttractorsListFragment extends Fragment {
             rQuestionView = (TextView) reportDialog.findViewById(R.id.rQuestionView);
             qeustionViewScore = (TextView) reportDialog.findViewById(R.id.qeustionView1);
 
-            qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
+            qeustionViewScore.setText("Question " + (currentQeustion[0] + 1) + "/9");
 
             //Button listener for yes
             yesAnwserButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    currentQeustion[0]++;
                     rQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
-                    if(currentQeustion[0] == 3){
 
-                        reportDialogWindow(currentQeustion, position, showButton);
-                        qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
+                    if (currentQeustion[0] == 3) {
+                        reportDialogWindowIntent(currentQeustion, position, showButton, ar);
+                        qeustionViewScore.setText("Question " + (currentQeustion[0] + 1) + "/9");
 
+                    } else {
+                        currentQeustion[0]++;
+                        ar.add("1");
+                        qeustionViewScore.setText("Question " + (currentQeustion[0] + 1) + "/9");
                     }
-                    qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
                 }
-
             });
 
             //Button listener for no
             noAnwserButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    currentQeustion[0]++;
+
                     rQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
-                    if(currentQeustion[0] == 3){
+                    if (currentQeustion[0] == 3) {
+                        ar.add("0");
                         reportDialog.setContentView(R.layout.dialog_qeustionreportwindow);
-                        reportDialogWindow(currentQeustion, position, showButton);
-                        qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
-
+                        reportDialogWindow(currentQeustion, position, showButton, ar);
+                        qeustionViewScore.setText("Question " + (currentQeustion[0] + 1) + "/9");
+                    } else {
+                        currentQeustion[0]++;
+                        ar.add("0");
+                        qeustionViewScore.setText("Question " + (currentQeustion[0] + 1) + "/9");
                     }
-                    qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
                 }
-
             });
 
 
             reportDialog.show();
         }
 
-        public void reportDialogWindow(final int[] currentQeustion, final int position, final Button showButton){
-            reportDialog.setContentView(R.layout.dialog_qeustionreportwindow);
+        public void reportDialogWindowIntent(final int[] currentQeustion, final int position, final Button showButton, final ArrayList<String> ar) {
+            reportDialog.setContentView(R.layout.dialog_intentinput);
+            final EditText userInput = (EditText) reportDialog.findViewById(R.id.editIntent);
 
+            final Button nextButton = (Button) reportDialog.findViewById(R.id.intentNext);
+            final Button skipButton = (Button) reportDialog.findViewById(R.id.intentSkip);
+
+            //Button listener for nextButton
+            nextButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ar.add(userInput.getText().toString());
+                    reportDialogWindow(currentQeustion, position, showButton, ar);
+                }
+            });
+            //Button listener for skipButton
+            skipButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ar.add("Skipped");
+                    reportDialogWindow(currentQeustion, position, showButton, ar);
+                }
+            });
+
+        }
+
+
+
+
+
+        public void reportDialogWindow(final int[] currentQeustion, final int position, final Button showButton, final ArrayList<String> ar){
+            Log.d("Test", ""+ar);
+            reportDialog.setContentView(R.layout.dialog_qeustionreportwindow);
             final ReportQuestions rReportQuestions = new ReportQuestions();
             final TextView wQuestionView;
 
@@ -263,46 +314,54 @@ public class MyAttractorsListFragment extends Fragment {
             qeustionViewScore = (TextView) reportDialog.findViewById(R.id.qeustionView2);
 
 
-            qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
+            qeustionViewScore.setText("Question "+(currentQeustion[0]+2)+"/9");
             //Button listener for windowButton1
             windowButton1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     currentQeustion[0]++;
-                    wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
-                    updateAnwserButtons(windowButton1, windowButton2, windowButton3, windowButton4, windowButton5, windowButton6, currentQeustion,rReportQuestions);
-                    qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
-                    if(currentQeustion[0] == 7){
-                        reportDialogInput(position, showButton);
+
+                    if(currentQeustion[0] == 8){
+                        ar.add(windowButton1.getText().toString());
+                        reportDialogInput(position, showButton, ar);
+                    } else {
+                        ar.add(windowButton1.getText().toString());
+                        wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
+                        updateAnwserButtons(windowButton1, windowButton2, windowButton3, windowButton4, windowButton5, windowButton6, currentQeustion, rReportQuestions);
+                        qeustionViewScore.setText("Question " + (currentQeustion[0] + 2) + "/9");
+                        Log.d("Test", ""+ar);
                     }
                 }
-
             });
             //Button listener for windowButton1
             windowButton2.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     currentQeustion[0]++;
-                    wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
-                    updateAnwserButtons(windowButton1, windowButton2, windowButton3, windowButton4, windowButton5, windowButton6, currentQeustion,rReportQuestions);
-                    qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
-                    if(currentQeustion[0] == 7){
-                        reportDialogInput(position, showButton);
+                    if(currentQeustion[0] == 8){
+                        ar.add(windowButton2.getText().toString());
+                        reportDialogInput(position, showButton, ar);
+                    } else {
+                        ar.add(windowButton2.getText().toString());
+                        wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
+                        updateAnwserButtons(windowButton1, windowButton2, windowButton3, windowButton4, windowButton5, windowButton6, currentQeustion, rReportQuestions);
+                        qeustionViewScore.setText("Question " + (currentQeustion[0] + 2) + "/9");
                     }
                 }
-
             });
             //Button listener for windowButton1
             windowButton3.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     currentQeustion[0]++;
-                    wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
-                    updateAnwserButtons(windowButton1, windowButton2, windowButton3, windowButton4, windowButton5, windowButton6, currentQeustion,rReportQuestions);
-                    qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
-                    if(currentQeustion[0] == 7){
-                        reportDialogInput(position, showButton);
-
+                    if(currentQeustion[0] == 8){
+                        ar.add(windowButton3.getText().toString());
+                        reportDialogInput(position, showButton, ar);
+                    } else {
+                        ar.add(windowButton3.getText().toString());
+                        wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
+                        updateAnwserButtons(windowButton1, windowButton2, windowButton3, windowButton4, windowButton5, windowButton6, currentQeustion,rReportQuestions);
+                        qeustionViewScore.setText("Question "+(currentQeustion[0]+2)+"/9");
                     }
                 }
 
@@ -312,29 +371,30 @@ public class MyAttractorsListFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     currentQeustion[0]++;
+                    if(currentQeustion[0] == 8){
+                        ar.add(windowButton4.getText().toString());
+                        reportDialogInput(position, showButton, ar);
+                    } else {
+                    ar.add(windowButton4.getText().toString());
                     wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
                     updateAnwserButtons(windowButton1, windowButton2, windowButton3, windowButton4, windowButton5, windowButton6, currentQeustion,rReportQuestions);
-                    qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
-                    if(currentQeustion[0] == 7){
-                        reportDialogInput(position, showButton);
-
-
+                    qeustionViewScore.setText("Question "+(currentQeustion[0]+2)+"/9");
                     }
                 }
-
             });
             //Button listener for windowButton1
             windowButton5.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     currentQeustion[0]++;
-                    wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
-                    updateAnwserButtons(windowButton1, windowButton2, windowButton3, windowButton4, windowButton5, windowButton6, currentQeustion,rReportQuestions);
-                    qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
-                    if(currentQeustion[0] == 7){
-                        reportDialogInput(position, showButton);
-
-
+                    if(currentQeustion[0] == 8){
+                        ar.add(windowButton5.getText().toString());
+                        reportDialogInput(position, showButton, ar);
+                    } else {
+                        ar.add(windowButton5.getText().toString());
+                        wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
+                        updateAnwserButtons(windowButton1, windowButton2, windowButton3, windowButton4, windowButton5, windowButton6, currentQeustion,rReportQuestions);
+                        qeustionViewScore.setText("Question "+(currentQeustion[0]+2)+"/9");
                     }
                 }
 
@@ -344,40 +404,132 @@ public class MyAttractorsListFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     currentQeustion[0]++;
-                    wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
-                    updateAnwserButtons(windowButton1, windowButton2, windowButton3, windowButton4, windowButton5, windowButton6, currentQeustion,rReportQuestions);
-                    qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
-                    if(currentQeustion[0] == 7){
-                        reportDialogInput(position, showButton);
-
-
+                    if(currentQeustion[0] == 8){
+                        ar.add(rReportQuestions.getbutton2Anwser(5));
+                        reportDialogInput(position, showButton, ar);
+                    } else {
+                        ar.add(windowButton6.getText().toString());
+                        wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
+                        updateAnwserButtons(windowButton1, windowButton2, windowButton3, windowButton4, windowButton5, windowButton6, currentQeustion,rReportQuestions);
+                        qeustionViewScore.setText("Question "+(currentQeustion[0]+2)+"/9");
                     }
-
                 }
 
             });
 
         }
 
-        public void reportDialogInput(final int position, final Button showButton){
+        public void reportDialogInput(final int position, final Button showButton, final ArrayList<String> ar){
             reportDialog.setContentView(R.layout.dialog_textinput);
-
+            final JSONObject obj = new JSONObject();
+            Log.d("Test", ""+ar);
             final ReportQuestions rReportQuestions = new ReportQuestions();
-            final TextView wQuestionView;
-
+            final EditText userInput = (EditText) reportDialog.findViewById(R.id.editText2);
             final Button sendReportButton = (Button) reportDialog.findViewById(R.id.sendReportButton);
             final Button cancelReportButton = (Button) reportDialog.findViewById(R.id.cancelReportButton);
-
 
             //Button listener for windowButton1
             sendReportButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    ar.add(userInput.getText().toString());
+                    try {
+                        //General
+                        obj.put("user_id", userid);
+                        obj.put("platform", 8);
+
+                        Date currentTime = Calendar.getInstance().getTime();
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                        String currentDateandTime = sdf.format(new Date());
+                        obj.put("datetime", currentDateandTime);
+
+                        //Question anwsers
+                        obj.put("visited", Double.valueOf(ar.get(0)));
+                        obj.put("point_type", "Attractor");
+                        obj.put("artifact_collected", ar.get(1));
+                        obj.put("fucking_amazing", ar.get(2));
+                        obj.put("intent_set", ar.get(3));
+                        obj.put("rating_meaningfulness", ar.get(4));
+                        obj.put("rating_emotional", ar.get(5));
+                        obj.put("rating_importance", ar.get(6));
+                        obj.put("rating_strangeness", ar.get(7));
+                        obj.put("rating_synchroncity", ar.get(8));
+                        obj.put("text", ar.get(9));
+
+                        //Attractor
+                        obj.put("tid", Double.valueOf(getItem(position).getTID()));
+                        obj.put("lid", Double.valueOf(getItem(position).getLID()));
+                        obj.put("type", Double.valueOf(getItem(position).getType()));
+                        obj.put("x", Double.valueOf(getItem(position).getX_()));
+                        obj.put("y", Double.valueOf(getItem(position).getY_()));
+                        obj.put("latitude", Double.valueOf(getItem(position).getLatitude()));
+                        obj.put("longitude", Double.valueOf(getItem(position).getLongitude()));
+                        obj.put("distance", Double.valueOf(getItem(position).getDistance()));
+                        obj.put("initial_bearing", Double.valueOf(getItem(position).getInitialBearing()));
+                        obj.put("final_bearing", Double.valueOf(getItem(position).getFinalBearing()));
+                        obj.put("side", Double.valueOf(getItem(position).getSide()));
+                        obj.put("distance_err", Double.valueOf(getItem(position).getDistanceErr()));
+                        obj.put("radiusM", Double.valueOf(getItem(position).getRadiusM()));
+                        obj.put("n", Double.valueOf(getItem(position).getN()));
+                        obj.put("mean", Double.valueOf(getItem(position).getMean()));
+                        obj.put("rarity", Double.valueOf(getItem(position).getRarity()));
+                        obj.put("power_old", Double.valueOf(getItem(position).getPower_old()));
+                        obj.put("power", Double.valueOf(getItem(position).getPower()));
+                        obj.put("z_score", Double.valueOf(getItem(position).getZ_score()));
+                        obj.put("probability_single", Double.valueOf(getItem(position).getProbability_single()));
+                        obj.put("integral_score", Double.valueOf(getItem(position).getIntegral_score()));
+                        obj.put("significance", Double.valueOf(getItem(position).getSignificance()));
+                        obj.put("probability", Double.valueOf(getItem(position).getProbability()));
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+                            .connectTimeout(60, TimeUnit.SECONDS)
+                            .readTimeout(60, TimeUnit.SECONDS)
+                            .writeTimeout(60, TimeUnit.SECONDS)
+                            .build();
+
+                    Retrofit retrofit = new Retrofit.Builder()
+                            .baseUrl("https://devapi.randonauts.com/")
+                            .client(okHttpClient)
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build();
+
+                    randoWrapperApi = retrofit.create(RandoWrapperApi.class);
+
+                    RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), obj.toString());
+                    Call<ResponseBody> response = randoWrapperApi.postJson(body);
+
+                    response.enqueue(new Callback<ResponseBody>()
+                    {
+                        @Override
+                        public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> rawResponse)
+                        {
+                            try
+                            {
+                                //get your response....
+                                Log.d("Testpost", "RetroFit2.0 :RetroGetLogin: " + rawResponse);
+                                onCreateDialog();
+                            }
+                            catch (Exception e)
+                            {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseBody> call, Throwable throwable)
+                        {
+                            // other stuff...
+                        }
+                    });
 
                     mDatabaseHelper.setReport("Attractors", Integer.valueOf(getItem(position).getId()));
                     //post req here
 
-                    showButton.setVisibility(view.GONE);
+                    Log.d("Test", ""+ar);
                     reportDialog.cancel();
                 }
             });
@@ -397,72 +549,23 @@ public class MyAttractorsListFragment extends Fragment {
 
 
     }
+    public void onCreateDialog() {
 
-//    public void setReportAlertDialog() {
-//        reportDialog = new Dialog(getActivity());
-//        JSONObject obj = new JSONObject();
-//
-//        // reportDialog.setContentView(R.layout.dialog_report);
-//        //reportDialog.setTitle("Report");
-//        reportDialog.requestWindowFeature(Window.FEATURE_NO_TITLE); //before
-//        reportDialog.setContentView(R.layout.dialog_questionreport);
-//
-//        final ReportQuestions rReportQuestions = new ReportQuestions();
-//
-//        final TextView rQuestionView;
-//        final TextView qeustionViewScore;
-//        Button yesAnwserButton;
-//        Button noAnwserButton;
-//
-//        final int[] currentQeustion = {0};
-//        int maxQeustions = 5;
-//
-//        yesAnwserButton = (Button) reportDialog.findViewById(R.id.yesAnwserButton);
-//        noAnwserButton = (Button) reportDialog.findViewById(R.id.noAnwserButton);
-//        rQuestionView = (TextView) reportDialog.findViewById(R.id.rQuestionView);
-//        qeustionViewScore = (TextView) reportDialog.findViewById(R.id.qeustionView1);
-//
-//        qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
-//
-//        //Button listener for yes
-//        yesAnwserButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                currentQeustion[0]++;
-//                rQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
-//                if(currentQeustion[0] == 3){
-//
-//                    reportDialogWindow(currentQeustion);
-//                    qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
-//
-//                }
-//                qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
-//            }
-//
-//        });
-//
-//        //Button listener for no
-//        noAnwserButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                currentQeustion[0]++;
-//                rQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
-//                if(currentQeustion[0] == 3){
-//                    reportDialog.setContentView(R.layout.dialog_qeustionreportwindow);
-//                    reportDialogWindow(currentQeustion);
-//                    qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
-//
-//                }
-//                qeustionViewScore.setText("Question "+(currentQeustion[0]+1)+"/8");
-//            }
-//
-//        });
-//
-//
-//
-//        reportDialog.show();
-//    }
+        new AlertDialog.Builder(getContext())
+                .setTitle("Report send")
+                .setMessage("The report was successfully send! Thank you!")
 
+                // Specifying a listener allows you to take an action before dismissing the dialog.
+                // The dialog is automatically dismissed when a dialog button is clicked.
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Continue with delete operation
+                    }
+                })
+
+                .setIcon(android.R.drawable.stat_sys_upload)
+                .show();
+    }
 
     public void updateAnwserButtons(Button windowButton1, Button windowButton2, Button windowButton3,
                                     Button windowButton4, Button windowButton5, Button windowButton6,
@@ -525,8 +628,6 @@ public class MyAttractorsListFragment extends Fragment {
         reportDialog.show();
     }
 
-    SendMessage SM;
-
     interface SendMessage {
         void sendData(int type, double power, double x, double y, double radiusm, double z_score, double pseudo);
     }
@@ -542,30 +643,11 @@ public class MyAttractorsListFragment extends Fragment {
         }
     }
 
-    private String read(Context context, String fileName) {
-        try {
-            FileInputStream fis = context.openFileInput(fileName);
-            InputStreamReader isr = new InputStreamReader(fis);
-            BufferedReader bufferedReader = new BufferedReader(isr);
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                sb.append(line);
-            }
-            return sb.toString();
-        } catch (FileNotFoundException fileNotFound) {
-            return null;
-        } catch (IOException ioException) {
-            return null;
-        }
-    }
+    private void loadData() {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(STATS, Context.MODE_PRIVATE);
+        userid = sharedPreferences.getString("USERID", null);
 
-    public boolean isFilePresent(Context context, String fileName) {
-        String path = context.getFilesDir().getAbsolutePath() + "/" + fileName;
-        File file = new File(path);
-        return file.exists();
     }
-
 
 }
 
