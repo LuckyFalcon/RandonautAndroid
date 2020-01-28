@@ -16,6 +16,7 @@
         android:layout_marginStart="38dp"
         android:layout_marginEnd="42dp"
         android:layout_marginBottom="65dp"
+        android:max="90"
         android:progress="30"></SeekBar>
 
     <Button

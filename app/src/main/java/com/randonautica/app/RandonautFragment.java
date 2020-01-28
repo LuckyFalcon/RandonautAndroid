@@ -670,9 +670,14 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                 N = response.body().getN();
                 spot = response.body().getSpot();
                 hexsize = response.body().getHexsize();
-
+                int seed = 0;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                    seed = ThreadLocalRandom.current().nextInt(0, 2147483647);
+                } else {
+                    seed = 23;
+                }
                 Call<List<Psuedo>> callGetPsuedo = randoWrapperApi.getPsuedo(N,
-                        mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), distance, 23, 4);
+                        mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), distance, seed, 4);
 
                 callGetPsuedo.enqueue(new Callback<List<Psuedo>>() {
                     @Override
@@ -980,11 +985,11 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         seekBarProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                distance = progress*100;
-                textViewProgress.setText("" + progress*100);
+                distance = (1000+(progress*100));
+                textViewProgress.setText("" + distance);
                 if(progress == 0){
-                    distance = 1*100;
-                    textViewProgress.setText("" + 1*100);
+                    distance = 1000;
+                    textViewProgress.setText("" + 1000);
                 }
             }
 

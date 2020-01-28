@@ -246,7 +246,9 @@ public class MyVoidsListFragment extends Fragment {
             noAnwserButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
+                    if(currentQeustion[0]==0){
+                        reportDialog.dismiss();
+                    }
                     rQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
                     if (currentQeustion[0] == 3) {
                         ar.add("0");
