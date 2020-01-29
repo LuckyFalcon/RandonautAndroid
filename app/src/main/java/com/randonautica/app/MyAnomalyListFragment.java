@@ -583,11 +583,10 @@ public class MyAnomalyListFragment extends Fragment {
                         Intent intent = null;
                         String substring;
                         if (text.length() > 220){
-                            substring = text.substring(0,220);
+                            substring = text.substring(0,220)+ " #randonauts #randonaut_reports";
                         } else {
-                            substring = text;
+                            substring = text + " #randonauts #randonaut_reports";
                         }
-                        substring += " #randonauts #randonaut_reports";
                         try {
                             // Twitter app
                             getActivity().getPackageManager().getPackageInfo("com.twitter.android", 0);
