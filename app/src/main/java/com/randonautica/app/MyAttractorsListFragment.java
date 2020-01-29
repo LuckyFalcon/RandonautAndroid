@@ -493,7 +493,7 @@ public class MyAttractorsListFragment extends Fragment {
                             .build();
 
                     Retrofit retrofit = new Retrofit.Builder()
-                            .baseUrl("https://devapi.randonauts.com/")
+                            .baseUrl("https://api.randonauts.com/")
                             .client(okHttpClient)
                             .addConverterFactory(GsonConverterFactory.create())
                             .build();

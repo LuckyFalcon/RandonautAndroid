@@ -9,5 +9,5 @@ Java_com_randonautica_app_RandonautFragment_getApiKey(JNIEnv *env, jobject insta
 JNIEXPORT jstring JNICALL
 Java_com_randonautica_app_RandonautFragment_getBaseApi(JNIEnv *env, jobject instance) {
 
-    return (*env)->NewStringUTF(env, "aHR0cHM6Ly9kZXZhcGkucmFuZG9uYXV0cy5jb20v");
+    return (*env)->NewStringUTF(env, "aHR0cHM6Ly9hcGkucmFuZG9uYXV0cy5jb20v");
 }

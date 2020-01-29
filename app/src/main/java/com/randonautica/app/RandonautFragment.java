@@ -863,7 +863,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
             }
 
         });
-    } //PSEUDOOOOOOOOOOOO
+    }
 
     public void resetRandonaut() {
         //Empty previous run
