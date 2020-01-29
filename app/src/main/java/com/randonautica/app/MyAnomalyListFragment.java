@@ -5,8 +5,10 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -148,13 +150,14 @@ public class MyAnomalyListFragment extends Fragment {
         @NonNull
         @Override
         public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            String type;
-
-            if(getItem(position).getType() == "1"){
-                type = "Attractor " + getItem(position).getId();
+            final String type;
+            final String typeInList;
+            if(Double.valueOf(getItem(position).getType()) == 1){
+                type = "Attractor";
+                typeInList = "Attractor " + getItem(position).getId();
             } else {
-                type = "Void " + getItem(position).getId();
-
+                type = "Void";
+                typeInList = "Void " + getItem(position).getId();
             }
 
             String power = "Power: " + df2.format(Double.valueOf(getItem(position).getPower()));
@@ -176,7 +179,7 @@ public class MyAnomalyListFragment extends Fragment {
             TextView textViewZ_score = (TextView) convertView.findViewById(R.id.textViewZ_score);
             TextView textViewPsuedo = (TextView) convertView.findViewById(R.id.textViewPsuedo);
 
-            textViewType.setText(type);
+            textViewType.setText(typeInList);
             textViewPower.setText(power);
             textViewRadius.setText(radiusm);
             textViewZ_score.setText(z_score);
@@ -192,7 +195,7 @@ public class MyAnomalyListFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
 
-                    setReportAlertDialog(position, button);
+                    setReportAlertDialog(position, button, type);
 
                 }
             });
@@ -216,7 +219,7 @@ public class MyAnomalyListFragment extends Fragment {
             return convertView;
         }
 
-        public void setReportAlertDialog(final int position, final Button showButton) {
+        public void setReportAlertDialog(final int position, final Button showButton, final String type) {
             reportDialog = new Dialog(getActivity());
             final ArrayList<String> ar = new ArrayList<String>();
             reportDialog.requestWindowFeature(Window.FEATURE_NO_TITLE); //before
@@ -246,7 +249,7 @@ public class MyAnomalyListFragment extends Fragment {
                     rQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
 
                     if (currentQeustion[0] == 3) {
-                        reportDialogWindowIntent(currentQeustion, position, showButton, ar);
+                        reportDialogWindowIntent(currentQeustion, position, showButton, ar, type);
                         qeustionViewScore.setText("Question " + (currentQeustion[0] + 1) + "/9");
 
                     } else {
@@ -268,7 +271,7 @@ public class MyAnomalyListFragment extends Fragment {
                     if (currentQeustion[0] == 3) {
                         ar.add("0");
                         reportDialog.setContentView(R.layout.dialog_qeustionreportwindow);
-                        reportDialogWindow(currentQeustion, position, showButton, ar);
+                        reportDialogWindow(currentQeustion, position, showButton, ar, type);
                         qeustionViewScore.setText("Question " + (currentQeustion[0] + 1) + "/9");
                     } else {
                         currentQeustion[0]++;
@@ -282,7 +285,7 @@ public class MyAnomalyListFragment extends Fragment {
             reportDialog.show();
         }
 
-        public void reportDialogWindowIntent(final int[] currentQeustion, final int position, final Button showButton, final ArrayList<String> ar) {
+        public void reportDialogWindowIntent(final int[] currentQeustion, final int position, final Button showButton, final ArrayList<String> ar, final String type) {
             reportDialog.setContentView(R.layout.dialog_intentinput);
             final EditText userInput = (EditText) reportDialog.findViewById(R.id.editIntent);
 
@@ -294,7 +297,7 @@ public class MyAnomalyListFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     ar.add(userInput.getText().toString());
-                    reportDialogWindow(currentQeustion, position, showButton, ar);
+                    reportDialogWindow(currentQeustion, position, showButton, ar, type);
                 }
             });
             //Button listener for skipButton
@@ -302,7 +305,7 @@ public class MyAnomalyListFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     ar.add("Skipped");
-                    reportDialogWindow(currentQeustion, position, showButton, ar);
+                    reportDialogWindow(currentQeustion, position, showButton, ar, type);
                 }
             });
 
@@ -312,7 +315,7 @@ public class MyAnomalyListFragment extends Fragment {
 
 
 
-        public void reportDialogWindow(final int[] currentQeustion, final int position, final Button showButton, final ArrayList<String> ar){
+        public void reportDialogWindow(final int[] currentQeustion, final int position, final Button showButton, final ArrayList<String> ar, final String type){
 
             reportDialog.setContentView(R.layout.dialog_qeustionreportwindow);
             final ReportQuestions rReportQuestions = new ReportQuestions();
@@ -338,7 +341,7 @@ public class MyAnomalyListFragment extends Fragment {
 
                     if(currentQeustion[0] == 8){
                         ar.add(windowButton1.getText().toString());
-                        reportDialogInput(position, showButton, ar);
+                        reportDialogInput(position, showButton, ar, type);
                     } else {
                         ar.add(windowButton1.getText().toString());
                         wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
@@ -355,7 +358,7 @@ public class MyAnomalyListFragment extends Fragment {
                     currentQeustion[0]++;
                     if(currentQeustion[0] == 8){
                         ar.add(windowButton2.getText().toString());
-                        reportDialogInput(position, showButton, ar);
+                        reportDialogInput(position, showButton, ar, type);
                     } else {
                         ar.add(windowButton2.getText().toString());
                         wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
@@ -371,7 +374,7 @@ public class MyAnomalyListFragment extends Fragment {
                     currentQeustion[0]++;
                     if(currentQeustion[0] == 8){
                         ar.add(windowButton3.getText().toString());
-                        reportDialogInput(position, showButton, ar);
+                        reportDialogInput(position, showButton, ar, type);
                     } else {
                         ar.add(windowButton3.getText().toString());
                         wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
@@ -388,7 +391,7 @@ public class MyAnomalyListFragment extends Fragment {
                     currentQeustion[0]++;
                     if(currentQeustion[0] == 8){
                         ar.add(windowButton4.getText().toString());
-                        reportDialogInput(position, showButton, ar);
+                        reportDialogInput(position, showButton, ar, type);
                     } else {
                         ar.add(windowButton4.getText().toString());
                         wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
@@ -404,7 +407,7 @@ public class MyAnomalyListFragment extends Fragment {
                     currentQeustion[0]++;
                     if(currentQeustion[0] == 8){
                         ar.add(windowButton5.getText().toString());
-                        reportDialogInput(position, showButton, ar);
+                        reportDialogInput(position, showButton, ar, type);
                     } else {
                         ar.add(windowButton5.getText().toString());
                         wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
@@ -421,7 +424,7 @@ public class MyAnomalyListFragment extends Fragment {
                     currentQeustion[0]++;
                     if(currentQeustion[0] == 8){
                         ar.add(rReportQuestions.getbutton2Anwser(5));
-                        reportDialogInput(position, showButton, ar);
+                        reportDialogInput(position, showButton, ar, type);
                     } else {
                         ar.add(windowButton6.getText().toString());
                         wQuestionView.setText(rReportQuestions.getQuestion(currentQeustion[0]));
@@ -434,7 +437,7 @@ public class MyAnomalyListFragment extends Fragment {
 
         }
 
-        public void reportDialogInput(final int position, final Button showButton, final ArrayList<String> ar){
+        public void reportDialogInput(final int position, final Button showButton, final ArrayList<String> ar, final String type){
             reportDialog.setContentView(R.layout.dialog_textinput);
             final JSONObject obj = new JSONObject();
 
@@ -460,7 +463,7 @@ public class MyAnomalyListFragment extends Fragment {
 
                         //Question anwsers
                         obj.put("visited", Double.valueOf(ar.get(0)));
-                        obj.put("point_type", "Attractor");
+                        obj.put("point_type", type);
                         obj.put("artifact_collected", ar.get(1));
                         obj.put("fucking_amazing", ar.get(2));
                         obj.put("intent_set", ar.get(3));
@@ -495,7 +498,7 @@ public class MyAnomalyListFragment extends Fragment {
                         obj.put("integral_score", Double.valueOf(getItem(position).getIntegral_score()));
                         obj.put("significance", Double.valueOf(getItem(position).getSignificance()));
                         obj.put("probability", Double.valueOf(getItem(position).getProbability()));
-
+                        Log.d("test", ""+obj);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -526,7 +529,7 @@ public class MyAnomalyListFragment extends Fragment {
                             {
                                 //get your response....
 
-                                onCreateDialog();
+                                onCreateDialog(userInput.getText().toString());
                             }
                             catch (Exception e)
                             {
@@ -541,7 +544,7 @@ public class MyAnomalyListFragment extends Fragment {
                         }
                     });
 
-                    mDatabaseHelper.setReport("Attractors", Integer.valueOf(getItem(position).getId()));
+                    mDatabaseHelper.setReport("Anomalies", Integer.valueOf(getItem(position).getId()));
                     //post req here
 
 
@@ -564,17 +567,37 @@ public class MyAnomalyListFragment extends Fragment {
 
 
     }
-    public void onCreateDialog() {
+    public void onCreateDialog(final String text) {
 
         new AlertDialog.Builder(getContext())
                 .setTitle("Report send")
                 .setMessage("The report was successfully send! Thank you!")
-
-                // Specifying a listener allows you to take an action before dismissing the dialog.
-                // The dialog is automatically dismissed when a dialog button is clicked.
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // Continue with delete operation
+                    }
+                })
+                .setNeutralButton("Share on Twitter", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Continue with delete operation
+                        Intent intent = null;
+                        String substring;
+                        if (text.length() > 220){
+                            substring = text.substring(0,220);
+                        } else {
+                            substring = text;
+                        }
+                        substring += " #randonauts #randonaut_reports";
+                        try {
+                            // Twitter app
+                            getActivity().getPackageManager().getPackageInfo("com.twitter.android", 0);
+                            intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/intent/tweet?text="+substring));
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        } catch (Exception e) {
+                            // Browser
+                            intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/intent/tweet?text="+substring));
+                        }
+                        getActivity().startActivity(intent);
                     }
                 })
 

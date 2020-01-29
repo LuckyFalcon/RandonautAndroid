@@ -176,9 +176,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
     private OutputStream outputStream;
 
-    //Load data
-    private boolean waterPointsEnabled;
-
     //Dialogs
     ProgressDialog progressdialog;
     Dialog reportDialog;
@@ -242,8 +239,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         super.onViewCreated(view, savedInstanceState);
 
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(MySettingsFragment.SHARED_PREFS, Context.MODE_PRIVATE);
-        waterPointsEnabled = sharedPreferences.getBoolean("enableWaterPoints", false);
-
             startButton = (Button) view.findViewById(R.id.startButton);
             resetButton = (Button) view.findViewById(R.id.resetRandonaut);
             reportButton = (Button) view.findViewById(R.id.reportButton);
@@ -400,15 +395,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                     int FILTERING_SIGNIFICANCE = attractors.getAttractors().getFILTERING_SIGNIFICANCE();
 
                     places[i]=new Place(new LatLng(x, y), GID,  TID,  LID,  x_,  y_,  distance,  initialBearing,  finalBearing, side,  distanceErr,  radiusM, n,  mean, rarity,  power_old,  probability_single,  integral_score,  significance,  probability, FILTERING_SIGNIFICANCE, type, radiusM,  power,  z_score);
-
-                    if(waterPointsEnabled){
-                        LatLng center = new LatLng(x, y);
-                        final PointF pixel = mapboxMap.getProjection().toScreenLocation(center);
-                        List<Feature> features = mapboxMap.queryRenderedFeatures(pixel, "water");
-                        if(!features.isEmpty()){
-                            continue;
-                        }
-                    }
 
                     if(selected == "Attractor" && type == 1){
                         //Make databaseHelper
@@ -731,16 +717,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                             places[i]=new Place(new LatLng(x, y), GID,  TID,  LID,  x_,  y_,  distance,  initialBearing,  finalBearing, side,  distanceErr,  radiusM, n,  mean, rarity,  power_old,  probability_single,  integral_score,  significance,  probability, FILTERING_SIGNIFICANCE, type, radiusM,  power,  z_score);
 
 
-                            if (waterPointsEnabled) {
-                                LatLng center = new LatLng(x, y);
-                                final PointF pixel = mapboxMap.getProjection().toScreenLocation(center);
-                                List<Feature> features = mapboxMap.queryRenderedFeatures(pixel, "water");
-                                if (!features.isEmpty()) {
-                                    continue;
-                                }
-                            }
-
-                            if(type == 1) {
+                              if(type == 1) {
                                 mDatabaseHelper = new DatabaseHelper(getActivity(), attractorTable);
                                 mapboxMap.addMarker(new MarkerOptions()
                                         .position(new LatLng(x, y))
@@ -986,6 +963,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 distance = (1000+(progress*100));
+                Log.d("test", ""+distance);
                 textViewProgress.setText("" + distance);
                 if(progress == 0){
                     distance = 1000;

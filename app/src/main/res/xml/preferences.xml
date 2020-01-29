@@ -4,12 +4,6 @@
 
     <SwitchPreferenceCompat
         app:key="enableDarkMode"
-        app:title="Enable dark mode" />
-
-    <SwitchPreferenceCompat
-        android:visibility="visible"
-        app:key="enableWaterPoints"
-        app:summary="Enable attractors to be generated in water"
-        app:title="Enable water points" />
+        app:title="Enable dark theme" />
 
 </PreferenceScreen>

@@ -199,7 +199,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public boolean setReport(String table, int id){
         SQLiteDatabase db = this.getWritableDatabase();
-        String query = "UPDATE " + table + " SET " + COL9 + " = " + " 1 " + "WHERE " + COL0 + " = " + id;
+        String query = "UPDATE " + table + " SET " + COL28 + " = " + " 1 " + "WHERE " + COL0 + " = " + id;
         ContentValues cv = new ContentValues();
         cv.put("report", "1");
         long result = db.update(table, cv, "id=" + id, null);

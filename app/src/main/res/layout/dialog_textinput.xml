@@ -46,10 +46,10 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="52dp"
-        android:layout_marginLeft="52dp"
-        android:layout_marginTop="31dp"
-        android:text="Do you want to add anything?"
+        android:layout_marginStart="80dp"
+        android:layout_marginLeft="80dp"
+        android:layout_marginTop="34dp"
+        android:text="Write your report here"
         android:textSize="20sp" />
 
     <EditText

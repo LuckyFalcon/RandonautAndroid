@@ -17,15 +17,12 @@ public class MySettingsFragment extends PreferenceFragmentCompat {
     //set preference call string
     public static final String SHARED_PREFS = "sharedPrefs";
     public static final String SWTICHEnableDarkMode = "enableDarkMode";
-    public static final String SWTICHEnableWaterPoints = "enableWaterPoints";
 
     // Get the preference widgets reference
     private SwitchPreferenceCompat enableDarkMode;
-    private SwitchPreferenceCompat enableWaterPoints;
 
     //setting actual values
     private boolean switchOnOff;
-    private boolean waterSwitchOnOff;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -55,21 +52,6 @@ public class MySettingsFragment extends PreferenceFragmentCompat {
             }
         });
 
-        enableWaterPoints.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference arg0, Object isVibrateOnObject) {
-                if(enableWaterPoints.isChecked()){
-                    waterSwitchOnOff = false;
-                    saveData();
-                } else {
-                    waterSwitchOnOff = true;
-                    saveData();
-                }
-                return true;
-            }
-        });
-
-
 
     }
 
@@ -77,7 +59,6 @@ public class MySettingsFragment extends PreferenceFragmentCompat {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(SWTICHEnableDarkMode, switchOnOff);
-        editor.putBoolean(SWTICHEnableWaterPoints, waterSwitchOnOff);
 
         editor.apply();
 
@@ -85,7 +66,6 @@ public class MySettingsFragment extends PreferenceFragmentCompat {
     public void loadData() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
         switchOnOff = sharedPreferences.getBoolean(SWTICHEnableDarkMode, false);
-        waterSwitchOnOff = sharedPreferences.getBoolean(SWTICHEnableWaterPoints, false);
 
     }
 
@@ -93,8 +73,6 @@ public class MySettingsFragment extends PreferenceFragmentCompat {
         enableDarkMode = (SwitchPreferenceCompat) findPreference("enableDarkMode");
         enableDarkMode.setChecked(switchOnOff);
 
-        enableWaterPoints = (SwitchPreferenceCompat) findPreference("enableWaterPoints");
-        enableWaterPoints.setChecked(waterSwitchOnOff);
 
     }
 }

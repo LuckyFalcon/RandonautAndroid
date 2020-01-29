@@ -4,8 +4,10 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -509,7 +511,7 @@ public class MyAttractorsListFragment extends Fragment {
                             try
                             {
                                 button.setVisibility(View.GONE);
-                                onCreateDialog();
+                                onCreateDialog(userInput.getText().toString());
                             }
                             catch (Exception e)
                             {
@@ -546,17 +548,37 @@ public class MyAttractorsListFragment extends Fragment {
 
 
     }
-    public void onCreateDialog() {
+    public void onCreateDialog(final String text) {
 
         new AlertDialog.Builder(getContext())
                 .setTitle("Report send")
                 .setMessage("The report was successfully send! Thank you!")
-
-                // Specifying a listener allows you to take an action before dismissing the dialog.
-                // The dialog is automatically dismissed when a dialog button is clicked.
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // Continue with delete operation
+                    }
+                })
+                .setNeutralButton("Share on Twitter", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Continue with delete operation
+                        Intent intent = null;
+                        String substring;
+                        if (text.length() > 220){
+                            substring = text.substring(0,220);
+                        } else {
+                            substring = text;
+                        }
+                        substring += " #randonauts #randonaut_reports";
+                        try {
+                            // Twitter app
+                            getActivity().getPackageManager().getPackageInfo("com.twitter.android", 0);
+                            intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/intent/tweet?text="+substring));
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        } catch (Exception e) {
+                            // Browser
+                            intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/intent/tweet?text="+substring));
+                        }
+                        getActivity().startActivity(intent);
                     }
                 })
 
