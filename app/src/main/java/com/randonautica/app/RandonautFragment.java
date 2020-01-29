@@ -963,7 +963,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 distance = (1000+(progress*100));
-                Log.d("test", ""+distance);
                 textViewProgress.setText("" + distance);
                 if(progress == 0){
                     distance = 1000;

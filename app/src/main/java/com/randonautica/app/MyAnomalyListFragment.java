@@ -498,7 +498,7 @@ public class MyAnomalyListFragment extends Fragment {
                         obj.put("integral_score", Double.valueOf(getItem(position).getIntegral_score()));
                         obj.put("significance", Double.valueOf(getItem(position).getSignificance()));
                         obj.put("probability", Double.valueOf(getItem(position).getProbability()));
-                        Log.d("test", ""+obj);
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
