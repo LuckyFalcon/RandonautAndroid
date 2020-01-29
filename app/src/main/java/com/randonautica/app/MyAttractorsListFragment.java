@@ -9,8 +9,6 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +27,6 @@ import com.randonautica.app.Classes.Attractor;
 import com.randonautica.app.Classes.DatabaseHelper;
 import com.randonautica.app.Classes.RandoWrapperApi;
 import com.randonautica.app.Classes.ReportQuestions;
-import com.randonautica.app.Classes.SendReport;
 
 import org.json.JSONException;
 import org.json.JSONObject;
