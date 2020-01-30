@@ -465,6 +465,7 @@ public class MyAnomalyListFragment extends Fragment {
                         obj.put("text", ar.get(9));
 
                         //Attractor
+                        obj.put("gid", Double.valueOf(getItem(position).getGID()));
                         obj.put("tid", Double.valueOf(getItem(position).getTID()));
                         obj.put("lid", Double.valueOf(getItem(position).getLID()));
                         obj.put("type", Double.valueOf(getItem(position).getType()));
