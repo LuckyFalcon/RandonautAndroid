@@ -27,10 +27,12 @@ import com.randonautica.app.Classes.Attractor;
 import com.randonautica.app.Classes.DatabaseHelper;
 import com.randonautica.app.Classes.RandoWrapperApi;
 import com.randonautica.app.Classes.ReportQuestions;
+import com.randonautica.app.Classes.SendReport;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -39,6 +41,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.CRC32;
 
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
@@ -443,6 +446,7 @@ public class MyVoidsListFragment extends Fragment {
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
                         String currentDateandTime = sdf.format(new Date());
                         obj.put("datetime", currentDateandTime);
+                        obj.put("short_hash_id", getCRC32(userid + currentDateandTime));
 
                         //Question anwsers
                         obj.put("visited", Double.valueOf(ar.get(0)));
@@ -458,7 +462,7 @@ public class MyVoidsListFragment extends Fragment {
                         obj.put("text", ar.get(9));
 
                         //Attractor
-                        obj.put("gid", Double.valueOf(getItem(position).getGID()));
+                        obj.put("gid", getItem(position).getGID());
                         obj.put("tid", Double.valueOf(getItem(position).getTID()));
                         obj.put("lid", Double.valueOf(getItem(position).getLID()));
                         obj.put("type", Double.valueOf(getItem(position).getType()));
@@ -494,7 +498,7 @@ public class MyVoidsListFragment extends Fragment {
                             .build();
 
                     Retrofit retrofit = new Retrofit.Builder()
-                            .baseUrl("https://api.randonauts.com/")
+                            .baseUrl("https://devapi.randonauts.com/")
                             .client(okHttpClient)
                             .addConverterFactory(GsonConverterFactory.create())
                             .build();
@@ -502,18 +506,17 @@ public class MyVoidsListFragment extends Fragment {
                     randoWrapperApi = retrofit.create(RandoWrapperApi.class);
 
                     RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), obj.toString());
-                    Call<ResponseBody> response = randoWrapperApi.postJson(body);
+                    Call<SendReport.Response> response = randoWrapperApi.postJson(body);
 
-                    response.enqueue(new Callback<ResponseBody>()
+                    response.enqueue(new Callback<SendReport.Response>()
                     {
                         @Override
-                        public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> rawResponse)
+                        public void onResponse(Call<SendReport.Response> call, retrofit2.Response<SendReport.Response> result)
                         {
                             try
                             {
-                                //get your response....
-
-                                onCreateDialog(userInput.getText().toString());
+                                // TODO: add error handling, i.e. if result.body().status != "OK"
+                                onCreateDialog(userInput.getText().toString(), result.body().redditPostId);
                             }
                             catch (Exception e)
                             {
@@ -522,7 +525,7 @@ public class MyVoidsListFragment extends Fragment {
                         }
 
                         @Override
-                        public void onFailure(Call<ResponseBody> call, Throwable throwable)
+                        public void onFailure(Call<SendReport.Response> call, Throwable throwable)
                         {
                             // other stuff...
                         }
@@ -551,11 +554,11 @@ public class MyVoidsListFragment extends Fragment {
 
 
     }
-    public void onCreateDialog(final String text) {
+    public void onCreateDialog(final String text, final String redditPostId) {
 
         new AlertDialog.Builder(getContext())
-                .setTitle("Report send")
-                .setMessage("The report was successfully send! Thank you!")
+                .setTitle("Report sent")
+                .setMessage("The report was successfully sent! Thank you!")
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // Continue with delete operation
@@ -564,14 +567,19 @@ public class MyVoidsListFragment extends Fragment {
                 .setNeutralButton("Share on Twitter", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // Continue with delete operation
+                        // Continue with delete operation
+                        String hashtags = " #randonauts #randonaut_reports";
+                        String redditLink = " https://redd.it/" + redditPostId;
                         Intent intent = null;
-                        String substring;
-                        if (text.length() > 220){
-                            substring = text.substring(0,220)+ " #randonauts #randonaut_reports";
-                        } else {
-                            substring = text + " #randonauts #randonaut_reports";
-                        }
+                        String substring = "";
+
                         try {
+                            if (text.length() > 220){
+                                substring = URLEncoder.encode(text.substring(0,220) + redditLink +  hashtags, "UTF_8");
+                            } else {
+                                substring = URLEncoder.encode(text + redditLink +  hashtags, "UTF_8");
+                            }
+
                             // Twitter app
                             getActivity().getPackageManager().getPackageInfo("com.twitter.android", 0);
                             intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/intent/tweet?text="+substring));
@@ -674,7 +682,13 @@ public class MyVoidsListFragment extends Fragment {
         userid = sharedPreferences.getString("USERID", null);
 
     }
-
+    
+    public static String getCRC32(String input){
+        byte[] data = input.getBytes();
+        CRC32 fileCRC32 = new CRC32();
+        fileCRC32.update(data);
+        return String.format(Locale.US,"%08X", fileCRC32.getValue());
+    }
 }
 
 

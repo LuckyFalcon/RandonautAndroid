@@ -151,4 +151,12 @@ public class SendReport {
 
     }
 
+    public class Response {
+        public String status;
+        public String id;
+        public String nearestPlace;
+        public String country;
+        public String what3words;
+        public String redditPostId;
+    }
 }

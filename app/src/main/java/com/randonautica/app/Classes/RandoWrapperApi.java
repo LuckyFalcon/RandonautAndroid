@@ -22,7 +22,7 @@ public interface RandoWrapperApi {
                              @Query("gcp") boolean gcp);
 
     @POST("reports/save")
-    Call<ResponseBody> postJson(@Body RequestBody params);
+    Call<SendReport.Response> postJson(@Body RequestBody params);
 
     @GET("attractors")
     Call<List<Attractors>> getAttractors(@Query("gid") String gid,
