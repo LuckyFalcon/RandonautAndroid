@@ -7,9 +7,11 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.LayoutInflater;
@@ -46,7 +48,6 @@ import com.randonautica.app.Classes.Sizes;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
-import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
@@ -137,7 +138,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
     //Buttons
     private Button startButton;
-    private Button reportButton;
+    private static Button reportButton;
     private Button resetButton;
 
     private String auth_token;
@@ -259,6 +260,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                   //  navigateButton.setVisibility(View.GONE);
                     resetButton.setVisibility(View.GONE);
                     startButton.setVisibility(View.VISIBLE);
+                    reportButton.setVisibility(View.GONE);
                 }
             });
 
@@ -1424,7 +1426,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         private double  power;
         private double z_score;
         private boolean isPsuedo;
-        private Button reportButtton = reportButton;
 
         private LatLng locationCoordinates;
 
@@ -1446,10 +1447,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
         public double getRadiusm() {
             return radiusm;
-        }
-
-        public Button getReportButtton() {
-            return reportButtton;
         }
 
         public void setRadiusm(double radiusm) {
@@ -1571,7 +1568,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         }
 
         @Override
-        public void onBindViewHolder(MyViewHolder holder, int position) {
+        public void onBindViewHolder(final MyViewHolder holder, int position) {
             SingleRecyclerViewLocation singleRecyclerViewLocation = locationList.get(position);
             String type = "Attractor";
             if(singleRecyclerViewLocation.getType() == 2){
@@ -1587,14 +1584,12 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
             String radiusm = "Radius: " +  (int) singleRecyclerViewLocation.getRadiusm();
             String power = "Power: " + String.format("%.2f", singleRecyclerViewLocation.getPower());
             String z_score = "Z Score: " + String.format("%.2f", singleRecyclerViewLocation.getZ_score());
-            final Button reportButton = singleRecyclerViewLocation.getReportButtton();
-
+            final Double latitude = singleRecyclerViewLocation.getLocationCoordinates().getLatitude();
+            final Double longitude = singleRecyclerViewLocation.getLocationCoordinates().getLongitude();
             holder.type.setText(type);
             holder.radiusm.setText(radiusm);
             holder.power.setText(power);
             holder.z_score.setText(z_score);
-
-                singleRecyclerViewLocation.getReportButtton();
 
             holder.setClickListener(new ItemClickListener() {
                 @Override
@@ -1606,20 +1601,30 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                             .target(selectedLocationLatLng)
                             .build();
                     map.easeCamera(CameraUpdateFactory.newCameraPosition(newCameraPosition));
-                   // reportButton.setVisibility(view.VISIBLE);  //Not yet working, report function while clicking an attractor.
+                    Button newbutton = (Button) RandonautFragment.reportButton;
+                    newbutton.setVisibility(View.VISIBLE);
+
+                    newbutton.setOnClickListener(new View.OnClickListener() {
+                        public void onClick(View v) {
+                            Intent intent = null;
+                            try {
+                                // Google maps app
+                                getApplicationContext().getPackageManager().getPackageInfo("com.google.android.apps.maps", 0);
+                                intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/place/" + latitude + "+" + longitude + "/@" + latitude + "+" + longitude + ",14z"));
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            } catch (Exception e) {
+                                // Maps in Browser
+                                intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/place/" + latitude + "+" + longitude + "/@" + latitude + "+" + longitude + ",14z"));
+                            }
+                            getApplicationContext().startActivity(intent);
+
+                        }
+                    });
                 }
 
 
             });
 
-            reportButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-
-
-                }
-            });
         }
 
 
@@ -1656,32 +1661,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
             @Override
             public void onClick(View view) {
                 clickListener.onClick(view, getLayoutPosition());
-//                reportButton.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//
-//                        setReportAlertDialog(1);
-//
-//                    }
-//                });
-
-
             }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         }
     }
 
@@ -1689,7 +1669,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
     public interface ItemClickListener {
         void onClick(View view, int position);
-
     }
 
     /**
