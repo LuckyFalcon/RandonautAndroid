@@ -1045,7 +1045,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
         //Start ProgressDialog
         progressdialog = new ProgressDialog(getActivity());
-        progressdialog.setMessage("Getting quantum entropy. please wait....");
+        progressdialog.setMessage("Getting quantum entropy. Please wait....");
         progressdialog.show();
         progressdialog.setCancelable(false);
         progressdialog.setCanceledOnTouchOutside(false);
@@ -1313,7 +1313,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                     AnomalyToggleButton.setChecked(false);
                 }
                 if (buttonView == PsuedoToggleButton) {
-                    selected = "Psuedo";
+                    selected = "Pseudo";
                     VoidToggleButton.setChecked(false);
                     AttractorToggleButton.setChecked(false);
                     AnomalyToggleButton.setChecked(false);
