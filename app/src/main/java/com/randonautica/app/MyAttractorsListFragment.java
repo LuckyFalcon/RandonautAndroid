@@ -513,7 +513,7 @@ public class MyAttractorsListFragment extends Fragment {
                             try
                             {
                                 // TODO: add error handling, i.e. if result.body().status != "OK"
-                                button.setVisibility(View.GONE);
+                                button.setEnabled(false);
                                 onCreateDialog(userInput.getText().toString(), result.body().redditPostId);
                             }
                             catch (Exception e)

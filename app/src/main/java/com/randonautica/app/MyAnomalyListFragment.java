@@ -430,7 +430,7 @@ public class MyAnomalyListFragment extends Fragment {
 
         }
 
-        public void reportDialogInput(final int position, final Button showButton, final ArrayList<String> ar, final String type){
+        public void reportDialogInput(final int position, final Button button, final ArrayList<String> ar, final String type){
             reportDialog.setContentView(R.layout.dialog_textinput);
             final JSONObject obj = new JSONObject();
 
@@ -523,6 +523,7 @@ public class MyAnomalyListFragment extends Fragment {
                             try
                             {
                                 // TODO: add error handling, i.e. if result.body().status != "OK"
+                                button.setEnabled(false);
                                 onCreateDialog(userInput.getText().toString(), result.body().redditPostId);
                             }
                             catch (Exception e)
