@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
         TextView privacyPolicyTextView = (TextView) privacyPolicyDialog.findViewById(R.id.privacyTextView);
         privacyPolicyTextView.setMovementMethod(new ScrollingMovementMethod());
 
-        privacyPolicyTextView.setText("1. By using the Randonauts Fatumbot you do so at your own risk and assume sole responsiblity!  \n" +
+        privacyPolicyTextView.setText("1. By using the Randonautica app you do so at your own risk and assume sole responsiblity!  \n" +
                 "2. Using it means you agree and will abide to this privacy policy and terms of use.  \n" +
                 "3. In no way are we responsible or will be held liable for any positive or adverse affects or consequences from the use of this platform.  \n" +
                 "4. Use common sense, do not put yourself or others in harms way. Don't tresspass. \n" +
