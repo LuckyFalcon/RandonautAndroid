@@ -10,7 +10,7 @@ android {
         applicationId "com.randonautica.app"
         minSdkVersion 16
         targetSdkVersion 29
-        versionCode 1
+        versionCode 1000002
         versionName "1.0.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -26,6 +26,9 @@ android {
         }
     }
     sourceSets { main { jni.srcDirs = ['src/main/jni', 'src/main/jni/'] } }
+    lintOptions {
+        checkReleaseBuilds false
+    }
 }
 
 dependencies {
