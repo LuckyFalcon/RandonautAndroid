@@ -1,14 +1,13 @@
 package com.randonautica.app.Classes;
 
 import java.util.List;
-
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
-import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface RandoWrapperApi {
@@ -21,6 +20,11 @@ public interface RandoWrapperApi {
                              @Query("raw") boolean raw,
                              @Query("gcp") boolean gcp);
 
+    @FormUrlEncoded
+    @POST("setentropy")
+    Call<SendEntropy.Response> postEntropyJson(@Field("size") String size,
+                                               @Field("entropy") String entropy);
+
     @POST("reports/save")
     Call<SendReport.Response> postJson(@Body RequestBody params);
 
@@ -31,14 +35,6 @@ public interface RandoWrapperApi {
                                          @Query("radius") int radius,
                                          @Query("pool") boolean pool,
                                          @Query("gcp") boolean gcp);
-    @GET("attractors")
-    Call<List<Attractors>> getAttractorsTest(@Query("gid") String gid,
-                                            @Query("center[0]") double  center0,
-                                            @Query("center[1]") double center1,
-                                             @Query("radius") int radius,
-                                             @Query("pool") boolean pool,
-                                             @Query("gcp") boolean gcp);
-
 
     @GET("pseudo")
     Call<List<Psuedo>> getPsuedo(@Query("n") int n,

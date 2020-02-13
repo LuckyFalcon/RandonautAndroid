@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package com.randonautica.app
+package com.randonautica.app.Classes
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -32,8 +32,9 @@ import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Size
+import android.view.Surface
 import androidx.annotation.RequiresApi
-import com.randonautica.app.Classes.BlumBlumShub
+import com.randonautica.app.MyCamRngFragment.Companion.mCameraSurface
 import io.reactivex.processors.MulticastProcessor
 import java.util.concurrent.CountDownLatch
 import kotlin.random.Random
@@ -107,7 +108,7 @@ class NoiseBasedCamRng private constructor(private val pixelsToUse: List<Pair<In
                         @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
                         object : CameraDevice.StateCallback() {
                             override fun onOpened(cameraDevice: CameraDevice) {
-                                this@Companion.cameraDevice = cameraDevice
+                                Companion.cameraDevice = cameraDevice
 
                                 imageReader = ImageReader.newInstance(imageSize!!.width, imageSize!!.height, ImageFormat.JPEG, 1).apply {
                                     setOnImageAvailableListener(
@@ -141,9 +142,12 @@ class NoiseBasedCamRng private constructor(private val pixelsToUse: List<Pair<In
                                             null
                                     )
                                 }
+                                val surfaces = ArrayList<Surface>()
+                                surfaces.add(imageReader!!.surface)
+                                surfaces.add( mCameraSurface!!)
 
                                 cameraDevice.createCaptureSession(
-                                        listOf(imageReader!!.surface),
+                                        surfaces,
                                         object : CameraCaptureSession.StateCallback() {
                                             override fun onConfigured(cameraCaptureSession: CameraCaptureSession) {
                                                 val hardwareLevel = cameraCharacteristics[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
@@ -157,7 +161,10 @@ class NoiseBasedCamRng private constructor(private val pixelsToUse: List<Pair<In
 
                                                 cameraCaptureSession.setRepeatingRequest(
                                                         cameraDevice.createCaptureRequest(templateType).apply {
-                                                            addTarget(imageReader!!.surface)
+
+                                                            for (surface in surfaces) {
+                                                                this.addTarget(surface)  //Image and camRNGDialog surface
+                                                            }
 
                                                             set(CaptureRequest.NOISE_REDUCTION_MODE, CaptureRequest.NOISE_REDUCTION_MODE_OFF)
                                                             set(CaptureRequest.HOT_PIXEL_MODE, CaptureRequest.HOT_PIXEL_MODE_OFF)

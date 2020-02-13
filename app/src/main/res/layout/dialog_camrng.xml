@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/relativeLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/cameraViewColor">
+
+    <SurfaceView
+        android:id="@+id/surfaceViewCAM"
+        android:layout_width="320dp"
+        android:layout_height="240dp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.randonautica.app.Classes.CircleOverlayView
+        android:id="@+id/cicleOverlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_default="percent"
+        app:layout_constraintHeight_percent=".50"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_default="percent"
+        app:layout_constraintWidth_percent="1">
+
+    </com.randonautica.app.Classes.CircleOverlayView>
+
+    <ImageView
+        android:interpolator="@android:anim/linear_interpolator"
+        android:id="@+id/camRNGImage"
+        android:layout_width="wrap_content"
+        android:layout_height="205dp"
+        app:layout_constraintBottom_toBottomOf="@+id/cicleOverlay"
+        app:layout_constraintEnd_toEndOf="@+id/cicleOverlay"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:src="@drawable/scale" />
+
+    <Button
+        android:id="@+id/camRNGCancelButton"
+        android:layout_width="220dp"
+        android:layout_height="48dp"
+        android:backgroundTint="@color/buttonColor"
+        android:text="Cancel"
+        android:textColor="@color/buttonText"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"></Button>
+
+    <LinearLayout
+        android:id="@+id/linearLayout4"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_percent=".50"
+        app:layout_constraintWidth_percent="1"
+        android:layout_above="@+id/camRNGCancelButton"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:background="@color/mapbox_blue"
+        android:keepScreenOn="true"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/camera_bg"
+            android:stretchColumns="1">
+
+            <TableRow>
+
+                <TextView
+                    android:layout_marginBottom="8dp"
+                    android:layout_span="2"
+                    android:fontFamily="OpenSans-Extrabold"
+                    android:text="Generating Entropy..."
+                    android:textColor="@color/cameraRNGTextColor"
+                    android:textSize="30sp" />
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:layout_width="263dp"
+                    android:layout_height="35dp"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="OpenSans-Extrabold"
+                    android:text="TIME ELAPSED"
+                    android:textColor="@color/cameraRNGTextColor"
+                    android:textSize="19sp" />
+
+                <Chronometer
+                    android:id="@+id/timeLapsedCmTimer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="OpenSans-Extrabold"
+                    android:textColor="@color/cameraRNGTextColor"
+                    android:textSize="19sp" />
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:layout_height="35dp"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="OpenSans-Extrabold"
+                    android:text="BYTES IN BUFFER"
+                    android:textColor="@color/cameraRNGTextColor"
+                    android:textSize="19sp" />
+
+                <TextView
+                    android:id="@+id/bytesInBufferTextView"
+                    android:fontFamily="OpenSans-Extrabold"
+                    android:text="emtpy"
+                    android:textColor="@color/cameraRNGTextColor"
+                    android:textSize="19sp" />
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:layout_height="34dp"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="OpenSans-Extrabold"
+                    android:text="ENTROPY GENERATED"
+                    android:textColor="@color/cameraRNGTextColor"
+                    android:textSize="19sp" />
+
+                <TextView
+                    android:id="@+id/entropyGeneratedTextView"
+                    android:fontFamily="OpenSans-Extrabold"
+                    android:text="emtpy"
+                    android:textColor="@color/cameraRNGTextColor"
+                    android:textSize="19sp" />
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:layout_height="35dp"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="OpenSans-Extrabold"
+                    android:text="ENTROPY NEEDED"
+                    android:textColor="@color/cameraRNGTextColor"
+                    android:textSize="19sp" />
+
+                <TextView
+                    android:id="@+id/entropyLeftTextView"
+                    android:fontFamily="OpenSans-Extrabold"
+                    android:text="emtpy"
+                    android:textColor="@color/cameraRNGTextColor"
+                    android:textSize="19sp" />
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:layout_height="35dp"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="OpenSans-Extrabold"
+                    android:text="AMOUNT OF PIXELS"
+                    android:textColor="@color/cameraRNGTextColor"
+                    android:textSize="19sp" />
+
+                <TextView
+                    android:id="@+id/usedPixelsTextView"
+                    android:fontFamily="OpenSans-Extrabold"
+                    android:text="emtpy"
+                    android:textColor="@color/cameraRNGTextColor"
+                    android:textSize="19sp" />
+            </TableRow>
+
+        </TableLayout>
+
+    </LinearLayout>
+
+
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
