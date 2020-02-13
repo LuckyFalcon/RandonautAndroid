@@ -25,10 +25,10 @@ import android.widget.TextView;
 
 import com.google.android.material.navigation.NavigationView;
 
-import java.util.ArrayList;
+
 import java.util.UUID;
 
-public class MainActivity extends AppCompatActivity implements RandonautFragment.SendMessage, MyAttractorsListFragment.SendMessage, NavigationView.OnNavigationItemSelectedListener  {
+public class MainActivity extends AppCompatActivity implements RandonautFragment.SendMessage, MyAttractorsListFragment.SendMessage, MyCamRngFragment.SendMessage,NavigationView.OnNavigationItemSelectedListener  {
 
     public static final String SHARED_PREFS = "sharedPrefs";
     public static final String STATS = "stats";
@@ -40,8 +40,6 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
     public static final String SWTICHEnableDarkMode = "enableDarkMode";
 
     Dialog privacyPolicyDialog;
-
-    private NavigationView navigationView;
 
     private FragmentManager fragmentManager;
 
@@ -131,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
                 break;
             case R.id.nav_slideshow:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                        new MyList()).commit();
+                        new MyListFragment()).commit();
                 break;
             case R.id.nav_tools:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
@@ -223,6 +221,7 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
 
     }
 
+    //Send Coordinates from one of the Attractor lists
     public void sendData(int type, double power, double x, double y, double radiusm, double z_score, double pseudo) {
         tag = "randonaut";
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -231,6 +230,7 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setCheckedItem(R.id.nav_randonaut);
+
         //Check if ram doesn't double each time and this actually resets the randonauts fragment
         fragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, randonautfragment, tag)
@@ -238,12 +238,35 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
                 .commit();
     }
 
-    public void rng() {
+    //Send Entropy from Camera RNG Fragment
+    public void sendEntropyObj(int size, String entropy) {
+        tag = "randonaut";
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        RandonautFragment randonautfragment = (RandonautFragment) fragmentManager.findFragmentByTag(tag);
+
+        //Checks if size was 0, which means it was cancelled
+        if(size != 0){
+            randonautfragment.setQuantumEntropy(size, entropy);
+        }
+
+        fragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, randonautfragment, tag)
+                .addToBackStack(tag)
+                .commit();
+    }
+
+    //Start the CameraRNG dialog from within a dialog
+    public void rng(int distance) {
         tag = "camrng";
         FragmentManager fragmentManager = getSupportFragmentManager();
-        camRngDialog camRngDialog = new camRngDialog();
-        camRngDialog.show(fragmentManager, tag);
-
+        MyCamRngFragment MyCamRngFragment = new MyCamRngFragment();
+        Bundle arguments = new Bundle();
+        arguments.putInt("VALUE1", distance);
+        MyCamRngFragment.setArguments(arguments);
+        fragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, MyCamRngFragment, tag)
+                .addToBackStack(tag)
+                .commit();
     }
 
 

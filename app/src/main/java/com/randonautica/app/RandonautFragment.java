@@ -11,7 +11,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.LayoutInflater;
@@ -22,6 +24,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
@@ -44,6 +47,7 @@ import com.randonautica.app.Classes.Pools;
 import com.randonautica.app.Classes.Psuedo;
 import com.randonautica.app.Classes.RandoWrapperApi;
 import com.randonautica.app.Classes.ReportQuestions;
+import com.randonautica.app.Classes.SendEntropy;
 import com.randonautica.app.Classes.Sizes;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
@@ -72,11 +76,13 @@ import org.json.JSONObject;
 
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
+import static android.content.Context.LOCATION_SERVICE;
 import static com.mapbox.mapboxsdk.style.layers.Property.LINE_JOIN_ROUND;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineJoin;
@@ -194,6 +200,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
     String attractorTable = "Attractors";
     String voidTable = "Voids";
     String anomalyTable = "Anomalies";
+    String entropyTable = "myEntropy";
 
     //Message to mainactivity
     SendMessage SM;
@@ -238,31 +245,33 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         super.onViewCreated(view, savedInstanceState);
 
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(MySettingsFragment.SHARED_PREFS, Context.MODE_PRIVATE);
-            startButton = (Button) view.findViewById(R.id.startButton);
-            resetButton = (Button) view.findViewById(R.id.resetRandonaut);
-            reportButton = (Button) view.findViewById(R.id.reportButton);
+        startButton = (Button) view.findViewById(R.id.startButton);
+        resetButton = (Button) view.findViewById(R.id.resetRandonaut);
+        reportButton = (Button) view.findViewById(R.id.reportButton);
 
-            startButton.setOnClickListener(new View.OnClickListener() {
-                @SuppressLint("CheckResult")
-                @Override
-                public void onClick(View v) {
+        startButton.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("CheckResult")
+            @Override
+            public void onClick(View v) {
+
+                if(mapboxMap.getLocationComponent().isLocationComponentActivated() == false){
+                    enableLocationComponent(mapboxMap.getStyle());
+                } else {
                     setPreferencesAlertDialog();
-                    if(mapboxMap.getLocationComponent().isLocationComponentActivated() == false){
-                        enableLocationComponent(mapboxMap.getStyle());
-                    }
                 }
-            });
+            }
+        });
 
-            resetButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    resetRandonaut();
-                  //  navigateButton.setVisibility(View.GONE);
-                    resetButton.setVisibility(View.GONE);
-                    startButton.setVisibility(View.VISIBLE);
-                    reportButton.setVisibility(View.GONE);
-                }
-            });
+        resetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resetRandonaut();
+                //  navigateButton.setVisibility(View.GONE);
+                resetButton.setVisibility(View.GONE);
+                startButton.setVisibility(View.VISIBLE);
+                reportButton.setVisibility(View.GONE);
+            }
+        });
 
 
 
@@ -286,9 +295,9 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                                         lineColor(Color.parseColor("#2096F3"))
                                 ), PERSON_LAYER_ID), new Style.OnStyleLoaded() {
             @Override
-                    public void onStyleLoaded(@NonNull Style style) {
+            public void onStyleLoaded(@NonNull Style style) {
                 enableLocationComponent(style);
-                    }
+            }
         });
 
     }
@@ -342,7 +351,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         progressdialog.setCancelable(false);
         progressdialog.setCanceledOnTouchOutside(false);
 
-        Call<List<Attractors>> callGetAttractors = randoWrapperApi.getAttractorsTest(GID,
+        Call<List<Attractors>> callGetAttractors = randoWrapperApi.getAttractors(GID,
                 mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), distance, pool, gcp);
 
         callGetAttractors.enqueue(new Callback<List<Attractors>>() {
@@ -689,7 +698,6 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                             double x_ = psuedos.getX();
                             double y_ = psuedos.getY();
 
-
                             //Second part
                             double x = psuedos.getLatitude(); //Used in map
                             double y = psuedos.getLongitude(); //Used in map
@@ -717,7 +725,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                             places[i]=new Place(new LatLng(x, y), GID,  TID,  LID,  x_,  y_,  distance,  initialBearing,  finalBearing, side,  distanceErr,  radiusM, n,  mean, rarity,  power_old,  probability_single,  integral_score,  significance,  probability, FILTERING_SIGNIFICANCE, type, radiusM,  power,  z_score);
 
 
-                              if(type == 1) {
+                            if(type == 1) {
                                 mDatabaseHelper = new DatabaseHelper(getActivity(), attractorTable);
                                 mapboxMap.addMarker(new MarkerOptions()
                                         .position(new LatLng(x, y))
@@ -836,7 +844,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                         if(amount > 0){
                             initRecyclerView();
                             startButton.setVisibility(View.GONE);
-                         //   navigateButton.setVisibility(View.VISIBLE);
+                            //   navigateButton.setVisibility(View.VISIBLE);
                             resetButton.setVisibility(View.VISIBLE);
                         } else {
                             //Nothhing was found
@@ -885,6 +893,23 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         }
     }
 
+    public void onCreateDialogErrorGettingEntropy(){
+
+        new AlertDialog.Builder(getContext())
+                .setTitle("Error sourcing quantum entropy")
+                .setMessage("Sorry, there was an error sourcing quantum entropy needed to randomize. Try a bit later.")
+
+                // Specifying a listener allows you to take an action before dismissing the dialog.
+                // The dialog is automatically dismissed when a dialog button is clicked.
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Continue with delete operation
+                    }
+                })
+
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
 
     public void onCreateDialog() {
 
@@ -1002,6 +1027,11 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         GCPToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.gcpToggleButton);
         CameraToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.cmrngToggleButton);
 
+        // Check if we're running on Android 5.0 or higher and enable the Camera RNG button
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            CameraToggleButton.setEnabled(false);
+        }
+
         preferencesDialog.show();
 
         //Set Attractor as default button
@@ -1024,7 +1054,8 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                     poolQuantumEntropy();
                 } else if (CameraToggleButton.isChecked()) {
                     preferencesDialog.cancel();
-                    setQuantumEntropy();
+                    getNeededEntropySize(); //---> This will run the MyCamRngFragment on success
+                    //setQuantumEntropy();
                 } else if (GCPToggleButton.isChecked()) {
                     preferencesDialog.cancel();
                     getGCPEntropy();
@@ -1053,9 +1084,9 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
         progressdialog.setCanceledOnTouchOutside(false);
 
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
-                .connectTimeout(20, TimeUnit.SECONDS)
-                .readTimeout(20, TimeUnit.SECONDS)
-                .writeTimeout(20, TimeUnit.SECONDS)
+                .connectTimeout(40, TimeUnit.SECONDS)
+                .readTimeout(40, TimeUnit.SECONDS)
+                .writeTimeout(40, TimeUnit.SECONDS)
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -1095,7 +1126,10 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
             }
             @Override
             public void onFailure(Call<Sizes> call, Throwable t) {
-
+                if(t instanceof SocketTimeoutException){
+                    onCreateDialogErrorGettingEntropy();
+                    progressdialog.dismiss();
+                }
                 progressdialog.dismiss();
             }
         });
@@ -1103,6 +1137,8 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
 
     }
+
+
 
     public void getGCPEntropy(){
 
@@ -1120,7 +1156,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-              //  .baseUrl(new String(Base64.decode(getBaseApi(),Base64.DEFAULT)))
+                //  .baseUrl(new String(Base64.decode(getBaseApi(),Base64.DEFAULT)))
                 .baseUrl("http://192.168.1.117:3000/")
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -1167,60 +1203,79 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
 
     }
 
-    public void setQuantumEntropy(){
-        SM.rng(); //Starts camRNG instance fragment
-//
-//        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
-//                .connectTimeout(60, TimeUnit.SECONDS)
-//                .readTimeout(60, TimeUnit.SECONDS)
-//                .writeTimeout(60, TimeUnit.SECONDS)
-//                .build();
-//
-//        Retrofit retrofit = new Retrofit.Builder()
-//                .baseUrl("http://192.168.1.117:3000/")
-//                .client(okHttpClient)
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .build();
-//
-//        randoWrapperApi = retrofit.create(RandoWrapperApi.class);
-//
-//        Call<Sizes> callGetSizes = randoWrapperApi.getSizes(distance);
-//
-//        callGetSizes.enqueue(new Callback<Sizes>() {
-//            @Override
-//            public void onResponse(Call<Sizes> call, Response<Sizes> response) {
-//                Type = response.body().getType();
-//                N = response.body().getN();
-//                spot = response.body().getSpot();
-//                hexsize = response.body().getHexsize();
-//
-//                Call<Entropy> callGetEntropy = randoWrapperApi.getEntropy(hexsize, false, false);
-//
-//                callGetEntropy.enqueue(new Callback<Entropy>() {
-//                    @Override
-//                    public void onResponse(Call<Entropy> call, Response<Entropy> response) {
-//                        GID = response.body().getGid();
-//                        entropy = entropy + hexsize;
-//                        saveData();
-//                        getAttractors(false, false);
-//                    }
-//                    @Override
-//                    public void onFailure(Call<Entropy> call, Throwable t) {
-//
-//                    }
-//                });
-//            }
-//            @Override
-//            public void onFailure(Call<Sizes> call, Throwable t) {
-//
-//            }
-//        });
+    public void getNeededEntropySize(){
+        //Start ProgressDialog
+        progressdialog = new ProgressDialog(getActivity());
+        progressdialog.setMessage("Getting quantum entropy size needed. Please wait....");
+        progressdialog.show();
+        progressdialog.setCancelable(false);
+        progressdialog.setCanceledOnTouchOutside(false);
 
+        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+                .connectTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
+                .writeTimeout(20, TimeUnit.SECONDS)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(new String(Base64.decode(getBaseApi(),Base64.DEFAULT)))
+                .client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        randoWrapperApi = retrofit.create(RandoWrapperApi.class);
+
+        Call<Sizes> callGetSizes = randoWrapperApi.getSizes(distance);
+        callGetSizes.enqueue(new Callback<Sizes>() {
+            @Override
+            public void onResponse(Call<Sizes> call, Response<Sizes> response) {
+                Type = response.body().getType();
+                N = response.body().getN();
+                spot = response.body().getSpot();
+                hexsize = response.body().getHexsize();
+                progressdialog.dismiss();
+                SM.rng(hexsize);
+            }
+            @Override
+            public void onFailure(Call<Sizes> call, Throwable t) {
+                progressdialog.dismiss();
+            }
+        });
 
 
     }
 
-    //POOLS ARE NOT SELECTED RANDOMLY, INTEGER IS THE SAME ON STARTUP!!!
+    public void setQuantumEntropy(int size, String Entropy){
+
+        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(new String(Base64.decode(getBaseApi(),Base64.DEFAULT)))
+                .client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        randoWrapperApi = retrofit.create(RandoWrapperApi.class);
+
+         Call<SendEntropy.Response> response = randoWrapperApi.postEntropyJson(String.valueOf(size), Entropy);
+
+        response.enqueue(new Callback<SendEntropy.Response>() {
+            @Override
+            public void onResponse(Call<SendEntropy.Response> call, Response<SendEntropy.Response> response) {
+                GID = response.body().getGid();
+                getAttractors(false, false);
+            }
+            @Override
+            public void onFailure(Call<SendEntropy.Response> call, Throwable t) {
+                onCreateDialogErrorGettingEntropy();
+            }
+        });
+    }
+
     public void poolQuantumEntropy(){
         //Start ProgressDialog
         progressdialog = new ProgressDialog(getActivity());
@@ -1697,44 +1752,56 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
         // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(getContext())) {
+            //Check if GPS is disabled
+            if(loadedMapStyle == null){
+                Toast.makeText(getContext(), "Map was not loaded", Toast.LENGTH_LONG).show();
+            } else {
+                //Check if GPS is enabled
+                LocationManager locationManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
+                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    Toast.makeText(getContext(), "GPS is disabled!", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getContext(), "GPS is enabled!", Toast.LENGTH_LONG).show();
 
-            LocationComponentOptions locationComponentOptions = LocationComponentOptions.builder(getContext())
-                    .accuracyAnimationEnabled(true)
-                    .build();
+                    LocationComponentOptions locationComponentOptions = LocationComponentOptions.builder(getContext())
+                            .accuracyAnimationEnabled(true)
+                            .build();
 
-            LocationComponentActivationOptions locationComponentActivationOptions = LocationComponentActivationOptions
-                    .builder(getContext(), loadedMapStyle)
-                    .locationComponentOptions(locationComponentOptions)
-                    .build();
+                    LocationComponentActivationOptions locationComponentActivationOptions = LocationComponentActivationOptions
+                            .builder(getContext(), loadedMapStyle)
+                            .locationComponentOptions(locationComponentOptions)
+                            .build();
 
-            // Get an instance of the component
-            final LocationComponent locationComponent = mapboxMap.getLocationComponent();
+                    // Get an instance of the component
+                    final LocationComponent locationComponent = mapboxMap.getLocationComponent();
 
-            // Activate with options
-            locationComponent.activateLocationComponent(locationComponentActivationOptions);
-            // locationComponent.activateLocationComponent(
-            //       LocationComponentActivationOptions.builder(getContext(), loadedMapStyle).build());
+                    // Activate with options
+                    locationComponent.activateLocationComponent(locationComponentActivationOptions);
+                    // locationComponent.activateLocationComponent(
+                    //       LocationComponentActivationOptions.builder(getContext(), loadedMapStyle).build());
 
-            // Enable to make component visible
-            locationComponent.setLocationComponentEnabled(true);
+                    // Enable to make component visible
+                    locationComponent.setLocationComponentEnabled(true);
 
 
-            // Set the component's camera mode
-            locationComponent.setCameraMode(CameraMode.TRACKING_GPS);
+                    // Set the component's camera mode
+                    locationComponent.setCameraMode(CameraMode.TRACKING_GPS);
 
-            // Set the component's render mode
-            locationComponent.setRenderMode(RenderMode.COMPASS);
+                    // Set the component's render mode
+                    locationComponent.setRenderMode(RenderMode.COMPASS);
 
-            if(locationComponent.getLastKnownLocation() != null){
-                // locationComponent.getLastKnownLocation();
-                CameraPosition position = new CameraPosition.Builder()
-                        .target(new LatLng(locationComponent.getLastKnownLocation()))
-                        .zoom(13)
-                        .build();
-                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 5000);
+                    if (locationComponent.getLastKnownLocation() != null) {
+                        // locationComponent.getLastKnownLocation();
+                        CameraPosition position = new CameraPosition.Builder()
+                                .target(new LatLng(locationComponent.getLastKnownLocation()))
+                                .zoom(13)
+                                .build();
+                        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 5000);
+
+                    }
+                }
 
             }
-
 
 
 
@@ -1750,7 +1817,7 @@ public class RandonautFragment extends Fragment implements LifecycleOwner, OnMap
      * */
 
     interface SendMessage {
-        void rng();
+        void rng(int distance);
     }
 
     @Override

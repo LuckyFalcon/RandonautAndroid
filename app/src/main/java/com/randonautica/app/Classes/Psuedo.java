@@ -1,7 +1,5 @@
 package com.randonautica.app.Classes;
 
-
-
 public class Psuedo  {
 
     private String GID;

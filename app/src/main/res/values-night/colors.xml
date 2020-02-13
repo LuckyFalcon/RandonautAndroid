@@ -22,4 +22,8 @@
 
     <color name="listSelected">#9C27B0</color>
     <color name="tabsColorNotSelected">#ffffff</color>
+
+    <color name="cameraViewColor">#000000</color>
+    <color name="cameraRNGTextColor">#FFFFFF</color>
+
 </resources>

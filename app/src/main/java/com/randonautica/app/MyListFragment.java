@@ -12,22 +12,18 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
+import com.randonautica.app.Classes.TabsPagerAdapter;
 
-public class MyList extends Fragment implements
+public class MyListFragment extends Fragment implements
         ActionBar.TabListener {
 
-    private ViewPager viewPager;
     private TabsPagerAdapter mAdapter;
-    private ActionBar actionBar;
-    // Tab titles
-
     private View view;
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_view, container, false);
 
         setHasOptionsMenu(true);
-
 
         return view;
     }
