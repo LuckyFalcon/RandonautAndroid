@@ -1,6 +1,6 @@
-package com.randonautica.app.Classes;
+package com.randonautica.app.Interfaces.API_Classes;
 
-public class Psuedo  {
+public class PseudoAttractor {
 
     private String GID;
 

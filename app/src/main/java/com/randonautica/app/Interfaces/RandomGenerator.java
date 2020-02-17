@@ -33,7 +33,7 @@
  * http://www.opensource.org/licenses/bsd-license.php
  */
 
-package com.randonautica.app.Classes;
+package com.randonautica.app.Interfaces;
 
 /**
  * Simplified interface for random number generation

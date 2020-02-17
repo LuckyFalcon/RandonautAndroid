@@ -108,6 +108,26 @@
             <TableRow>
 
                 <TextView
+                    android:layout_width="263dp"
+                    android:layout_height="35dp"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="OpenSans-Extrabold"
+                    android:text="PROGRESS"
+                    android:textColor="@color/cameraRNGTextColor"
+                    android:textSize="19sp" />
+
+                <TextView
+                    android:id="@+id/etaRemaining"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="OpenSans-Extrabold"
+                    android:textColor="@color/cameraRNGTextColor"
+                    android:textSize="19sp" />
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
                     android:layout_height="35dp"
                     android:layout_marginEnd="16dp"
                     android:fontFamily="OpenSans-Extrabold"
@@ -118,7 +138,7 @@
                 <TextView
                     android:id="@+id/bytesInBufferTextView"
                     android:fontFamily="OpenSans-Extrabold"
-                    android:text="emtpy"
+                    android:text="empty"
                     android:textColor="@color/cameraRNGTextColor"
                     android:textSize="19sp" />
             </TableRow>
@@ -136,7 +156,7 @@
                 <TextView
                     android:id="@+id/entropyGeneratedTextView"
                     android:fontFamily="OpenSans-Extrabold"
-                    android:text="emtpy"
+                    android:text="empty"
                     android:textColor="@color/cameraRNGTextColor"
                     android:textSize="19sp" />
             </TableRow>
@@ -154,7 +174,7 @@
                 <TextView
                     android:id="@+id/entropyLeftTextView"
                     android:fontFamily="OpenSans-Extrabold"
-                    android:text="emtpy"
+                    android:text="empty"
                     android:textColor="@color/cameraRNGTextColor"
                     android:textSize="19sp" />
             </TableRow>
@@ -172,7 +192,7 @@
                 <TextView
                     android:id="@+id/usedPixelsTextView"
                     android:fontFamily="OpenSans-Extrabold"
-                    android:text="emtpy"
+                    android:text="empty"
                     android:textColor="@color/cameraRNGTextColor"
                     android:textSize="19sp" />
             </TableRow>

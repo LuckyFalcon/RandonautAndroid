@@ -27,8 +27,14 @@ public class MyProfileFragment extends Fragment {
     private static DecimalFormat df2 = new DecimalFormat("#.##");
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        //Set title
         getActivity().setTitle("Profile");
+
+        //Load data
         loadData();
+
+        //Set view
         view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         return view;
@@ -38,17 +44,19 @@ public class MyProfileFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Set textviews
-        TextView Attractors = (TextView) view.findViewById(R.id.tv1);
-        TextView Voids = (TextView) view.findViewById(R.id.tv2);
-        TextView Psuedo = (TextView) view.findViewById(R.id.tv3);
-        TextView Anomalies = (TextView) view.findViewById(R.id.tv4);
-        TextView Entropy = (TextView) view.findViewById(R.id.tv5);
-        TextView Reports = (TextView) view.findViewById(R.id.tv6);
+        // Initialize TextViews
+        TextView Attractors = (TextView) view.findViewById(R.id.tv1); //Amount of Attractors
+        TextView Voids = (TextView) view.findViewById(R.id.tv2);      //Amount of Voids
+        TextView Psuedo = (TextView) view.findViewById(R.id.tv3);     //Amount of Pseudos
+        TextView Anomalies = (TextView) view.findViewById(R.id.tv4);  //Amount of Anomalies
+        TextView Entropy = (TextView) view.findViewById(R.id.tv5);    //Amount of Entropy used
+        TextView Reports = (TextView) view.findViewById(R.id.tv6);    //Amount of Reports send
 
-        Double envtropy = Double.valueOf(entropy);
-        String totalEntropyGenerated = df2.format((envtropy/1000000))+"M";
+        //Do a sum on Entropy
+        Double entropyUsed = Double.valueOf(entropy);
+        String totalEntropyGenerated = df2.format((entropyUsed/1000000))+"M";
 
+        //Set TextViews
         Attractors.setText(Long.toString(attractors));
         Voids.setText(Long.toString(voids));
         Psuedo.setText(Long.toString(pseudo));
@@ -58,7 +66,8 @@ public class MyProfileFragment extends Fragment {
     }
 
     public void loadData() {
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(RandonautFragment.STATS, Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(MyRandonautFragment.STATS, Context.MODE_PRIVATE);
+
         attractors = sharedPreferences.getLong("ATTRACTORS", 0);
         voids = sharedPreferences.getLong("VOID", 0);
         anomalies = sharedPreferences.getLong("ANOMALIES", 0);

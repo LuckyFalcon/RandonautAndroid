@@ -1,8 +1,8 @@
-package com.randonautica.app;
+package com.randonautica.app.Classes;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
-class Place implements Comparable<Place> {
+public class AttractorLocation implements Comparable<AttractorLocation> {
 
     private LatLng coordinate;
 
@@ -152,7 +152,7 @@ class Place implements Comparable<Place> {
         return z_score;
     }
 
-    public Place(LatLng coordinate, String GID, String TID, String LID, double x, double y, double distance, double initialBearing, double finalBearing, int side, double distanceErr, double radiusM, int n, double mean, int rarity, double power_old, double probability_single, double integral_score, double significance, double probability, int FILTERING_SIGNIFICANCE, int type, double radiusm, double power, double z_score) {
+    public AttractorLocation(LatLng coordinate, String GID, String TID, String LID, double x, double y, double distance, double initialBearing, double finalBearing, int side, double distanceErr, double radiusM, int n, double mean, int rarity, double power_old, double probability_single, double integral_score, double significance, double probability, int FILTERING_SIGNIFICANCE, int type, double radiusm, double power, double z_score) {
         this.coordinate = coordinate;
         this.GID = GID;
         this.TID = TID;
@@ -181,7 +181,7 @@ class Place implements Comparable<Place> {
     }
 
     @Override
-    public int compareTo(Place o) {
+    public int compareTo(AttractorLocation o) {
         return 0;
     }
 }

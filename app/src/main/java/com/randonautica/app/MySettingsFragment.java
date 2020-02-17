@@ -21,7 +21,7 @@ public class MySettingsFragment extends PreferenceFragmentCompat {
     private SwitchPreferenceCompat enableDarkMode;
 
     //setting actual values
-    private boolean switchOnOff;
+    private boolean darkModeSwitch;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -39,11 +39,11 @@ public class MySettingsFragment extends PreferenceFragmentCompat {
             @Override
             public boolean onPreferenceChange(Preference arg0, Object isVibrateOnObject) {
                 if(enableDarkMode.isChecked()){
-                    switchOnOff = false;
+                    darkModeSwitch = false;
                     saveData();
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                 } else {
-                    switchOnOff = true;
+                    darkModeSwitch = true;
                     saveData();
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                 }
@@ -57,20 +57,20 @@ public class MySettingsFragment extends PreferenceFragmentCompat {
     public void saveData() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(SWTICHEnableDarkMode, switchOnOff);
+        editor.putBoolean(SWTICHEnableDarkMode, darkModeSwitch);
 
         editor.apply();
 
     }
     public void loadData() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
-        switchOnOff = sharedPreferences.getBoolean(SWTICHEnableDarkMode, false);
+        darkModeSwitch = sharedPreferences.getBoolean(SWTICHEnableDarkMode, false);
 
     }
 
     public void updateViews() {
         enableDarkMode = (SwitchPreferenceCompat) findPreference("enableDarkMode");
-        enableDarkMode.setChecked(switchOnOff);
+        enableDarkMode.setChecked(darkModeSwitch);
 
 
     }

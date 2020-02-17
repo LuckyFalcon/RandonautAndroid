@@ -6,4 +6,6 @@
     <dimen name="nav_header_height">176dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="radius">100dp</dimen>
+    <dimen name="simpletooltip_max_width">700dp</dimen>
+    <dimen name="simpletooltip_overlay_offset">10dp</dimen>
 </resources>

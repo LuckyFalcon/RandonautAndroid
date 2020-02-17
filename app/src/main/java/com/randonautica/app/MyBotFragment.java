@@ -18,9 +18,11 @@ import androidx.fragment.app.Fragment;
 
 
 public class MyBotFragment extends Fragment {
+
     private  View view;
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        //Check if view already exists
         if (view == null){
             view = inflater.inflate(R.layout.fragment_my_bot, container, false);
 
@@ -44,6 +46,7 @@ public class MyBotFragment extends Fragment {
             //Set webView url
             botWebView.loadUrl("https://bot.randonauts.com/");
 
+            //Enable backpress within webview
             botWebView.setOnKeyListener(new View.OnKeyListener(){
 
                 public boolean onKey(View v, int keyCode, KeyEvent event) {

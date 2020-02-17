@@ -1,4 +1,4 @@
-package com.randonautica.app.Classes;
+package com.randonautica.app.Interfaces.API_Classes;
 
 //Used by RandoWrapperApi
 

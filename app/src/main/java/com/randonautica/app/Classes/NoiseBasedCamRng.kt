@@ -32,8 +32,6 @@ import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Size
-import android.view.Surface
-import androidx.annotation.RequiresApi
 import com.randonautica.app.MyCamRngFragment.Companion.mCameraSurface
 import io.reactivex.processors.MulticastProcessor
 import java.util.concurrent.CountDownLatch
@@ -105,10 +103,9 @@ class NoiseBasedCamRng private constructor(private val pixelsToUse: List<Pair<In
 
                 cameraManager.openCamera(
                         cameraId,
-                        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
                         object : CameraDevice.StateCallback() {
                             override fun onOpened(cameraDevice: CameraDevice) {
-                                Companion.cameraDevice = cameraDevice
+                                this@Companion.cameraDevice = cameraDevice
 
                                 imageReader = ImageReader.newInstance(imageSize!!.width, imageSize!!.height, ImageFormat.JPEG, 1).apply {
                                     setOnImageAvailableListener(
@@ -142,9 +139,7 @@ class NoiseBasedCamRng private constructor(private val pixelsToUse: List<Pair<In
                                             null
                                     )
                                 }
-                                val surfaces = ArrayList<Surface>()
-                                surfaces.add(imageReader!!.surface)
-                                surfaces.add( mCameraSurface!!)
+                                val surfaces = listOf(imageReader!!.surface, mCameraSurface!!)
 
                                 cameraDevice.createCaptureSession(
                                         surfaces,
@@ -152,18 +147,19 @@ class NoiseBasedCamRng private constructor(private val pixelsToUse: List<Pair<In
                                             override fun onConfigured(cameraCaptureSession: CameraCaptureSession) {
                                                 val hardwareLevel = cameraCharacteristics[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
 
-                                                val templateType = if (hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL ||
-                                                        hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3) {
-                                                    CameraDevice.TEMPLATE_MANUAL
-                                                } else {
-                                                    CameraDevice.TEMPLATE_PREVIEW
-                                                }
+                                                // TODO: temporarily set everything to TEMPLATE_PREVIEW until we resolve the various device support for it
+//                                                val templateType = if (hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL ||
+//                                                        hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3) {
+//                                                    CameraDevice.TEMPLATE_MANUAL
+//                                                } else {
+//                                                    CameraDevice.TEMPLATE_PREVIEW
+//                                                }
+                                                val templateType = CameraDevice.TEMPLATE_PREVIEW
 
                                                 cameraCaptureSession.setRepeatingRequest(
                                                         cameraDevice.createCaptureRequest(templateType).apply {
-
                                                             for (surface in surfaces) {
-                                                                this.addTarget(surface)  //Image and camRNGDialog surface
+                                                                this.addTarget(surface)  //Image and camRNGDialog surfaces
                                                             }
 
                                                             set(CaptureRequest.NOISE_REDUCTION_MODE, CaptureRequest.NOISE_REDUCTION_MODE_OFF)

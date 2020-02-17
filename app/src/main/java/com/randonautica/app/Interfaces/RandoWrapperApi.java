@@ -1,6 +1,15 @@
-package com.randonautica.app.Classes;
+package com.randonautica.app.Interfaces;
+
+import com.randonautica.app.Interfaces.API_Classes.Attractors;
+import com.randonautica.app.Interfaces.API_Classes.Entropy;
+import com.randonautica.app.Interfaces.API_Classes.Pools;
+import com.randonautica.app.Interfaces.API_Classes.PseudoAttractor;
+import com.randonautica.app.Interfaces.API_Classes.SendEntropy;
+import com.randonautica.app.Interfaces.API_Classes.SendReport;
+import com.randonautica.app.Interfaces.API_Classes.Sizes;
 
 import java.util.List;
+
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -37,12 +46,12 @@ public interface RandoWrapperApi {
                                          @Query("gcp") boolean gcp);
 
     @GET("pseudo")
-    Call<List<Psuedo>> getPsuedo(@Query("n") int n,
-                                 @Query("center[0]") double  center0,
-                                 @Query("center[1]") double center1,
-                                 @Query("radius") int radius,
-                                 @Query("seed") int seed,
-                                 @Query("filtering") int filtering);
+    Call<List<PseudoAttractor>> getPsuedo(@Query("n") int n,
+                                          @Query("center[0]") double  center0,
+                                          @Query("center[1]") double center1,
+                                          @Query("radius") int radius,
+                                          @Query("seed") int seed,
+                                          @Query("filtering") int filtering);
 
     @GET("getpools")
     Call<List<Pools>> getPools();
