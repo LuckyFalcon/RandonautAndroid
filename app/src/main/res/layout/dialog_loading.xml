@@ -40,7 +40,7 @@
 
                 <TextView
                     android:id="@+id/booleanTextView"
-                    android:text="emtpy"
+                    android:text="empty"
                     android:textColor="?android:textColorPrimary" />
             </TableRow>
 
@@ -52,7 +52,7 @@
 
                 <TextView
                     android:id="@+id/byteTextView"
-                    android:text="emtpy"
+                    android:text="empty"
                     android:textColor="?android:textColorPrimary" />
             </TableRow>
 
@@ -64,7 +64,7 @@
 
                 <TextView
                     android:id="@+id/shortTextView"
-                    android:text="emtpy"
+                    android:text="empty"
                     android:textColor="?android:textColorPrimary" />
             </TableRow>
 
@@ -76,7 +76,7 @@
 
                 <TextView
                     android:id="@+id/intTextView"
-                    android:text="emtpy"
+                    android:text="empty"
                     android:textColor="?android:textColorPrimary" />
             </TableRow>
 
@@ -88,7 +88,7 @@
 
                 <TextView
                     android:id="@+id/longTextView"
-                    android:text="emtpy"
+                    android:text="empty"
                     android:textColor="?android:textColorPrimary" />
             </TableRow>
 
@@ -100,7 +100,7 @@
 
                 <TextView
                     android:id="@+id/floatTextView"
-                    android:text="emtpy"
+                    android:text="empty"
                     android:textColor="?android:textColorPrimary" />
             </TableRow>
 
@@ -112,7 +112,7 @@
 
                 <TextView
                     android:id="@+id/doubleTextView"
-                    android:text="emtpy"
+                    android:text="empty"
                     android:textColor="?android:textColorPrimary" />
             </TableRow>
 
@@ -136,7 +136,7 @@
 
                 <TextView
                     android:id="@+id/diceRollOutcomeTextView"
-                    android:text="emtpy"
+                    android:text="empty"
                     android:textColor="?android:textColorPrimary" />
             </TableRow>
         </TableLayout>

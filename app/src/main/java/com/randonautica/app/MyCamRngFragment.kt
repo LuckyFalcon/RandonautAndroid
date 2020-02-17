@@ -21,13 +21,10 @@ import android.view.animation.RotateAnimation
 import androidx.annotation.RequiresApi
 import com.randonautica.app.Classes.NoiseBasedCamRng
 import kotlinx.android.synthetic.main.dialog_camrng.view.*
-import android.R.attr.button
-
-
 
 class MyCamRngFragment : Fragment(), SurfaceHolder.Callback, Handler.Callback {
 
-    private var pixelsUsed = 200;  //Sets the amount of pixels
+    private var pixelsUsed = 2000;  //Sets the amount of pixels
 
     companion object {
         const val REQUEST_PERMISSIONS = 1
@@ -138,6 +135,11 @@ class MyCamRngFragment : Fragment(), SurfaceHolder.Callback, Handler.Callback {
                                     bytes += it.toByte()
                                     bytesInBufferTextView.text = bytes.size.toString()
                                     entropyGeneratedTextView.text = ((bytes.size) * 2).toString()
+
+                                    // Rough progress until finish entropy generation
+                                    val progress = ((bytes.size)*2).toDouble()/(entropyneeded)*100
+                                    etaRemaining.text = "%.0f".format(progress) + "%"
+
                                     if(bytes.size*2 >= entropyneeded){
                                         val sb = StringBuilder(bytes.size * 2)
                                         for (b in bytes) {
