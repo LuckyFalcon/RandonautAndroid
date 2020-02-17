@@ -24,7 +24,7 @@ import kotlinx.android.synthetic.main.dialog_camrng.view.*
 
 class MyCamRngFragment : Fragment(), SurfaceHolder.Callback, Handler.Callback {
 
-    private var pixelsUsed = 2000;  //Sets the amount of pixels
+    private var pixelsUsed = 1000;  //Sets the amount of pixels
 
     companion object {
         const val REQUEST_PERMISSIONS = 1

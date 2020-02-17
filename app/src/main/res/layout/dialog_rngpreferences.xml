@@ -95,8 +95,8 @@
         android:layout_marginEnd="22dp"
         android:layout_marginRight="22dp"
         android:text="ToggleButton"
-        android:textOff="CAMERA"
-        android:textOn="CAMERA"
+        android:textOff="CAMERA (Beta)"
+        android:textOn="CAMERA (Beta)"
         android:visibility="visible" />
 
 </RelativeLayout>

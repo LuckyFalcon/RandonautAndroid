@@ -54,7 +54,7 @@ class NoiseBasedCamRng private constructor(private val pixelsToUse: List<Pair<In
 
         private const val MOVING_AVERAGE_WINDOW_SIZE = 300
 
-        private const val MINIMUM_DISTANCE_BETWEEN_PIXELS = 50
+        private const val MINIMUM_DISTANCE_BETWEEN_PIXELS = 100
 
         @Volatile
         private var instances = mutableListOf<NoiseBasedCamRng>()
