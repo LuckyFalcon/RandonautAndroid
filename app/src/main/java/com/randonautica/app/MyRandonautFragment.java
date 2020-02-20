@@ -1,13 +1,16 @@
 package com.randonautica.app;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
@@ -340,13 +343,20 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
             @SuppressLint("ResourceType")
             public void onClick(View vs) {
 
-                new SimpleTooltip.Builder(preferencesDialog.getContext())
-                        .anchorView(rootview)
-                        .text("Get entropy using Australian National University's Quantum Random Number Generator.")
-                        .gravity(Gravity.TOP)
-                        .overlayMatchParent(true)
-                        .ignoreOverlay(false)
-                        .build()
+                new AlertDialog.Builder(getContext())
+                .setTitle(R.string.entropy_information)
+                        .setMessage(Html.fromHtml(getString(R.string.entropy_information_contents)))
+
+                        // Specifying a listener allows you to take an action before dismissing the dialog.
+                        // The dialog is automatically dismissed when a dialog button is clicked.
+                        .setPositiveButton(R.string.entropy_information_button, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Continue with delete operation
+                            }
+                        })
+
+                        // A null listener allows the button to dismiss the dialog and take no further action.
+                        .setIcon(android.R.drawable.ic_dialog_alert)
                         .show();
 
             }
@@ -574,6 +584,7 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
         response.enqueue(new Callback<SendEntropy.Response>() {
             @Override
             public void onResponse(Call<SendEntropy.Response> call, Response<SendEntropy.Response> response) {
+                Log.d("test", ""+response.body().getGid());
                 generateAttractors.getAttractors(rootview, mapboxMap, getContext(), response.body().getGid(),false, false, selected, distance, new RandonautAttractorListener() {
                     @Override
                     public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {

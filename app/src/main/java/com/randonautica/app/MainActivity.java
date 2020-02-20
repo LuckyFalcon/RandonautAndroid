@@ -81,6 +81,11 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
             saveData();
         }
 
+        //Set Navigation header username equal to userId
+        View headerView = navigationView.getHeaderView(0);
+        TextView text = headerView.findViewById(R.id.textViewuserId);
+        text.setText(userId.substring(0,8));
+
         //Check if dark mode is enabled
         if(darkModeSwitch){
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
@@ -96,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
                     .addToBackStack("randonaut")
                     .commit();
             navigationView.setCheckedItem(R.id.nav_randonaut);
+
         }
     }
 
@@ -179,23 +185,14 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
         privacyPolicyDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         privacyPolicyDialog.setContentView(R.layout.dialog_privacy);
 
+        privacyPolicyDialog.setCancelable(false);
+        privacyPolicyDialog.setCanceledOnTouchOutside(false);
+
         Button yesAnwserButton = (Button) privacyPolicyDialog.findViewById(R.id.agreeButton);
         Button noAnwserButton = (Button) privacyPolicyDialog.findViewById(R.id.disagreeBtuton);
+
         TextView privacyPolicyTextView = (TextView) privacyPolicyDialog.findViewById(R.id.privacyTextView);
         privacyPolicyTextView.setMovementMethod(new ScrollingMovementMethod());
-
-        privacyPolicyTextView.setText("1. By using the Randonauts Fatumbot you do so at your own risk and assume sole responsiblity!  \n" +
-                "2. Using it means you agree and will abide to this privacy policy and terms of use.  \n" +
-                "3. In no way are we responsible or will be held liable for any positive or adverse affects or consequences from the use of this platform.  \n" +
-                "4. Use common sense, do not put yourself or others in harms way. Don't tresspass. \n" +
-                "5. Don't steal, don't damage property, don't litter, don't do anything illegal nor anything that would otherwise cause trouble or danger. \n" +
-                "6. All your data is anonymized. However, we don't have control of what goes through Telegram and any other social media platforms so if you want to be absolutely anonymous we suggest you use the webbot.  \n" +
-                "7. Any location data that you send is automatically deleted after 24 hours.  \n" +
-                "8. We do store anonymized data of points generated for internal analysis (afterall this is an experiment, and experiments need data to analyze).  \n" +
-                "9. All your other data like your settings - besides the anonymized point data stored for analysis - will automatically be deleted after 1 month, including your saved agreement.  \n" +
-                "10. If you chose to write up a trip report, the report will be posted anonymously on the /r/randonaut_reports subreddit. Don't worry, we will never post your location, just the point generated.\n" +
-                " \n " +
-                "Do you agree to the terms of use and privacy policy, and to be a well behaved Randonaut?");
 
         //Button listener for yes
         yesAnwserButton.setOnClickListener(new View.OnClickListener() {

@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="300dp"
-    android:layout_height="250dp">
-
+    android:layout_height="270dp">
 
     <ImageView
         android:id="@+id/imageView22"
@@ -14,12 +13,12 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="5dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="22dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginRight="4dp"
-        android:layout_marginBottom="196dp"
+        android:layout_marginStart="7dp"
+        android:layout_marginLeft="7dp"
+        android:layout_marginTop="-2dp"
+        android:layout_marginEnd="2dp"
+        android:layout_marginRight="2dp"
+        android:layout_marginBottom="220dp"
         android:layout_toEndOf="@+id/AnuToggleButton"
         android:layout_toRightOf="@+id/AnuToggleButton"
         app:srcCompat="@android:drawable/ic_dialog_info" />
@@ -66,7 +65,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginStart="24dp"
         android:layout_marginLeft="24dp"
-        android:layout_marginTop="14dp"
+        android:layout_marginTop="41dp"
         android:text="@string/menu_myAttractors"
         android:textOff="ANU"
         android:textOn="ANU" />
@@ -79,7 +78,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="72dp"
+        android:layout_marginTop="101dp"
         android:layout_marginEnd="54dp"
         android:layout_marginRight="54dp"
         android:text="ToggleButton"
@@ -110,7 +109,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerInParent="true"
-        android:layout_marginTop="130dp"
+        android:layout_marginTop="159dp"
         android:layout_marginEnd="54dp"
         android:layout_marginRight="54dp"
         android:text="ToggleButton"

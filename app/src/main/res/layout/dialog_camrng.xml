@@ -46,7 +46,7 @@
         android:layout_width="220dp"
         android:layout_height="48dp"
         android:backgroundTint="@color/buttonColor"
-        android:text="Cancel"
+        android:text="@string/cancel_button"
         android:textColor="@color/buttonText"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -80,7 +80,7 @@
                     android:layout_marginBottom="8dp"
                     android:layout_span="2"
                     android:fontFamily="OpenSans-Extrabold"
-                    android:text="Generating Entropy..."
+                    android:text="@string/generating_entropy"
                     android:textColor="@color/cameraRNGTextColor"
                     android:textSize="30sp" />
             </TableRow>
@@ -92,7 +92,7 @@
                     android:layout_height="35dp"
                     android:layout_marginEnd="16dp"
                     android:fontFamily="OpenSans-Extrabold"
-                    android:text="TIME ELAPSED"
+                    android:text="@string/time_elapsed"
                     android:textColor="@color/cameraRNGTextColor"
                     android:textSize="19sp" />
 
@@ -112,7 +112,7 @@
                     android:layout_height="35dp"
                     android:layout_marginEnd="16dp"
                     android:fontFamily="OpenSans-Extrabold"
-                    android:text="PROGRESS"
+                    android:text="@string/progress"
                     android:textColor="@color/cameraRNGTextColor"
                     android:textSize="19sp" />
 
@@ -131,14 +131,14 @@
                     android:layout_height="35dp"
                     android:layout_marginEnd="16dp"
                     android:fontFamily="OpenSans-Extrabold"
-                    android:text="BYTES IN BUFFER"
+                    android:text="@string/bytes_in_buffer"
                     android:textColor="@color/cameraRNGTextColor"
                     android:textSize="19sp" />
 
                 <TextView
                     android:id="@+id/bytesInBufferTextView"
                     android:fontFamily="OpenSans-Extrabold"
-                    android:text="empty"
+                    android:text="@string/empty"
                     android:textColor="@color/cameraRNGTextColor"
                     android:textSize="19sp" />
             </TableRow>
@@ -149,14 +149,14 @@
                     android:layout_height="34dp"
                     android:layout_marginEnd="16dp"
                     android:fontFamily="OpenSans-Extrabold"
-                    android:text="ENTROPY GENERATED"
+                    android:text="@string/entropy_generated"
                     android:textColor="@color/cameraRNGTextColor"
                     android:textSize="19sp" />
 
                 <TextView
                     android:id="@+id/entropyGeneratedTextView"
                     android:fontFamily="OpenSans-Extrabold"
-                    android:text="empty"
+                    android:text="@string/empty"
                     android:textColor="@color/cameraRNGTextColor"
                     android:textSize="19sp" />
             </TableRow>
@@ -167,14 +167,14 @@
                     android:layout_height="35dp"
                     android:layout_marginEnd="16dp"
                     android:fontFamily="OpenSans-Extrabold"
-                    android:text="ENTROPY NEEDED"
+                    android:text="@string/entropy_needed"
                     android:textColor="@color/cameraRNGTextColor"
                     android:textSize="19sp" />
 
                 <TextView
                     android:id="@+id/entropyLeftTextView"
                     android:fontFamily="OpenSans-Extrabold"
-                    android:text="empty"
+                    android:text="@string/empty"
                     android:textColor="@color/cameraRNGTextColor"
                     android:textSize="19sp" />
             </TableRow>
@@ -185,14 +185,14 @@
                     android:layout_height="35dp"
                     android:layout_marginEnd="16dp"
                     android:fontFamily="OpenSans-Extrabold"
-                    android:text="AMOUNT OF PIXELS"
+                    android:text="@string/amount_of_pixels"
                     android:textColor="@color/cameraRNGTextColor"
                     android:textSize="19sp" />
 
                 <TextView
                     android:id="@+id/usedPixelsTextView"
                     android:fontFamily="OpenSans-Extrabold"
-                    android:text="empty"
+                    android:text="@string/empty"
                     android:textColor="@color/cameraRNGTextColor"
                     android:textSize="19sp" />
             </TableRow>
