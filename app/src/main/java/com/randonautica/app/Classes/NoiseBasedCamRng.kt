@@ -283,12 +283,16 @@ class NoiseBasedCamRng private constructor(private val pixelsToUse: List<Pair<In
             val pixelValues = mutableListOf<Int>()
 
             for (j in movingAverageData.indices) {
-                movingAverageData[j][Pair(pixelsToUse[i].first, pixelsToUse[i].second)]?.let { pixelValue ->
-                    pixelValues += when (channel) {
-                        Channel.RED -> pixelValue shr 16 and 0xff
-                        Channel.GREEN -> pixelValue shr 8 and 0xff
-                        Channel.BLUE -> pixelValue shr 0 and 0xff
+                try {
+                    movingAverageData[j][Pair(pixelsToUse[i].first, pixelsToUse[i].second)]?.let { pixelValue ->
+                        pixelValues += when (channel) {
+                            Channel.RED -> pixelValue shr 16 and 0xff
+                            Channel.GREEN -> pixelValue shr 8 and 0xff
+                            Channel.BLUE -> pixelValue shr 0 and 0xff
+                        }
                     }
+                } catch (e: Exception) {
+                    println("movingAverageData Exception: ${e}")
                 }
             }
 
