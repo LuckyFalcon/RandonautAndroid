@@ -3,22 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="300dp"
-    android:layout_height="270dp">
+    android:layout_height="250dp">
 
     <ImageView
         android:id="@+id/imageView22"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="31dp"
+        android:layout_height="30dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="7dp"
-        android:layout_marginLeft="7dp"
-        android:layout_marginTop="-2dp"
-        android:layout_marginEnd="2dp"
-        android:layout_marginRight="2dp"
-        android:layout_marginBottom="220dp"
+        android:layout_marginStart="-3dp"
+        android:layout_marginLeft="-3dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginBottom="219dp"
         android:layout_toEndOf="@+id/AnuToggleButton"
         android:layout_toRightOf="@+id/AnuToggleButton"
         app:srcCompat="@android:drawable/ic_dialog_info" />
@@ -57,7 +57,7 @@
 
     <ToggleButton
         android:id="@+id/AnuToggleButton"
-        android:layout_width="223dp"
+        android:layout_width="249dp"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
@@ -65,25 +65,25 @@
         android:layout_centerHorizontal="true"
         android:layout_marginStart="24dp"
         android:layout_marginLeft="24dp"
-        android:layout_marginTop="41dp"
+        android:layout_marginTop="24dp"
         android:text="@string/menu_myAttractors"
         android:textOff="ANU"
         android:textOn="ANU" />
 
     <ToggleButton
         android:id="@+id/PoolToggleButton"
-        android:layout_width="221dp"
+        android:layout_width="251dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="101dp"
-        android:layout_marginEnd="54dp"
-        android:layout_marginRight="54dp"
+        android:layout_marginTop="82dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginRight="24dp"
         android:text="ToggleButton"
         android:textOff="ANU Leftovers"
-        android:textOn="ANU Leftovers" />
+        android:textOn="ANU Leftovers"/>
 
     <ToggleButton
         android:id="@+id/gcpToggleButton"
@@ -103,18 +103,18 @@
 
     <ToggleButton
         android:id="@+id/cmrngToggleButton"
-        android:layout_width="219dp"
+        android:layout_width="251dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerInParent="true"
-        android:layout_marginTop="159dp"
-        android:layout_marginEnd="54dp"
-        android:layout_marginRight="54dp"
+        android:layout_marginTop="140dp"
+        android:layout_marginEnd="22dp"
+        android:layout_marginRight="22dp"
         android:text="ToggleButton"
-        android:textOff="CAMERA"
-        android:textOn="CAMERA"
+        android:textOff="CAMERA (Beta)"
+        android:textOn="CAMERA (Beta)"
         android:visibility="visible" />
 
 </RelativeLayout>
