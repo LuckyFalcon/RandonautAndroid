@@ -107,7 +107,7 @@ class MyCamRngFragment : Fragment(), SurfaceHolder.Callback, Handler.Callback {
 
                 //Start camRNG instance
                 camRng = NoiseBasedCamRng.newInstance(context = requireContext(), numberOfPixelsToUse = pixelsUsed).apply {
-                    channel = NoiseBasedCamRng.Channel.GREEN;
+                    channel = NoiseBasedCamRng.Channel.RED;
                 }
 
                 //Set TextView in view
