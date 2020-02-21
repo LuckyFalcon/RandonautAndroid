@@ -121,7 +121,7 @@ class NoiseBasedCamRng private constructor(private val pixelsToUse: List<Pair<In
                                                 val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                                                 val centerPixel = bitmap.getPixel(imageSize!!.width / 2, imageSize!!.height / 2)
 
-                                                println("${centerPixel shr 16 and 0xff},${centerPixel shr 8 and 0xff},${centerPixel shr 0 and 0xff}")
+                                                println("channel dispersion: ${centerPixel shr 16 and 0xff},${centerPixel shr 8 and 0xff},${centerPixel shr 0 and 0xff}")
                                                 val datum = mutableMapOf<Pair<Int, Int>, Int>()
 
                                                 for (i in usedPixels.indices) {
