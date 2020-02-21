@@ -25,6 +25,9 @@ android {
             path 'src/main/jni/Android.mk'//path of Android.mk file
         }
     }
+    lintOptions {
+        checkReleaseBuilds false
+    }
     sourceSets { main { jni.srcDirs = ['src/main/jni', 'src/main/jni/'] } }
 }
 
