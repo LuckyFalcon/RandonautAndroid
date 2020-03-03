@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="300dp"
-    android:layout_height="340dp">
+    android:layout_height="360dp">
 
 
     <SeekBar
@@ -30,7 +31,7 @@
         android:layout_marginEnd="11dp"
         android:layout_marginRight="11dp"
         android:layout_marginBottom="8dp"
-        android:text="@string/next_button"
+        android:text="Next"
         android:backgroundTint="@color/buttonColor"
         android:textColor="@color/buttonText"></Button>
 
@@ -47,9 +48,20 @@
         android:layout_marginEnd="163dp"
         android:layout_marginRight="163dp"
         android:layout_marginBottom="7dp"
-        android:text="@string/cancel_button"
+        android:text="Cancel"
         android:backgroundTint="@color/buttonColor"
         android:textColor="@color/buttonText"></Button>
+
+    <TextView
+        android:id="@+id/textViewChoosePoint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/navSelected"
+        android:layout_marginTop="7dp"
+        android:textStyle="bold"
+        android:text="Choose quantum point type:" />
 
     <ToggleButton
         android:id="@+id/AttractorToggleButton"
@@ -61,10 +73,11 @@
         android:layout_centerHorizontal="true"
         android:layout_marginStart="24dp"
         android:layout_marginLeft="24dp"
-        android:layout_marginTop="14dp"
-        android:text="@string/attractor"
-        android:textOff="@string/attractor"
-        android:textOn="@string/attractor" />
+        android:layout_marginTop="28dp"
+        android:textStyle="bold"
+        android:text="@string/menu_myAttractors"
+        android:textOff="attractor"
+        android:textOn="attractor" />
 
     <ToggleButton
         android:id="@+id/VoidToggleButton"
@@ -74,12 +87,13 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="72dp"
+        android:layout_marginTop="83dp"
         android:layout_marginEnd="24dp"
+        android:textStyle="bold"
         android:layout_marginRight="24dp"
-        android:text="@string/attractor_void"
-        android:textOff="@string/attractor_void"
-        android:textOn="@string/attractor_void" />
+        android:text="ToggleButton"
+        android:textOff="VOID"
+        android:textOn="VOID" />
 
     <ToggleButton
         android:id="@+id/AnomalyToggleButton"
@@ -89,12 +103,13 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerInParent="true"
-        android:layout_marginTop="127dp"
+        android:layout_marginTop="137dp"
         android:layout_marginEnd="22dp"
+        android:textStyle="bold"
         android:layout_marginRight="22dp"
-        android:text="@string/anomaly"
-        android:textOff="@string/anomaly"
-        android:textOn="@string/anomaly" />
+        android:text="ToggleButton"
+        android:textOff="Anomaly"
+        android:textOn="Anomaly" />
 
     <ToggleButton
         android:id="@+id/PsuedoToggleButton"
@@ -104,12 +119,24 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerInParent="true"
-        android:layout_marginTop="182dp"
+        android:layout_marginTop="192dp"
         android:layout_marginEnd="22dp"
         android:layout_marginRight="22dp"
-        android:text="@string/pseudo"
-        android:textOff="@string/pseudo"
-        android:textOn="@string/pseudo"/>
+        android:textStyle="bold"
+        android:text="ToggleButton"
+        android:textOff="pseudo"
+        android:textOn="pseudo"/>
+
+    <TextView
+        android:id="@+id/textViewSetRadius"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="238dp"
+        android:textColor="@color/navSelected"
+        android:textStyle="bold"
+        android:text="Set Radius (meters):" />
 
     <TextView
         android:id="@+id/textViewProgress"
@@ -117,7 +144,15 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="236dp"
+        android:layout_marginTop="258dp"
         android:text="TextView" />
+
+    <ImageView
+        android:id="@+id/imageHelpPreferencesButton"
+        android:layout_width="22dp"
+        android:layout_height="24dp"
+        android:layout_alignParentRight="true"
+        app:srcCompat="@drawable/baseline_help_outline_24" />
+
 
 </RelativeLayout>

@@ -17,6 +17,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -117,7 +118,11 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
     MainActivityMessage SM;
 
     //Preferences Dialog
+    //Preferences Dialog variables
     Dialog preferencesDialog;
+    Dialog explanationDialog;
+    Dialog rngExplanationDialog;
+    Dialog setIntentionDialog;
     private int distance;
     private TextView textViewProgress;
     private SeekBar seekBarProgress;
@@ -227,13 +232,15 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
 
     public void setPreferencesAlertDialog(){
         preferencesDialog = new Dialog(getContext());
+        preferencesDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         preferencesDialog.setContentView(R.layout.dialog_preferences);
-        preferencesDialog.setTitle("Generate");
+
         distance = 3000;
 
         //Buttons
         Button start = (Button) preferencesDialog.findViewById(R.id.preferencesDialogStartButton);
         Button cancel = (Button) preferencesDialog.findViewById(R.id.preferencesDialogCancelButton);
+        ImageView helpImagButton = (ImageView) preferencesDialog.findViewById(R.id.imageHelpPreferencesButton);
 
         //TextView
         textViewProgress = (TextView) preferencesDialog.findViewById(R.id.textViewProgress);
@@ -289,6 +296,15 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
             }
 
         });
+
+        helpImagButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                preferencesDialog.cancel();
+                setExplanationDialog();
+            }
+        });
+
         seekBarProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -316,14 +332,74 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
 
     }
 
+    public void setExplanationDialog(){
+        explanationDialog = new Dialog(getActivity());
+        explanationDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        explanationDialog.setContentView(R.layout.dialog_explanation);
+
+        int  textColor = getResources().getColor(R.color.navSelected);
+
+        String text = "<font color="+textColor+">These are ways the algorithm reads the quantumly randomized information to generate a point<br></br> for you to travel to.</font>";
+
+        TextView textViewExplanationTop = (TextView) explanationDialog.findViewById(R.id.textViewExplanationTop);
+        textViewExplanationTop.setText(Html.fromHtml(text));
+
+        ImageView imageExplanationCloseButton = (ImageView) explanationDialog.findViewById(R.id.imageExplanationCloseButton);
+
+        imageExplanationCloseButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                explanationDialog.cancel();
+                setPreferencesAlertDialog();
+            }
+        });
+
+        explanationDialog.show();
+
+    }
+
+    public void setRNGExplanationDialog(){
+        rngExplanationDialog = new Dialog(getActivity());
+        rngExplanationDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        rngExplanationDialog.setContentView(R.layout.dialog_rngexplanation);
+
+        int  textColor = getResources().getColor(R.color.navSelected);
+
+        String ANU = "<font color="+textColor+"><b>ANU: </b>Australia National University's quantum random number generator</font>";
+        String ANULeftovers = "<font color="+textColor+"><b>ANU Leftovers: </b>Mixed intentions from unused ANU entropy</font>";
+        String CameraRNG = "<font color="+textColor+"><b>Camera: </b>Generates entropy from your camera (best try keeping the camera on a still surface - although the jury is still out on that!)</font>";
+
+        TextView ANUExplanation = (TextView) rngExplanationDialog.findViewById(R.id.textViewANUExplanation);
+        TextView ANULeftoversExplanation = (TextView) rngExplanationDialog.findViewById(R.id.textViewANULeftoversExplanation);
+        TextView textViewCameraRNGExplanation = (TextView) rngExplanationDialog.findViewById(R.id.textViewCameraRNGExplanation);
+
+        ANUExplanation.setText(Html.fromHtml(ANU));
+        ANULeftoversExplanation.setText(Html.fromHtml(ANULeftovers));
+        textViewCameraRNGExplanation.setText(Html.fromHtml(CameraRNG));
+
+        ImageView imageRNGExplanationCloseButton = (ImageView) rngExplanationDialog.findViewById(R.id.imageRNGExplanationCloseButton);
+
+        imageRNGExplanationCloseButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                rngExplanationDialog.cancel();
+                setRngPreferencesDialog();
+            }
+        });
+
+        rngExplanationDialog.show();
+
+    }
+
     public Dialog setRngPreferencesDialog(){
-        preferencesDialog = new Dialog(getContext());
+        preferencesDialog = new Dialog(getActivity());
+        preferencesDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         preferencesDialog.setContentView(R.layout.dialog_rngpreferences);
-        preferencesDialog.setTitle("Select RNG");
 
         //Buttons
         Button start = (Button) preferencesDialog.findViewById(R.id.RNGpreferencesDialogStartButton);
-        Button cancel = (Button) preferencesDialog.findViewById(R.id.RNGpreferencesDialogCancelButton);
+        Button previous = (Button) preferencesDialog.findViewById(R.id.RNGpreferencesDialogPreviousButton);
+        ImageView rngHelpImage = (ImageView) preferencesDialog.findViewById(R.id.imageRNGHelpButton);
 
         //Toggle Buttons
         QuantumToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.AnuToggleButton);
@@ -338,30 +414,6 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
 
         preferencesDialog.show();
 
-        final ImageView imageView = preferencesDialog.findViewById(R.id.imageView22);
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("ResourceType")
-            public void onClick(View vs) {
-
-                new AlertDialog.Builder(getContext())
-                .setTitle(R.string.entropy_information)
-                        .setMessage(Html.fromHtml(getString(R.string.entropy_information_contents)))
-
-                        // Specifying a listener allows you to take an action before dismissing the dialog.
-                        // The dialog is automatically dismissed when a dialog button is clicked.
-                        .setPositiveButton(R.string.entropy_information_button, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // Continue with delete operation
-                            }
-                        })
-
-                        // A null listener allows the button to dismiss the dialog and take no further action.
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
-
-            }
-        });
-
         //Set Attractor as default button
         QuantumToggleButton.setChecked(true);
 
@@ -371,11 +423,61 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
         GCPToggleButton.setOnCheckedChangeListener(RNGchangeChecker);
         CameraToggleButton.setOnCheckedChangeListener(RNGchangeChecker);
 
+
+        start.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                preferencesDialog.cancel();
+                seIntentionDialog();
+            }
+
+        });
+
+        previous.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                preferencesDialog.cancel();
+                setPreferencesAlertDialog();
+
+            }
+
+        });
+
+        rngHelpImage.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                preferencesDialog.cancel();
+                setRNGExplanationDialog();
+            }
+        });
+
+
+        return preferencesDialog;
+    }
+
+    public void seIntentionDialog(){
+        setIntentionDialog = new Dialog(getActivity());
+        setIntentionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setIntentionDialog.setContentView(R.layout.dialog_setinention);
+
+        String setIntentTextTop = "Before you embark on your adventure, take a moment to set an intention for your trip. This can be a word or phrase to help create the story for the journey ahead.";
+        String setIntentTextBot = "Use a clear mind, focused thought and visualization. When you're done, hit <b>START</b> and the QRNG will quantumly generate your destination.";
+
+        TextView textViewSetIntentTextTop = (TextView) setIntentionDialog.findViewById(R.id.textViewSetIntentTextTop);
+        TextView textViewSetIntentTextBot = (TextView) setIntentionDialog.findViewById(R.id.textViewSetIntentTextBot);
+
+        textViewSetIntentTextTop.setText(Html.fromHtml(setIntentTextTop));
+        textViewSetIntentTextBot.setText(Html.fromHtml(setIntentTextBot));
+
+        //Buttons
+        Button start = (Button) setIntentionDialog.findViewById(R.id.setintentionDialogStartButton);
+        Button cancel = (Button) setIntentionDialog.findViewById(R.id.setintentionDialogCancelButton);
+
         start.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(final View view) {
                 if (QuantumToggleButton.isChecked()) {
-                    preferencesDialog.cancel();
+                    setIntentionDialog.cancel();
                     generateEntropy.getANUQuantumEntropy(getContext(), distance,
                             new RandonautEntropyListener() {
                                 @Override
@@ -385,7 +487,7 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
                                         @Override
                                         public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
                                             saveData();
-                                           // generateRecyclerView.initRecyclerView(attractorLocationList);
+                                            // generateRecyclerView.initRecyclerView(attractorLocationList);
                                             generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mapboxMap);
 
                                         }
@@ -405,7 +507,7 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
                             });
 
                 } else if (PoolToggleButton.isChecked()) {
-                    preferencesDialog.cancel();
+                    setIntentionDialog.cancel();
                     generateEntropy.poolQuantumEntropy(getContext(), distance,
                             new RandonautEntropyListener() {
                                 @Override
@@ -433,7 +535,7 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
                                 }
                             });
                 } else if (CameraToggleButton.isChecked()) {
-                    preferencesDialog.cancel();
+                    setIntentionDialog.cancel();
                     generateEntropy.getNeededEntropySize(getContext(), distance,
                             new RandonautEntropyListener() {
                                 @Override
@@ -448,7 +550,7 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
                                 }
                             });//---> This will run the MyCamRngFragment on success
                 } else if (GCPToggleButton.isChecked()) {
-                    preferencesDialog.cancel();
+                    setIntentionDialog.cancel();
                     generateEntropy.getGCPEntropy(getContext(), distance,
                             new RandonautEntropyListener() {
                                 @Override
@@ -478,16 +580,17 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
         cancel.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                preferencesDialog.cancel();
+                setIntentionDialog.cancel();
 
             }
 
         });
 
 
-        return preferencesDialog;
-    }
+        setIntentionDialog.show();
 
+
+    }
 
     /** reset instance */
     public void resetRandonaut() {
