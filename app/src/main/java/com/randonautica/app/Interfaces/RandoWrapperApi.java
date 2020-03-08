@@ -44,7 +44,8 @@ public interface RandoWrapperApi {
                                          @Query("center[1]") double center1,
                                          @Query("radius") int radius,
                                          @Query("pool") boolean pool,
-                                         @Query("temporal") boolean temporal);
+                                         @Query("temporal") boolean temporal,
+                                         @Query("gcp") boolean gcp);
 
     @GET("pseudo")
     Call<List<PseudoAttractor>> getPsuedo(@Query("n") int n,

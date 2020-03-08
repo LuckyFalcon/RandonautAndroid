@@ -72,10 +72,8 @@ public class GenerateEntropy {
                     public void onResponse(Call<Entropy> call, Response<Entropy> response) {
                         GID = response.body().getGid();
                         MyRandonautFragment.entropy = MyRandonautFragment.entropy + hexsize;
-                       // randonautFragment.saveData();
                         progressdialog.dismiss();
                         randonautDialogsListener.onData(GID);
-                      //  generateAttractors.getAttractors(randoWrapperApi, GID,false, false);
                     }
                     @Override
                     public void onFailure(Call<Entropy> call, Throwable t) {
@@ -97,24 +95,23 @@ public class GenerateEntropy {
 
     }
 
-    public void getTemporalEntropy(Context context, int distance, final RandonautEntropyListener randonautDialogsListener){
+    public void getTemporalEntropy(final Context context, int distance, final RandonautEntropyListener randonautDialogsListener){
 
         //Start ProgressDialog
         progressdialog = new ProgressDialog(context);
-        progressdialog.setMessage("Getting Temporal entropy. Please wait....");
+        progressdialog.setMessage("Getting Temporal quantum entropy. Please wait....");
         progressdialog.show();
         progressdialog.setCancelable(false);
         progressdialog.setCanceledOnTouchOutside(false);
 
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
-                .connectTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
-                .writeTimeout(60, TimeUnit.SECONDS)
+                .connectTimeout(40, TimeUnit.SECONDS)
+                .readTimeout(40, TimeUnit.SECONDS)
+                .writeTimeout(40, TimeUnit.SECONDS)
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                //  .baseUrl(new String(Base64.decode(getBaseApi(),Base64.DEFAULT)))
-                .baseUrl("http://192.168.1.117:3000/")
+                .baseUrl(new String(Base64.decode(MyRandonautFragment.getBaseApi(),Base64.DEFAULT)))
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -135,10 +132,8 @@ public class GenerateEntropy {
                     public void onResponse(Call<Entropy> call, Response<Entropy> response) {
                         GID = response.body().getGid();
                         MyRandonautFragment.entropy = MyRandonautFragment.entropy + hexsize;
-                    //    saveData();
                         progressdialog.dismiss();
-                        //getAttractors(false);
-                     //   getAttractors(false, true);
+                        randonautDialogsListener.onData(GID);
                     }
                     @Override
                     public void onFailure(Call<Entropy> call, Throwable t) {
@@ -148,16 +143,17 @@ public class GenerateEntropy {
             }
             @Override
             public void onFailure(Call<Sizes> call, Throwable t) {
-
+                if(t instanceof SocketTimeoutException){
+                    onCreateDialogErrorGettingEntropy(context);
+                    progressdialog.dismiss();
+                }
                 progressdialog.dismiss();
             }
         });
 
-
-
     }
 
-    public void getGCPEntropy(Context context, int distance, final RandonautEntropyListener randonautDialogsListener){
+    public void getGCPEntropy(final Context context, int distance, final RandonautEntropyListener randonautDialogsListener){
 
         //Start ProgressDialog
         progressdialog = new ProgressDialog(context);
@@ -167,14 +163,13 @@ public class GenerateEntropy {
         progressdialog.setCanceledOnTouchOutside(false);
 
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
-                .connectTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
-                .writeTimeout(60, TimeUnit.SECONDS)
+                .connectTimeout(40, TimeUnit.SECONDS)
+                .readTimeout(40, TimeUnit.SECONDS)
+                .writeTimeout(40, TimeUnit.SECONDS)
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                //  .baseUrl(new String(Base64.decode(getBaseApi(),Base64.DEFAULT)))
-                .baseUrl("http://192.168.1.117:3000/")
+                .baseUrl(new String(Base64.decode(MyRandonautFragment.getBaseApi(),Base64.DEFAULT)))
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -195,10 +190,8 @@ public class GenerateEntropy {
                     public void onResponse(Call<Entropy> call, Response<Entropy> response) {
                         GID = response.body().getGid();
                         MyRandonautFragment.entropy = MyRandonautFragment.entropy + hexsize;
-                        //    saveData();
                         progressdialog.dismiss();
-                        //getAttractors(false);
-                        //   getAttractors(false, true);
+                        randonautDialogsListener.onData(GID);
                     }
                     @Override
                     public void onFailure(Call<Entropy> call, Throwable t) {
@@ -208,7 +201,10 @@ public class GenerateEntropy {
             }
             @Override
             public void onFailure(Call<Sizes> call, Throwable t) {
-
+                if(t instanceof SocketTimeoutException){
+                    onCreateDialogErrorGettingEntropy(context);
+                    progressdialog.dismiss();
+                }
                 progressdialog.dismiss();
             }
         });
@@ -216,7 +212,6 @@ public class GenerateEntropy {
 
 
     }
-
 
     public void getNeededEntropySize(Context context, int distance, final RandonautEntropyListener randonautDialogsListener){
         //Start ProgressDialog
@@ -310,12 +305,9 @@ public class GenerateEntropy {
 
                         GID = pools.getPool().substring(0, (pools.getPool().length() -5));
 
-                       // saveData();
                         progressdialog.dismiss();
                         randonautDialogsListener.onData(GID);
 
-                        // getAttractors(true, false);
-                        //Size is not yet implemented, so use entire pool.
                     }
                     current++;
                 }

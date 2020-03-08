@@ -1,10 +1,8 @@
 package com.randonautica.app;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.location.LocationManager;
@@ -12,8 +10,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Base64;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,7 +57,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import io.github.douglasjunior.androidSimpleTooltip.SimpleTooltip;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -487,11 +482,10 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
                                 @Override
                                 public void onData(String GID) {
                                     saveData();
-                                    generateAttractors.getAttractors(rootview, mapboxMap, getContext(), GID,false, false, selected, distance, new RandonautAttractorListener() {
+                                    generateAttractors.getAttractors(rootview, mapboxMap, getContext(), GID,false, false, false, selected, distance, new RandonautAttractorListener() {
                                         @Override
                                         public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
                                             saveData();
-                                            // generateRecyclerView.initRecyclerView(attractorLocationList);
                                             generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mapboxMap);
 
                                         }
@@ -506,7 +500,6 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
 
                                 @Override
                                 public void onFailed() {
-                                    Log.d("work", "2");
                                 }
                             });
 
@@ -517,7 +510,7 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
                                 @Override
                                 public void onData(String GID) {
                                     saveData();
-                                    generateAttractors.getAttractors(rootview, mapboxMap, getContext(), GID,true, false, selected, distance, new RandonautAttractorListener() {
+                                    generateAttractors.getAttractors(rootview, mapboxMap, getContext(), GID,true, false, false, selected, distance, new RandonautAttractorListener() {
                                         @Override
                                         public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
                                             saveData();
@@ -535,7 +528,6 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
 
                                 @Override
                                 public void onFailed() {
-                                    Log.d("work", "2");
                                 }
                             });
                 } else if (CameraToggleButton.isChecked()) {
@@ -544,7 +536,6 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
                             new RandonautEntropyListener() {
                                 @Override
                                 public void onData(String entropySizeNeeded) {
-                                    Log.d("work", "w");
                                     SM.rng(Integer.parseInt(entropySizeNeeded));
 
                                 }
@@ -559,10 +550,11 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
                             new RandonautEntropyListener() {
                                 @Override
                                 public void onData(String GID) {
-                                    generateAttractors.getAttractors(rootview, mapboxMap, getContext(), GID,false, true, selected, distance, new RandonautAttractorListener() {
+                                    generateAttractors.getAttractors(rootview, mapboxMap, getContext(), GID,false, true, false, selected, distance, new RandonautAttractorListener() {
                                         @Override
-                                        public void onData(ArrayList<SingleRecyclerViewLocation> GID) {
-                                            //initRecyclerView(GID);
+                                        public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
+                                            saveData();
+                                            generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mapboxMap);
 
                                         }
 
@@ -691,8 +683,7 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
         response.enqueue(new Callback<SendEntropy.Response>() {
             @Override
             public void onResponse(Call<SendEntropy.Response> call, Response<SendEntropy.Response> response) {
-                Log.d("test", ""+response.body().getGid());
-                generateAttractors.getAttractors(rootview, mapboxMap, getContext(), response.body().getGid(),false, false, selected, distance, new RandonautAttractorListener() {
+                generateAttractors.getAttractors(rootview, mapboxMap, getContext(), response.body().getGid(),false, false, false, selected, distance, new RandonautAttractorListener() {
                     @Override
                     public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
                         saveData();
@@ -746,8 +737,6 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
                 64));
 
         locationList.add(singleLocation);
-        Log.d("test", ""+requireContext());
-      //  (Context) activity
         generateRecyclerView.initRecyclerView(locationList, rootview, mapboxMap);
 
 
