@@ -65,7 +65,7 @@ public class GenerateEntropy {
             public void onResponse(Call<Sizes> call, Response<Sizes> response) {
                 hexsize = response.body().getHexsize();
 
-                Call<Entropy> callGetEntropy = randoWrapperApi.getEntropy(hexsize, false, false);
+                Call<Entropy> callGetEntropy = randoWrapperApi.getEntropy(hexsize, false, false, false);
 
                 callGetEntropy.enqueue(new Callback<Entropy>() {
                     @Override
@@ -97,11 +97,11 @@ public class GenerateEntropy {
 
     }
 
-    public void getGCPEntropy(Context context, int distance, final RandonautEntropyListener randonautDialogsListener){
+    public void getTemporalEntropy(Context context, int distance, final RandonautEntropyListener randonautDialogsListener){
 
         //Start ProgressDialog
         progressdialog = new ProgressDialog(context);
-        progressdialog.setMessage("Getting GCP entropy. please wait....");
+        progressdialog.setMessage("Getting Temporal entropy. Please wait....");
         progressdialog.show();
         progressdialog.setCancelable(false);
         progressdialog.setCanceledOnTouchOutside(false);
@@ -128,7 +128,7 @@ public class GenerateEntropy {
             public void onResponse(Call<Sizes> call, Response<Sizes> response) {
                 hexsize = response.body().getHexsize();
 
-                Call<Entropy> callGetEntropy = randoWrapperApi.getEntropy(hexsize, false, true);
+                Call<Entropy> callGetEntropy = randoWrapperApi.getEntropy(hexsize, false, false, true);
 
                 callGetEntropy.enqueue(new Callback<Entropy>() {
                     @Override
@@ -156,6 +156,67 @@ public class GenerateEntropy {
 
 
     }
+
+    public void getGCPEntropy(Context context, int distance, final RandonautEntropyListener randonautDialogsListener){
+
+        //Start ProgressDialog
+        progressdialog = new ProgressDialog(context);
+        progressdialog.setMessage("Getting GCP entropy. Please wait....");
+        progressdialog.show();
+        progressdialog.setCancelable(false);
+        progressdialog.setCanceledOnTouchOutside(false);
+
+        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                //  .baseUrl(new String(Base64.decode(getBaseApi(),Base64.DEFAULT)))
+                .baseUrl("http://192.168.1.117:3000/")
+                .client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        randoWrapperApi = retrofit.create(RandoWrapperApi.class);
+
+        Call<Sizes> callGetSizes = randoWrapperApi.getSizes(distance);
+
+        callGetSizes.enqueue(new Callback<Sizes>() {
+            @Override
+            public void onResponse(Call<Sizes> call, Response<Sizes> response) {
+                hexsize = response.body().getHexsize();
+
+                Call<Entropy> callGetEntropy = randoWrapperApi.getEntropy(hexsize, false, true, false);
+
+                callGetEntropy.enqueue(new Callback<Entropy>() {
+                    @Override
+                    public void onResponse(Call<Entropy> call, Response<Entropy> response) {
+                        GID = response.body().getGid();
+                        MyRandonautFragment.entropy = MyRandonautFragment.entropy + hexsize;
+                        //    saveData();
+                        progressdialog.dismiss();
+                        //getAttractors(false);
+                        //   getAttractors(false, true);
+                    }
+                    @Override
+                    public void onFailure(Call<Entropy> call, Throwable t) {
+                        progressdialog.dismiss();
+                    }
+                });
+            }
+            @Override
+            public void onFailure(Call<Sizes> call, Throwable t) {
+
+                progressdialog.dismiss();
+            }
+        });
+
+
+
+    }
+
 
     public void getNeededEntropySize(Context context, int distance, final RandonautEntropyListener randonautDialogsListener){
         //Start ProgressDialog
@@ -199,7 +260,7 @@ public class GenerateEntropy {
     public void poolQuantumEntropy(Context context, int distance, final RandonautEntropyListener randonautDialogsListener){
         //Start ProgressDialog
         progressdialog = new ProgressDialog(context);
-        progressdialog.setMessage("Getting pool quantum entropy. please wait....");
+        progressdialog.setMessage("Getting ANU Leftovers quantum entropy. Please wait....");
         progressdialog.show();
         progressdialog.setCancelable(false);
         progressdialog.setCanceledOnTouchOutside(false);

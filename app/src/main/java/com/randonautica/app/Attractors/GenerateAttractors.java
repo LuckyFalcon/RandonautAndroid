@@ -54,7 +54,7 @@ public class GenerateAttractors extends Activity {
     String anomalyTable = "Anomalies";
 
     public void getAttractors(final View view, final MapboxMap mapboxMap, final Context context,
-                              String GID, boolean pool, boolean gcp, final String selected, int distance, final RandonautAttractorListener randonautDialogsListener){
+                              String GID, boolean pool, boolean temporal, final String selected, int distance, final RandonautAttractorListener randonautDialogsListener){
         //Empty previous run
         locationList = new ArrayList<>();
         mapboxMap.clear();
@@ -82,7 +82,7 @@ public class GenerateAttractors extends Activity {
         randoWrapperApi = retrofit.create(RandoWrapperApi.class);
 
         Call<List<Attractors>> callGetAttractors = randoWrapperApi.getAttractors(GID,
-                mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), distance, pool, gcp);
+                mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), distance, pool, temporal);
 
         callGetAttractors.enqueue(new Callback<List<Attractors>>() {
             @Override

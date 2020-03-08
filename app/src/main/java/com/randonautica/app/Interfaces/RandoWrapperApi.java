@@ -27,7 +27,8 @@ public interface RandoWrapperApi {
     @GET("entropy")
     Call<Entropy> getEntropy(@Query("size") int  hexSize,
                              @Query("raw") boolean raw,
-                             @Query("gcp") boolean gcp);
+                             @Query("gcp") boolean gcp,
+                             @Query("temporal") boolean temporal);
 
     @FormUrlEncoded
     @POST("setentropy")
@@ -43,7 +44,7 @@ public interface RandoWrapperApi {
                                          @Query("center[1]") double center1,
                                          @Query("radius") int radius,
                                          @Query("pool") boolean pool,
-                                         @Query("gcp") boolean gcp);
+                                         @Query("temporal") boolean temporal);
 
     @GET("pseudo")
     Call<List<PseudoAttractor>> getPsuedo(@Query("n") int n,

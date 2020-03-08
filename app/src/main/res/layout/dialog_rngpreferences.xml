@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="300dp"
-    android:layout_height="260dp">
+    android:layout_height="310dp">
 
     <TextView
         android:id="@+id/textViewChoosePoint"
@@ -88,21 +88,21 @@
         android:textOn="ANU Leftovers"/>
 
     <ToggleButton
-        android:id="@+id/gcpToggleButton"
+        android:id="@+id/tmprngToggleButton"
         android:layout_width="251dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerInParent="true"
-        android:layout_marginTop="142dp"
+        android:layout_marginTop="145dp"
         android:layout_marginEnd="22dp"
         android:layout_marginRight="22dp"
-        android:visibility="gone"
+        android:visibility="visible"
         android:textStyle="bold"
         android:text="ToggleButton"
-        android:textOff="GCP RETRO"
-        android:textOn="GCP RETRO" />
+        android:textOff="TEMPORAL"
+        android:textOn="TEMPORAL" />
 
     <ToggleButton
         android:id="@+id/cmrngToggleButton"
@@ -112,7 +112,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerInParent="true"
-        android:layout_marginTop="145dp"
+        android:layout_marginTop="203dp"
         android:layout_marginEnd="22dp"
         android:layout_marginRight="22dp"
         android:textStyle="bold"

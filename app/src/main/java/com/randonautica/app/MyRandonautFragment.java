@@ -136,7 +136,7 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
     //RNG Dialog Toggle Buttons
     ToggleButton QuantumToggleButton;
     ToggleButton PoolToggleButton;
-    ToggleButton GCPToggleButton;
+    ToggleButton TemporalToggleButton;
     ToggleButton CameraToggleButton;
 
     //Selected Option
@@ -367,15 +367,18 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
 
         String ANU = "<font color="+textColor+"><b>ANU: </b>Australia National University's quantum random number generator</font>";
         String ANULeftovers = "<font color="+textColor+"><b>ANU Leftovers: </b>Mixed intentions from unused ANU entropy</font>";
+        String TemporalRNG = "<font color="+textColor+"><b>Temporal: </b>Randonautica's official quantum random number generator.</font>";
         String CameraRNG = "<font color="+textColor+"><b>Camera: </b>Generates entropy from your camera (best try keeping the camera on a still surface - although the jury is still out on that!)</font>";
 
         TextView ANUExplanation = (TextView) rngExplanationDialog.findViewById(R.id.textViewANUExplanation);
         TextView ANULeftoversExplanation = (TextView) rngExplanationDialog.findViewById(R.id.textViewANULeftoversExplanation);
-        TextView textViewCameraRNGExplanation = (TextView) rngExplanationDialog.findViewById(R.id.textViewCameraRNGExplanation);
+        TextView TemporalRNGExplanation = (TextView) rngExplanationDialog.findViewById(R.id.textViewTemporalRNGExplanation);
+        TextView CameraRNGExplanation = (TextView) rngExplanationDialog.findViewById(R.id.textViewCameraRNGExplanation);
 
         ANUExplanation.setText(Html.fromHtml(ANU));
         ANULeftoversExplanation.setText(Html.fromHtml(ANULeftovers));
-        textViewCameraRNGExplanation.setText(Html.fromHtml(CameraRNG));
+        TemporalRNGExplanation.setText(Html.fromHtml(TemporalRNG));
+        CameraRNGExplanation.setText(Html.fromHtml(CameraRNG));
 
         ImageView imageRNGExplanationCloseButton = (ImageView) rngExplanationDialog.findViewById(R.id.imageRNGExplanationCloseButton);
 
@@ -404,7 +407,8 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
         //Toggle Buttons
         QuantumToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.AnuToggleButton);
         PoolToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.PoolToggleButton);
-        GCPToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.gcpToggleButton);
+       // GCPToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.gcpToggleButton);
+        TemporalToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.tmprngToggleButton);
         CameraToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.cmrngToggleButton);
 
         // Check if we're running on Android 5.0 or higher and enable the Camera RNG button
@@ -420,7 +424,7 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
         //Check for click
         QuantumToggleButton.setOnCheckedChangeListener(RNGchangeChecker);
         PoolToggleButton.setOnCheckedChangeListener(RNGchangeChecker);
-        GCPToggleButton.setOnCheckedChangeListener(RNGchangeChecker);
+        TemporalToggleButton.setOnCheckedChangeListener(RNGchangeChecker);
         CameraToggleButton.setOnCheckedChangeListener(RNGchangeChecker);
 
 
@@ -549,13 +553,13 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
 
                                 }
                             });//---> This will run the MyCamRngFragment on success
-                } else if (GCPToggleButton.isChecked()) {
+                } else if (TemporalToggleButton.isChecked()) {
                     setIntentionDialog.cancel();
-                    generateEntropy.getGCPEntropy(getContext(), distance,
+                    generateEntropy.getTemporalEntropy(getContext(), distance,
                             new RandonautEntropyListener() {
                                 @Override
                                 public void onData(String GID) {
-                                    generateAttractors.getAttractors(rootview, mapboxMap, getContext(), GID,false, false, selected, distance, new RandonautAttractorListener() {
+                                    generateAttractors.getAttractors(rootview, mapboxMap, getContext(), GID,false, true, selected, distance, new RandonautAttractorListener() {
                                         @Override
                                         public void onData(ArrayList<SingleRecyclerViewLocation> GID) {
                                             //initRecyclerView(GID);
@@ -645,19 +649,19 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
                 if (buttonView == QuantumToggleButton) {
                     PoolToggleButton.setChecked(false);
                     CameraToggleButton.setChecked(false);
-                    GCPToggleButton.setChecked(false);
+                    TemporalToggleButton.setChecked(false);
                 }
                 if (buttonView == PoolToggleButton) {
                     QuantumToggleButton.setChecked(false);
                     CameraToggleButton.setChecked(false);
-                    GCPToggleButton.setChecked(false);
+                    TemporalToggleButton.setChecked(false);
                 }
                 if (buttonView == CameraToggleButton) {
                     QuantumToggleButton.setChecked(false);
                     PoolToggleButton.setChecked(false);
-                    GCPToggleButton.setChecked(false);
+                    TemporalToggleButton.setChecked(false);
                 }
-                if (buttonView == GCPToggleButton) {
+                if (buttonView == TemporalToggleButton) {
                     QuantumToggleButton.setChecked(false);
                     PoolToggleButton.setChecked(false);
                     CameraToggleButton.setChecked(false);
