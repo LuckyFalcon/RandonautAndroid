@@ -77,6 +77,8 @@ public class GenerateEntropy {
                     }
                     @Override
                     public void onFailure(Call<Entropy> call, Throwable t) {
+                        onCreateDialogErrorGettingEntropy(context);
+
                         progressdialog.dismiss();
                     }
                 });
@@ -85,6 +87,9 @@ public class GenerateEntropy {
             public void onFailure(Call<Sizes> call, Throwable t) {
                 if(t instanceof SocketTimeoutException){
                     onCreateDialogErrorGettingEntropy(context);
+                    progressdialog.dismiss();
+                } else {
+                    onCreateDialogErrorGettingSize(context);
                     progressdialog.dismiss();
                 }
                 progressdialog.dismiss();
@@ -146,6 +151,9 @@ public class GenerateEntropy {
                 if(t instanceof SocketTimeoutException){
                     onCreateDialogErrorGettingEntropy(context);
                     progressdialog.dismiss();
+                } else {
+                    onCreateDialogErrorGettingSize(context);
+                    progressdialog.dismiss();
                 }
                 progressdialog.dismiss();
             }
@@ -204,6 +212,9 @@ public class GenerateEntropy {
                 if(t instanceof SocketTimeoutException){
                     onCreateDialogErrorGettingEntropy(context);
                     progressdialog.dismiss();
+                } else {
+                    onCreateDialogErrorGettingSize(context);
+                    progressdialog.dismiss();
                 }
                 progressdialog.dismiss();
             }
@@ -213,7 +224,7 @@ public class GenerateEntropy {
 
     }
 
-    public void getNeededEntropySize(Context context, int distance, final RandonautEntropyListener randonautDialogsListener){
+    public void getNeededEntropySize(final Context context, int distance, final RandonautEntropyListener randonautDialogsListener){
         //Start ProgressDialog
         progressdialog = new ProgressDialog(context);
         progressdialog.setMessage("Getting quantum entropy size needed. Please wait....");
@@ -245,6 +256,13 @@ public class GenerateEntropy {
             }
             @Override
             public void onFailure(Call<Sizes> call, Throwable t) {
+                if (t instanceof SocketTimeoutException) {
+                    onCreateDialogErrorGettingEntropy(context);
+                    progressdialog.dismiss();
+                } else {
+                    onCreateDialogErrorGettingSize(context);
+                    progressdialog.dismiss();
+                }
                 progressdialog.dismiss();
             }
         });
@@ -252,7 +270,7 @@ public class GenerateEntropy {
 
     }
 
-    public void poolQuantumEntropy(Context context, int distance, final RandonautEntropyListener randonautDialogsListener){
+    public void poolQuantumEntropy(final Context context, int distance, final RandonautEntropyListener randonautDialogsListener){
         //Start ProgressDialog
         progressdialog = new ProgressDialog(context);
         progressdialog.setMessage("Getting ANU Leftovers quantum entropy. Please wait....");
@@ -315,7 +333,13 @@ public class GenerateEntropy {
 
             @Override
             public void onFailure(Call<List<Pools>> call, Throwable t) {
-
+                if (t instanceof SocketTimeoutException) {
+                    onCreateDialogErrorGettingEntropy(context);
+                    progressdialog.dismiss();
+                } else {
+                    onCreateDialogErrorGettingSize(context);
+                    progressdialog.dismiss();
+                }
                 progressdialog.dismiss();
             }
         });
@@ -326,6 +350,24 @@ public class GenerateEntropy {
         new AlertDialog.Builder(context)
                 .setTitle("Error sourcing quantum entropy")
                 .setMessage("Sorry, there was an error sourcing quantum entropy needed to randomize. Try a bit later.")
+
+                // Specifying a listener allows you to take an action before dismissing the dialog.
+                // The dialog is automatically dismissed when a dialog button is clicked.
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Continue with delete operation
+                    }
+                })
+
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
+
+    public void onCreateDialogErrorGettingSize(Context context){
+
+        new AlertDialog.Builder(context)
+                .setTitle("Error sourcing quantum entropy")
+                .setMessage("Sorry, there was an error sourcing quantum entropy needed to randomize. Make sure you are connected to the Internet!")
 
                 // Specifying a listener allows you to take an action before dismissing the dialog.
                 // The dialog is automatically dismissed when a dialog button is clicked.
