@@ -351,6 +351,7 @@ public class GenerateAttractors extends Activity {
             @Override
             public void onFailure(Call<List<Attractors>> call, Throwable t) {
                 progressdialog.dismiss();
+                onCreateDialog(context, selected);
             }
 
 
@@ -813,6 +814,7 @@ public class GenerateAttractors extends Activity {
 
                     @Override
                     public void onFailure(Call<List<PseudoAttractor>> call, Throwable t) {
+                        onCreateDialog(context, selected);
                         progressdialog.dismiss();
                     }
                 });
