@@ -67,9 +67,9 @@ public class GenerateAttractors extends Activity {
         progressdialog.setCanceledOnTouchOutside(false);
 
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
-                .connectTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
-                .writeTimeout(60, TimeUnit.SECONDS)
+                .connectTimeout(175, TimeUnit.SECONDS)
+                .readTimeout(175, TimeUnit.SECONDS)
+                .writeTimeout(175, TimeUnit.SECONDS)
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -373,9 +373,9 @@ public class GenerateAttractors extends Activity {
         progressdialog.setCanceledOnTouchOutside(false);
 
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
-                .connectTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
-                .writeTimeout(60, TimeUnit.SECONDS)
+                .connectTimeout(175, TimeUnit.SECONDS)
+                .readTimeout(175, TimeUnit.SECONDS)
+                .writeTimeout(175, TimeUnit.SECONDS)
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -599,9 +599,9 @@ public class GenerateAttractors extends Activity {
         progressdialog.setCanceledOnTouchOutside(false);
 
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
-                .connectTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
-                .writeTimeout(60, TimeUnit.SECONDS)
+                .connectTimeout(175, TimeUnit.SECONDS)
+                .readTimeout(175, TimeUnit.SECONDS)
+                .writeTimeout(175, TimeUnit.SECONDS)
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
