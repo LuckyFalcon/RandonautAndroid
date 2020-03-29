@@ -24,7 +24,7 @@ import kotlinx.android.synthetic.main.dialog_camrng.view.*
 
 class MyCamRngFragment : Fragment(), SurfaceHolder.Callback, Handler.Callback {
 
-    private var pixelsUsed = 1000;  //Sets the amount of pixels
+    private var pixelsUsed = 2500;  //Sets the amount of pixels
 
     companion object {
         const val REQUEST_PERMISSIONS = 1
@@ -107,7 +107,7 @@ class MyCamRngFragment : Fragment(), SurfaceHolder.Callback, Handler.Callback {
 
                 //Start camRNG instance
                 camRng = NoiseBasedCamRng.newInstance(context = requireContext(), numberOfPixelsToUse = pixelsUsed).apply {
-                    channel = NoiseBasedCamRng.Channel.GREEN;
+                    channel = NoiseBasedCamRng.Channel.RED;
                 }
 
                 //Set TextView in view

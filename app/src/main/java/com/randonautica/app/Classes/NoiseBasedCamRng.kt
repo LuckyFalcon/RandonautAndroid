@@ -54,7 +54,7 @@ class NoiseBasedCamRng private constructor(private val pixelsToUse: List<Pair<In
 
         private const val MOVING_AVERAGE_WINDOW_SIZE = 300
 
-        private const val MINIMUM_DISTANCE_BETWEEN_PIXELS = 100
+        private const val MINIMUM_DISTANCE_BETWEEN_PIXELS = 50
 
         @Volatile
         private var instances = mutableListOf<NoiseBasedCamRng>()
@@ -119,7 +119,9 @@ class NoiseBasedCamRng private constructor(private val pixelsToUse: List<Pair<In
                                                 image.close()
 
                                                 val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                                                val centerPixel = bitmap.getPixel(imageSize!!.width / 2, imageSize!!.height / 2)
 
+                                                println("channel dispersion: ${centerPixel shr 16 and 0xff},${centerPixel shr 8 and 0xff},${centerPixel shr 0 and 0xff}")
                                                 val datum = mutableMapOf<Pair<Int, Int>, Int>()
 
                                                 for (i in usedPixels.indices) {
@@ -281,12 +283,16 @@ class NoiseBasedCamRng private constructor(private val pixelsToUse: List<Pair<In
             val pixelValues = mutableListOf<Int>()
 
             for (j in movingAverageData.indices) {
-                movingAverageData[j][Pair(pixelsToUse[i].first, pixelsToUse[i].second)]?.let { pixelValue ->
-                    pixelValues += when (channel) {
-                        Channel.RED -> pixelValue shr 16 and 0xff
-                        Channel.GREEN -> pixelValue shr 8 and 0xff
-                        Channel.BLUE -> pixelValue shr 0 and 0xff
+                try {
+                    movingAverageData[j][Pair(pixelsToUse[i].first, pixelsToUse[i].second)]?.let { pixelValue ->
+                        pixelValues += when (channel) {
+                            Channel.RED -> pixelValue shr 16 and 0xff
+                            Channel.GREEN -> pixelValue shr 8 and 0xff
+                            Channel.BLUE -> pixelValue shr 0 and 0xff
+                        }
                     }
+                } catch (e: Exception) {
+                    println("movingAverageData Exception: ${e}")
                 }
             }
 

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relativeLayout"
+    android:orientation="vertical"
+    android:layout_width="300dp"
+    android:layout_height="360dp">
+
+    <ImageView
+        android:id="@+id/imageExplanationCloseButton"
+        android:layout_width="22dp"
+        android:layout_height="24dp"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/outline_close_24"
+        app:layout_constraintEnd_toEndOf="parent"  />
+
+    <TextView
+        android:id="@+id/textViewVoidExplanation"
+        android:layout_width="196dp"
+        android:layout_height="25dp"
+        android:layout_marginTop="3dp"
+        android:text="Center point of the cluster with the least quantum dots"
+        android:textColor="@color/navSelected"
+        android:textSize="10dp"
+        app:layout_constraintStart_toEndOf="@+id/textViewVoidExplanationTitle"
+        app:layout_constraintTop_toBottomOf="@+id/textViewAttractorExplanation" />
+
+    <TextView
+        android:id="@+id/textViewAnomalyExplanation"
+        android:layout_width="196dp"
+        android:layout_height="25dp"
+        android:layout_marginTop="3dp"
+        android:text="Looks at Void and Attractor and returns the strongest"
+        android:textColor="@color/navSelected"
+        android:textSize="10dp"
+        app:layout_constraintStart_toEndOf="@+id/textViewAnomalyExplanationTitle"
+        app:layout_constraintTop_toBottomOf="@+id/textViewVoidExplanation" />
+
+    <TextView
+        android:id="@+id/textViewAttractorExplanation"
+        android:layout_width="196dp"
+        android:layout_height="25dp"
+        android:layout_marginTop="4dp"
+        android:text="Center point of the cluster with the most quantum dots"
+        android:textColor="@color/navSelected"
+        android:textSize="10dp"
+        app:layout_constraintStart_toEndOf="@+id/textViewAttractorExplanationTitle"
+        app:layout_constraintTop_toBottomOf="@+id/textViewExplanationTop" />
+
+    <TextView
+        android:id="@+id/textViewExplanationTop"
+        android:layout_width="300dp"
+        android:layout_height="43dp"
+        android:layout_marginTop="16dp"
+        android:gravity="center_horizontal"
+        android:text="These are ways the algorithm reads the quantumly randomized information to generate a point for you to travel to."
+        android:textColor="@color/navSelected"
+        android:textSize="11dp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textViewAttractorExplanationTitle"
+        android:layout_width="85dp"
+        android:layout_height="22dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
+        android:textColor="#0e4acc"
+        android:text="ATTRACTOR: "
+        android:textSize="14dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewExplanationTop" />
+
+    <TextView
+        android:id="@+id/textViewVoidExplanationTitle"
+        android:layout_width="85dp"
+        android:layout_height="22dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="6dp"
+        android:text="VOID: "
+        android:textColor="#ffd500"
+        android:textSize="14dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewAttractorExplanationTitle" />
+
+    <TextView
+        android:id="@+id/textViewAnomalyExplanationTitle"
+        android:layout_width="85dp"
+        android:layout_height="22dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="6dp"
+        android:textColor="#00FF00"
+        android:text="ANOMALY: "
+        android:textSize="14dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewVoidExplanationTitle" />
+
+    <ImageView
+        android:id="@+id/imageExplanations"
+        android:layout_width="219dp"
+        android:layout_height="128dp"
+        android:src="@drawable/randonautexplanations"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.506"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewExplanationTop"
+        app:layout_constraintVertical_bias="0.518" />
+
+    <TextView
+        android:id="@+id/textViewExplanationBot"
+        android:layout_width="293dp"
+        android:layout_height="70dp"
+        android:gravity="center_horizontal"
+        android:text="The QRNG creates true randomization, then the algorithm reads the density or scarcity, finds a center point and translates it to coordinates within the radius you've set. Attractors and Voids can produce different results for the user's experience."
+        android:textColor="@color/navSelected"
+        android:textSize="11dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.428"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageExplanations"
+        app:layout_constraintVertical_bias="0.448" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

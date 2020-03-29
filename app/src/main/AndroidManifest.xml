@@ -18,6 +18,7 @@
         <activity android:name="com.randonautica.app.MainActivity"
             android:supportsPictureInPicture="true"
             android:theme="@style/AppTheme.NoActionBar"
+            android:launchMode="singleTask"
             android:configChanges="orientation|keyboardHidden|screenSize">
 
             <intent-filter>

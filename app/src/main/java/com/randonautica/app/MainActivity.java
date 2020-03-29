@@ -1,15 +1,5 @@
 package com.randonautica.app;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -23,25 +13,38 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.android.material.navigation.NavigationView;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
+import com.google.android.material.navigation.NavigationView;
+import com.randonautica.app.Interfaces.MainActivityMessage;
 
 import java.util.UUID;
 
-public class MainActivity extends AppCompatActivity implements RandonautFragment.SendMessage, MyAttractorsListFragment.SendMessage, MyCamRngFragment.SendMessage,NavigationView.OnNavigationItemSelectedListener  {
-
-    public static final String SHARED_PREFS = "sharedPrefs";
-    public static final String STATS = "stats";
-    private String userid;
-    private Boolean privacyPolicyAccepted;
-    private DrawerLayout drawer;
-    private String tag;
-    private boolean switchOnOff;
-    public static final String SWTICHEnableDarkMode = "enableDarkMode";
+public class MainActivity extends AppCompatActivity implements MainActivityMessage, MyAttractorsListFragment.SendMessage, MyCamRngFragment.SendMessage,NavigationView.OnNavigationItemSelectedListener  {
 
     Dialog privacyPolicyDialog;
 
+    public static final String SHARED_PREFS = "sharedPrefs";
+    public static final String STATS = "stats";
+
+    private String userId;
+    private String tag;
+
     private FragmentManager fragmentManager;
+    private DrawerLayout drawer;
+
+    private boolean darkModeSwitch;
+    private Boolean privacyPolicyAccepted;
+
+    public static final String SWTICHEnableDarkMode = "enableDarkMode";
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -53,9 +56,11 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
 
         setContentView(R.layout.activity_main);
 
+        //Set the toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //Enable drawer menu within the toolbar
         drawer = findViewById(R.id.drawer_layout);
 
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -69,28 +74,34 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
         //Load user data
         loadData();
 
-        //Check for userid
-        if(userid == null){
-            //UserID
-            userid = UUID.randomUUID().toString();
+        //Check for userId
+        if(userId == null){
+            //userId
+            userId = UUID.randomUUID().toString();
             saveData();
         }
 
-        //Check for dark mode enabled
-        if(switchOnOff){
+        //Set Navigation header username equal to userId
+        View headerView = navigationView.getHeaderView(0);
+        TextView text = headerView.findViewById(R.id.textViewuserId);
+        text.setText(userId.substring(0,8));
+
+        //Check if dark mode is enabled
+        if(darkModeSwitch){
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         }
 
-        //Check for Privacy and Policy
+        //Check if Privacy and Policy was accepted
         if(privacyPolicyAccepted == false){
             showPrivacyPolicyAlertDialog(navigationView);
         } else {
             //Continue loading the app
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                    new RandonautFragment(), "randonaut")
+                    new MyRandonautFragment(), "randonaut")
                     .addToBackStack("randonaut")
                     .commit();
             navigationView.setCheckedItem(R.id.nav_randonaut);
+
         }
     }
 
@@ -98,30 +109,35 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         switch (menuItem.getItemId()){
             case R.id.nav_randonaut:
-
                 fragmentManager = getSupportFragmentManager();
+
                 tag = "randonaut";
 
                 Fragment randonautfragment = (Fragment) fragmentManager.findFragmentByTag(tag);
+
+                //Check for existing randonaut fragment
                 if (randonautfragment == null) {
-                    randonautfragment = new RandonautFragment();
+                    randonautfragment = new MyRandonautFragment();
                 }
 
+                //Add the fragment in stack with the corresponding tag and start the fragment
                 fragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, randonautfragment, tag)
                         .addToBackStack(tag)
                         .commit();
                 break;
             case R.id.nav_attractors:
-
                 fragmentManager = getSupportFragmentManager();
+
                 tag = "bot";
 
+                //Check for existing bot fragment
                 Fragment botfragment = (Fragment) fragmentManager.findFragmentByTag(tag);
                 if (botfragment == null) {
                     botfragment = new MyBotFragment();
                 }
 
+                //Add the fragment in stack with the corresponding tag and start the fragment
                 fragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, botfragment, tag)
                         .addToBackStack(tag)
@@ -158,6 +174,7 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
                        dialog.dismiss();
                     }
                 }).show();
+
         // Create the AlertDialog object and return it
         return builder.create();
     }
@@ -168,23 +185,14 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
         privacyPolicyDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         privacyPolicyDialog.setContentView(R.layout.dialog_privacy);
 
+        privacyPolicyDialog.setCancelable(false);
+        privacyPolicyDialog.setCanceledOnTouchOutside(false);
+
         Button yesAnwserButton = (Button) privacyPolicyDialog.findViewById(R.id.agreeButton);
         Button noAnwserButton = (Button) privacyPolicyDialog.findViewById(R.id.disagreeBtuton);
+
         TextView privacyPolicyTextView = (TextView) privacyPolicyDialog.findViewById(R.id.privacyTextView);
         privacyPolicyTextView.setMovementMethod(new ScrollingMovementMethod());
-
-        privacyPolicyTextView.setText("1. By using the Randonautica app you do so at your own risk and assume sole responsiblity!  \n" +
-                "2. Using it means you agree and will abide to this privacy policy and terms of use.  \n" +
-                "3. In no way are we responsible or will be held liable for any positive or adverse affects or consequences from the use of this platform.  \n" +
-                "4. Use common sense, do not put yourself or others in harms way. Don't tresspass. \n" +
-                "5. Don't steal, don't damage property, don't litter, don't do anything illegal nor anything that would otherwise cause trouble or danger. \n" +
-                "6. All your data is anonymized. However, we don't have control of what goes through Telegram and any other social media platforms so if you want to be absolutely anonymous we suggest you use the webbot.  \n" +
-                "7. Any location data that you send is automatically deleted after 24 hours.  \n" +
-                "8. We do store anonymized data of points generated for internal analysis (afterall this is an experiment, and experiments need data to analyze).  \n" +
-                "9. All your other data like your settings - besides the anonymized point data stored for analysis - will automatically be deleted after 1 month, including your saved agreement.  \n" +
-                "10. If you chose to write up a trip report, the report will be posted anonymously on the /r/randonaut_reports subreddit. Don't worry, we will never post your location, just the point generated.\n" +
-                " \n " +
-                "Do you agree to the terms of use and privacy policy, and to be a well behaved Randonaut?");
 
         //Button listener for yes
         yesAnwserButton.setOnClickListener(new View.OnClickListener() {
@@ -196,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
                 saveData();
                 //Continue loading the app
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                        new RandonautFragment(), "randonaut")
+                        new MyRandonautFragment(), "randonaut")
                         .addToBackStack("randonaut")
                         .commit();
                 navigationView.setCheckedItem(R.id.nav_randonaut);
@@ -221,12 +229,11 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
 
     }
 
-    //Send Coordinates from one of the Attractor lists
+    //Send Coordinates from one of the Attractor lists to randonaut fragment
     public void sendData(int type, double power, double x, double y, double radiusm, double z_score, double pseudo) {
         tag = "randonaut";
         FragmentManager fragmentManager = getSupportFragmentManager();
-        RandonautFragment randonautfragment = (RandonautFragment) fragmentManager.findFragmentByTag(tag);
-        randonautfragment.onShowProfileAttractors(type, power, x, y, radiusm, z_score, pseudo);
+        MyRandonautFragment randonautfragment = (MyRandonautFragment) fragmentManager.findFragmentByTag(tag);
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setCheckedItem(R.id.nav_randonaut);
@@ -236,13 +243,15 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
                 .replace(R.id.fragment_container, randonautfragment, tag)
                 .addToBackStack(tag)
                 .commit();
+
+        randonautfragment.onShowProfileAttractors(type, power, x, y, radiusm, z_score, pseudo);
     }
 
     //Send Entropy from Camera RNG Fragment
     public void sendEntropyObj(int size, String entropy) {
         tag = "randonaut";
         FragmentManager fragmentManager = getSupportFragmentManager();
-        RandonautFragment randonautfragment = (RandonautFragment) fragmentManager.findFragmentByTag(tag);
+        MyRandonautFragment randonautfragment = (MyRandonautFragment) fragmentManager.findFragmentByTag(tag);
 
         //Checks if size was 0, which means it was cancelled
         if(size != 0){
@@ -269,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
                 .commit();
     }
 
-
+    //Enable the on back press key to open previous fragment from the stack
     @Override
     public void onBackPressed() {
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -282,10 +291,11 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
         }
     }
 
+    //Save data to Shared Preferences
     private void saveData() {
         SharedPreferences sharedPreferences = this.getSharedPreferences(STATS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("USERID", userid);
+        editor.putString("userId", userId);
         editor.putBoolean("PRIVACY", privacyPolicyAccepted);
 
         editor.apply();
@@ -293,11 +303,13 @@ public class MainActivity extends AppCompatActivity implements RandonautFragment
 
     private void loadData() {
         SharedPreferences sharedPreferences = this.getSharedPreferences(STATS, Context.MODE_PRIVATE);
-        userid = sharedPreferences.getString("USERID", null);
+
+        userId = sharedPreferences.getString("userId", null);
         privacyPolicyAccepted = sharedPreferences.getBoolean("PRIVACY", false);
 
+        //Check for dark mode in SHARED_PREFS
         sharedPreferences = this.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
-        switchOnOff = sharedPreferences.getBoolean(SWTICHEnableDarkMode, false);
+        darkModeSwitch = sharedPreferences.getBoolean(SWTICHEnableDarkMode, false);
 
     }
 

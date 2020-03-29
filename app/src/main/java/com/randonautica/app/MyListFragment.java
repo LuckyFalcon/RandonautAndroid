@@ -40,12 +40,12 @@ public class MyListFragment extends Fragment implements
 
         mAdapter = new TabsPagerAdapter(getChildFragmentManager());
 
-        // add your fragments
+        // Add fragments to adapter
         mAdapter.addFrag(new MyAttractorsListFragment(), "Attractors");
         mAdapter.addFrag(new MyVoidsListFragment(), "Voids");
         mAdapter.addFrag(new MyAnomalyListFragment(), "Anomalies");
 
-        // set adapter on viewpager
+        // Set adapter on viewpager
         viewPager.setAdapter(mAdapter);
 
         //Set title of screen

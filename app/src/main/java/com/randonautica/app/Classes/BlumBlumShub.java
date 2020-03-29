@@ -34,9 +34,12 @@
  */
 
 package com.randonautica.app.Classes;
-import java.util.Random;
-import java.security.SecureRandom;
+
+import com.randonautica.app.Interfaces.RandomGenerator;
+
 import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.Random;
 
 /**
  * The Blum-Blum-Shub random number generator.

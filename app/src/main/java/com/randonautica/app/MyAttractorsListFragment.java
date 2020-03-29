@@ -25,9 +25,9 @@ import androidx.fragment.app.Fragment;
 
 import com.randonautica.app.Classes.Attractor;
 import com.randonautica.app.Classes.DatabaseHelper;
-import com.randonautica.app.Classes.RandoWrapperApi;
 import com.randonautica.app.Classes.ReportQuestions;
-import com.randonautica.app.Classes.SendReport;
+import com.randonautica.app.Interfaces.API_Classes.SendReport;
+import com.randonautica.app.Interfaces.RandoWrapperApi;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,7 +45,6 @@ import java.util.zip.CRC32;
 
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Retrofit;
@@ -62,7 +61,7 @@ public class MyAttractorsListFragment extends Fragment {
     private View view;
     private static DecimalFormat df2 = new DecimalFormat("#.##");
     SendMessage SM;
-    private String userid;
+    private String userId;
     public static final String STATS = "stats";
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -436,14 +435,14 @@ public class MyAttractorsListFragment extends Fragment {
                     ar.add(userInput.getText().toString());
                     try {
                         //General
-                        obj.put("user_id", userid);
+                        obj.put("user_id", userId);
                         obj.put("platform", 8);
 
                         Date currentTime = Calendar.getInstance().getTime();
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
                         String currentDateandTime = sdf.format(new Date());
                         obj.put("datetime", currentDateandTime);
-                        obj.put("short_hash_id", getCRC32(userid + currentDateandTime));
+                        obj.put("short_hash_id", getCRC32(userId + currentDateandTime));
 
                         //Question anwsers
                         obj.put("visited", Double.valueOf(ar.get(0)));
@@ -677,7 +676,7 @@ public class MyAttractorsListFragment extends Fragment {
 
     private void loadData() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(STATS, Context.MODE_PRIVATE);
-        userid = sharedPreferences.getString("USERID", null);
+        userId = sharedPreferences.getString("userId", null);
 
     }
 

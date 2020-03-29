@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Randonautica</string>
     <string name="mapbox_access_token">MAPBOX_ACCESS_TOKEN</string>
     <string name="mapbox_style">MAPBOX_STREETS</string>
@@ -10,6 +10,10 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
+    <string name="cancel_button">Cancel</string>
+    <string name="next_button">Next</string>
+
+    <!-- this is a comment -->
     <string name="menu_randonaut">Randonaut</string>
     <string name="menu_bot">Bot</string>
     <string name="menu_myAttractors">My Attractors</string>
@@ -17,4 +21,58 @@
     <string name="menu_settings">Settings</string>
     <string name="menu_share">Share</string>
     <string name="menu_support">Support</string>
+
+    <!--dialog_privacy-->
+    <string name="privacy_policy_title">PRIVACY POLICY AND TERMS OF USE</string>
+    <string name="privacy_policy" tools:ignore="StringEscaping">1. By using Randonautica you do so at your own risk and assume sole responsibility!\n
+        2. Using it means you agree and will abide to this privacy policy and terms of use.  \n
+        3. In no way are we responsible or will be held liable for any positive or adverse affects or consequences from the use of this platform.  \n
+        4. Use common sense, do not put yourself or others in harms way. Don\'t trespass. \n
+        5. Don\'t steal, don\'t damage property, don\'t litter, don\'t do anything illegal nor anything that would otherwise cause trouble or danger. \n
+        6. All your data is anonymized. However, we don\'t have control of what goes through Telegram and any other social media platforms so if you want to be absolutely anonymous we suggest you use the official app or webbot.  \n
+        7. Any location data that you send is automatically deleted after 24 hours.  \n
+        8. We do store anonymized data of points generated for internal analysis (afterall this is an experiment, and experiments need data to analyze).  \n
+        9. All your other data like your settings - besides the anonymized point data stored for analysis - will automatically be deleted after 1 month, including your saved agreement.  \n
+        10. If you chose to write up a trip report, the report will be posted anonymously on the /r/randonaut_reports subreddit. Don\'t worry, we will never post your location, just the point generated.\n
+        \n Do you agree to the terms of use and privacy policy, and to be a well behaved Randonaut?</string>
+    <string name="privacy_policy_positive">I Agree</string>
+    <string name="privacy_policy_negative">I Disagree</string>
+
+    <!-- fragment_randonaut-->
+    <string name="randonaut_button">Randonaut</string>
+    <string name="google_maps_button">OPEN IN GOOGLE MAPS</string>
+    <string name="reset_button">Reset</string>
+
+    <!-- fragment_profile-->
+
+    <!-- dialog_preferences -->
+    <string name="attractor">Attractor</string>
+    <string name="attractor_void">Void</string>
+    <string name="anomaly">Anomaly</string>
+    <string name="pseudo">Pseudo</string>
+
+    <!-- this is a comment -->
+    <string name="entropy_information">Sources of Randomness</string>
+    <string name="entropy_information_contents">
+        ANU: Australia National University\'s quantum random number generator, <br></br>
+        ANU Leftovers: Mixed intentions from unused ANU entropy, <br></br>
+        Camera: Generates entropy from your camera (best try keeping the camera on a still surface - although the jury is still out on that!)<br></br>
+    </string>
+    <string name="entropy_information_button">Ok</string>
+
+    <!-- dialog_camrng -->
+    <string name="generating_entropy">Generating Entropy...</string>
+    <string name="time_elapsed">TIME ELAPSED</string>
+    <string name="progress">PROGRESS</string>
+    <string name="bytes_in_buffer">BYTES IN BUFFER</string>
+    <string name="empty">empty</string>
+    <string name="entropy_generated">ENTROPY GENERATED</string>
+    <string name="entropy_needed">ENTROPY NEEDED</string>
+    <string name="amount_of_pixels">AMOUNT OF PIXELS</string>
+
+
+
+
+
+
 </resources>

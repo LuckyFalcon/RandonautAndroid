@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="340dp"
     android:layout_height="400dp">
@@ -19,7 +18,7 @@
         android:layout_marginRight="20dp"
         android:layout_marginBottom="16dp"
         android:backgroundTint="@color/buttonColor"
-        android:text="I Agree"
+        android:text="@string/privacy_policy_positive"
         android:textColor="@color/buttonText"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"></Button>
@@ -36,7 +35,7 @@
         android:layout_marginLeft="20dp"
         android:layout_marginBottom="16dp"
         android:backgroundTint="@color/buttonColor"
-        android:text="I Disagree"
+        android:text="@string/privacy_policy_negative"
         android:textColor="@color/buttonText"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"></Button>
@@ -50,7 +49,7 @@
         android:layout_alignParentTop="true"
         android:fadeScrollbars="false"
         android:scrollbars="vertical"
-        android:text="TextView"
+        android:text="@string/privacy_policy"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -66,7 +65,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"
-        android:text="PRIVACY POLICY AND TERMS OF USE"
+        android:text="@string/privacy_policy_title"
         android:textSize="15sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"

@@ -10,9 +10,11 @@ android {
         applicationId "com.randonautica.app"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 1000003
-        versionName "1.0.3"
+        versionCode 1000007
+        versionName "1.0.7"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
+
     }
     buildTypes {
         release {
@@ -24,6 +26,9 @@ android {
         ndkBuild {
             path 'src/main/jni/Android.mk'//path of Android.mk file
         }
+    }
+    lintOptions {
+        checkReleaseBuilds false
     }
     sourceSets { main { jni.srcDirs = ['src/main/jni', 'src/main/jni/'] } }
     lintOptions {
@@ -56,6 +61,7 @@ dependencies {
     compile "androidx.core:core-ktx:+"
     compile "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.android.support:design:28.0.0'
 
 }
 repositories {

@@ -2,8 +2,26 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="300dp"
-    android:layout_height="250dp">
+    android:layout_height="310dp">
 
+    <TextView
+        android:id="@+id/textViewChoosePoint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/navSelected"
+        android:layout_marginTop="7dp"
+        android:textStyle="bold"
+        android:text="Select RNG:" />
+
+    <ImageView
+        android:id="@+id/imageRNGHelpButton"
+        android:layout_width="22dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="98dp"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/baseline_help_outline_24" />
 
     <Button
         android:id="@+id/RNGpreferencesDialogStartButton"
@@ -16,12 +34,12 @@
         android:layout_marginEnd="11dp"
         android:layout_marginRight="11dp"
         android:layout_marginBottom="8dp"
-        android:text="Start"
+        android:text="Next"
         android:backgroundTint="@color/buttonColor"
         android:textColor="@color/buttonText"></Button>
 
     <Button
-        android:id="@+id/RNGpreferencesDialogCancelButton"
+        android:id="@+id/RNGpreferencesDialogPreviousButton"
         android:layout_width="127dp"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
@@ -33,7 +51,7 @@
         android:layout_marginEnd="163dp"
         android:layout_marginRight="163dp"
         android:layout_marginBottom="7dp"
-        android:text="Cancel"
+        android:text="Previous"
         android:backgroundTint="@color/buttonColor"
         android:textColor="@color/buttonText"></Button>
 
@@ -47,7 +65,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginStart="24dp"
         android:layout_marginLeft="24dp"
-        android:layout_marginTop="14dp"
+        android:layout_marginTop="29dp"
+        android:textStyle="bold"
         android:text="@string/menu_myAttractors"
         android:textOff="ANU"
         android:textOn="ANU" />
@@ -60,28 +79,30 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="72dp"
+        android:layout_marginTop="87dp"
         android:layout_marginEnd="24dp"
         android:layout_marginRight="24dp"
+        android:textStyle="bold"
         android:text="ToggleButton"
         android:textOff="ANU Leftovers"
         android:textOn="ANU Leftovers"/>
 
     <ToggleButton
-        android:id="@+id/gcpToggleButton"
+        android:id="@+id/tmprngToggleButton"
         android:layout_width="251dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerInParent="true"
-        android:layout_marginTop="127dp"
+        android:layout_marginTop="145dp"
         android:layout_marginEnd="22dp"
         android:layout_marginRight="22dp"
-        android:visibility="gone"
+        android:visibility="visible"
+        android:textStyle="bold"
         android:text="ToggleButton"
-        android:textOff="GCP RETRO"
-        android:textOn="GCP RETRO" />
+        android:textOff="TEMPORAL"
+        android:textOn="TEMPORAL" />
 
     <ToggleButton
         android:id="@+id/cmrngToggleButton"
@@ -91,9 +112,10 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerInParent="true"
-        android:layout_marginTop="130dp"
+        android:layout_marginTop="203dp"
         android:layout_marginEnd="22dp"
         android:layout_marginRight="22dp"
+        android:textStyle="bold"
         android:text="ToggleButton"
         android:textOff="CAMERA (Beta)"
         android:textOn="CAMERA (Beta)"
