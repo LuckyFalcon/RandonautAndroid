@@ -362,7 +362,7 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
 
         String ANU = "<font color="+textColor+"><b>ANU: </b>Australia National University's quantum random number generator</font>";
         String ANULeftovers = "<font color="+textColor+"><b>ANU Leftovers: </b>Mixed intentions from unused ANU entropy</font>";
-        String TemporalRNG = "<font color="+textColor+"><b>Temporal: </b>Steve using the server\'s CPU quartz crystal clock divulges entropy</font>";
+        String TemporalRNG = "<font color="+textColor+"><b>Temporal: </b>Steve divulges entropy using the phone\'s CPU clock</font>";
         String CameraRNG = "<font color="+textColor+"><b>Camera: </b>Generates entropy from your camera (best try keeping the camera on a still surface - although the jury is still out on that!)</font>";
 
         TextView ANUExplanation = (TextView) rngExplanationDialog.findViewById(R.id.textViewANUExplanation);

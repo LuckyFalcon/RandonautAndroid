@@ -104,7 +104,7 @@ public class GenerateEntropy {
 
         //Start ProgressDialog
         progressdialog = new ProgressDialog(context);
-        progressdialog.setMessage("Getting Temporal quantum entropy. Please wait....");
+        progressdialog.setMessage("Getting Temporal entropy. Please wait....");
         progressdialog.show();
         progressdialog.setCancelable(false);
         progressdialog.setCanceledOnTouchOutside(false);
