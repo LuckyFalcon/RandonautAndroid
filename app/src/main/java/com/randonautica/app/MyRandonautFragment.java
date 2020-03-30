@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,6 +78,7 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
     //Native Modules
     protected native String getApiKey();
     public static native String getBaseApi();
+    public static native String steveString();
 
     //Load Functions
     GenerateEntropy generateEntropy = new GenerateEntropy();
@@ -141,6 +143,7 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (rootview == null) {
             createMapInstance();
             rootview = inflater.inflate(R.layout.fragment_randonaut, container, false);

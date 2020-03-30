@@ -8,7 +8,7 @@ android {
     defaultConfig {
         multiDexEnabled true
         applicationId "com.randonautica.app"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 29
         versionCode 1000007
         versionName "1.0.7"
@@ -23,14 +23,17 @@ android {
         }
     }
     externalNativeBuild {
-        ndkBuild {
-            path 'src/main/jni/Android.mk'//path of Android.mk file
+        cmake {
+            path "CMakeLists.txt"
         }
     }
     lintOptions {
         checkReleaseBuilds false
     }
     sourceSets { main { jni.srcDirs = ['src/main/jni', 'src/main/jni/'] } }
+    lintOptions {
+        checkReleaseBuilds false
+    }
 }
 
 dependencies {
