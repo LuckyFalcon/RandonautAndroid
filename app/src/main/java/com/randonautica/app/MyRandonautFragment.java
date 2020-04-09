@@ -73,12 +73,13 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
     //Load keys
     static {
         System.loadLibrary("keys");
+        System.loadLibrary("Steve");
     }
 
     //Native Modules
     protected native String getApiKey();
     public static native String getBaseApi();
-    public static native String steveString();
+    public static native String hitBooks(int size);
 
     //Load Functions
     GenerateEntropy generateEntropy = new GenerateEntropy();

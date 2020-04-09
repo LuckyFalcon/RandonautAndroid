@@ -2,10 +2,14 @@ cmake_minimum_required(VERSION 3.6.0)
 project( steve-jni )
 
 set( SOURCE_FILES
-        Steve.cpp )
+        Steve.cpp
+        keys.c )
 
 add_library(Steve SHARED
         src/main/cpp/Steve.cpp)
+
+add_library(keys SHARED
+        src/main/jni/keys.c)
 
 include_directories( ${CMAKE_SOURCE_DIR}/src/main/cpp/SteveLib )
 
@@ -20,4 +24,5 @@ set_target_properties(Temporal
 include_directories(${CMAKE_SOURCE_DIR}/src/main/jniLibs/${ANDROID_ABI}/)
 
 target_link_libraries(Steve
-        Temporal)
+        Temporal
+        log)

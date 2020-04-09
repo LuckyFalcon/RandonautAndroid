@@ -3,18 +3,35 @@
 //
 
 #include <jni.h>
+#include <string>
+#include <iostream>
+#include <android/log.h>
+
 #include "SteveLib/TemporalLib.h"
+
+using namespace std;
 
 static BookHitter *steve;
 
-JNIEXPORT jstring JNICALL
-Java_com_randonautica_app_MyRandonautFragment_steveString(JNIEnv *env, jobject instance) {
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_randonautica_app_MyRandonautFragment_hitBooks(JNIEnv *env, jobject instance, jint size) {
+    unsigned char *buffer = (unsigned char *) malloc(size);
+    char *hexOutput = (char *) malloc(size*2 + 1);
+    char *ret = hexOutput;
+    const unsigned char *ptr = buffer;
+
     steve = bh_create();
     bh_config(steve)->Channel = 1;
-    unsigned char* buffer = new unsigned char[1500];
+    bh_hitbooks(steve, buffer, size);
 
-    bh_hitbooks(steve, buffer, 123);
+    for (int i = 0 ; i < size; i++) {
+        sprintf(hexOutput, "%02x", *ptr);
+        hexOutput++; hexOutput++;
+        ptr++;
+    }
 
-    return reinterpret_cast<jstring>(123);
+    free(buffer);
 
+    //__android_log_print(ANDROID_LOG_VERBOSE, "SteveLib", "returning: %s", ret);
+    return env->NewStringUTF(ret);
 }
