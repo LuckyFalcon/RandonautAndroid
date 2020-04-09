@@ -11,27 +11,31 @@
 
 using namespace std;
 
-static BookHitter *steve;
+typedef unsigned char u8;
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_randonautica_app_MyRandonautFragment_hitBooks(JNIEnv *env, jobject instance, jint size) {
-    unsigned char *buffer = (unsigned char *) malloc(size);
-    char *hexOutput = (char *) malloc(size*2);
-    char *ret = hexOutput;
-    const unsigned char *ptr = buffer;
-
-    steve = bh_create();
-    bh_config(steve)->Channel = 1;
-    bh_hitbooks(steve, buffer, size);
-
-    for (int i = 0 ; i < size; i++) {
-        sprintf(hexOutput, "%02x", *ptr);
-        hexOutput++; hexOutput++;
-        ptr++;
+    static BookHitter *steve;
+    if (!steve) {
+        steve = bh_create();
+        bh_config(steve)->Channel = 1;
     }
 
-    free(buffer);
+    static std::string byte_steve;
+    static std::string hex_steve;
+    byte_steve.resize(size);
+    hex_steve.resize(size*2);
 
-    //__android_log_print(ANDROID_LOG_VERBOSE, "SteveLib", "returning: %s", ret);
-    return env->NewStringUTF(ret);
+    bh_hitbooks(steve, (u8*)byte_steve.c_str(), size);
+
+    const char* hex_digits  =  "0123456789abcdef";
+    int i = 0;
+    for (u8 c : byte_steve) {
+        hex_steve[i++] = hex_digits[c >> 4];
+        hex_steve[i++] = hex_digits[c & 15];
+    }
+
+    //__android_log_print(ANDROID_LOG_VERBOSE, "SteveLib", "returning: %s", hex_steve.c_str());
+
+    return env->NewStringUTF(hex_steve.c_str()); // this copies the string. No need to free anything then!
 }
