@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -493,7 +494,7 @@ public class MyVoidsListFragment extends Fragment {
                             .build();
 
                     Retrofit retrofit = new Retrofit.Builder()
-                            .baseUrl("https://api.randonauts.com/")
+                            .baseUrl(new String(Base64.decode(MyRandonautFragment.getBaseApi(),Base64.DEFAULT)))
                             .client(okHttpClient)
                             .addConverterFactory(GsonConverterFactory.create())
                             .build();
