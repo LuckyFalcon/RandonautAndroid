@@ -16,7 +16,7 @@ static BookHitter *steve;
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_randonautica_app_MyRandonautFragment_hitBooks(JNIEnv *env, jobject instance, jint size) {
     unsigned char *buffer = (unsigned char *) malloc(size);
-    char *hexOutput = (char *) malloc(size*2 + 1);
+    char *hexOutput = (char *) malloc(size*2);
     char *ret = hexOutput;
     const unsigned char *ptr = buffer;
 
