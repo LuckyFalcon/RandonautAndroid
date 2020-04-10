@@ -23,8 +23,8 @@ Java_com_randonautica_app_MyRandonautFragment_hitBooks(JNIEnv *env, jobject inst
 
     static std::string byte_steve;
     static std::string hex_steve;
-    byte_steve.resize(size);
-    hex_steve.resize(size*2);
+    byte_steve.resize(size/2);
+    hex_steve.resize(size);
 
     bh_hitbooks(steve, (u8*)byte_steve.c_str(), size);
 
