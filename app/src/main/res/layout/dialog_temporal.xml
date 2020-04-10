@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="300dp"
+    android:layout_height="200dp">
+
+    <TextView
+        android:id="@+id/textViewChoosePoint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/navSelected"
+        android:layout_marginTop="7dp"
+        android:textStyle="bold"
+        android:text="Select option:" />
+
+    <ImageView
+        android:id="@+id/imageTemporalRNGHelpButton"
+        android:layout_width="22dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="98dp"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/baseline_help_outline_24" />
+
+    <Button
+        android:id="@+id/temporalDialogNextButton"
+        android:layout_width="133dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginEnd="11dp"
+        android:layout_marginRight="11dp"
+        android:layout_marginBottom="8dp"
+        android:text="Next"
+        android:backgroundTint="@color/buttonColor"
+        android:textColor="@color/buttonText"></Button>
+
+    <Button
+        android:id="@+id/temporalDialogPreviousButton"
+        android:layout_width="127dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="163dp"
+        android:layout_marginRight="163dp"
+        android:layout_marginBottom="7dp"
+        android:text="Previous"
+        android:backgroundTint="@color/buttonColor"
+        android:textColor="@color/buttonText"></Button>
+
+    <ToggleButton
+        android:id="@+id/temporalInternetToggleButton"
+        android:layout_width="249dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="24dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginTop="29dp"
+        android:textStyle="bold"
+        android:text="@string/menu_myAttractors"
+        android:textOff="Internet"
+        android:textOn="Internet" />
+
+    <ToggleButton
+        android:id="@+id/temporalLocalToggleButton"
+        android:layout_width="251dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="87dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginRight="24dp"
+        android:textStyle="bold"
+        android:text="ToggleButton"
+        android:textOff="Local"
+        android:textOn="Local"/>
+
+
+</RelativeLayout>

@@ -2,10 +2,12 @@ package com.randonautica.app;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
@@ -54,6 +56,7 @@ import com.randonautica.app.Interfaces.RandoWrapperApi;
 import com.randonautica.app.Interfaces.RandonautAttractorListener;
 import com.randonautica.app.Interfaces.RandonautEntropyListener;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -115,12 +118,16 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
     //Message to mainactivity
     MainActivityMessage SM;
 
-    //Preferences Dialog
     //Preferences Dialog variables
     Dialog preferencesDialog;
     Dialog explanationDialog;
     Dialog rngExplanationDialog;
+    Dialog temporalExplanationDialog;
+
+    //Preferences Dialog
     Dialog setIntentionDialog;
+    Dialog setTemporalDialog;
+
     private int distance;
     private TextView textViewProgress;
     private SeekBar seekBarProgress;
@@ -137,8 +144,15 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
     ToggleButton TemporalToggleButton;
     ToggleButton CameraToggleButton;
 
+    //Temporal Dialog Toggle Buttons
+    ToggleButton temporalInternetToggleButton;
+    ToggleButton temporalLocalToggleButton;
+
     //Selected Option
     private String selected;
+
+    //Initialize Class objects
+    ProgressDialog progressdialog;
 
     /** create view */
     @Override
@@ -393,6 +407,36 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
 
     }
 
+    public void setTemporalExplanationDialog(){
+        temporalExplanationDialog = new Dialog(getActivity());
+        temporalExplanationDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        temporalExplanationDialog.setContentView(R.layout.dialog_temporalexplanation);
+
+        int  textColor = getResources().getColor(R.color.navSelected);
+
+        String Internet = "<font color="+textColor+"><b>Internet: </b>Steve, who is physically connected to the server\'s brain via a quartz crystal clock, will divulge temporal randomness</font>";
+        String Local = "<font color="+textColor+"><b>Local: </b>Steve divulges entropy using the phone's CPU clock</font>";
+
+        TextView internetExplanation = (TextView) temporalExplanationDialog.findViewById(R.id.textViewInternetExplanation);
+        TextView localExplanation = (TextView) temporalExplanationDialog.findViewById(R.id.textViewLocalExplanation);
+
+        internetExplanation.setText(Html.fromHtml(Internet));
+        localExplanation.setText(Html.fromHtml(Local));
+
+        ImageView imageTemporalExplanationCloseButton = (ImageView) temporalExplanationDialog.findViewById(R.id.imageTemporalExplanationCloseButton);
+
+        imageTemporalExplanationCloseButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                temporalExplanationDialog.cancel();
+                setTemporalDialog();
+            }
+        });
+
+        temporalExplanationDialog.show();
+
+    }
+
     public Dialog setRngPreferencesDialog(){
         preferencesDialog = new Dialog(getActivity());
         preferencesDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -430,8 +474,13 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
         start.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                preferencesDialog.cancel();
-                seIntentionDialog();
+                if (TemporalToggleButton.isChecked()) {
+                    preferencesDialog.cancel();
+                    setTemporalDialog();
+                } else {
+                    preferencesDialog.cancel();
+                    setIntentionDialog();
+                }
             }
 
         });
@@ -458,7 +507,7 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
         return preferencesDialog;
     }
 
-    public void seIntentionDialog(){
+    public void setIntentionDialog(){
         setIntentionDialog = new Dialog(getActivity());
         setIntentionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setIntentionDialog.setContentView(R.layout.dialog_setinention);
@@ -541,7 +590,6 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
                                 @Override
                                 public void onData(String entropySizeNeeded) {
                                     SM.rng(Integer.parseInt(entropySizeNeeded));
-
                                 }
                                 @Override
                                 public void onFailed() {
@@ -550,30 +598,50 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
                             });//---> This will run the MyCamRngFragment on success
                 } else if (TemporalToggleButton.isChecked()) {
                     setIntentionDialog.cancel();
-                    generateEntropy.getTemporalEntropy(getContext(), distance,
-                            new RandonautEntropyListener() {
-                                @Override
-                                public void onData(String GID) {
-                                    generateAttractors.getAttractors(rootview, mapboxMap, getContext(), GID,false, true, false, selected, distance, new RandonautAttractorListener() {
-                                        @Override
-                                        public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
-                                            saveData();
-                                            generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mapboxMap);
+                    if (temporalInternetToggleButton.isChecked()) {
+                        generateEntropy.getTemporalEntropy(getContext(), distance,
+                                new RandonautEntropyListener() {
+                                    @Override
+                                    public void onData(String GID) {
+                                        generateAttractors.getAttractors(rootview, mapboxMap, getContext(), GID, false, true, false, selected, distance, new RandonautAttractorListener() {
+                                            @Override
+                                            public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
+                                                saveData();
+                                                generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mapboxMap);
 
-                                        }
+                                            }
 
-                                        @Override
-                                        public void onFailed() {
+                                            @Override
+                                            public void onFailed() {
 
-                                        }
-                                    });
+                                            }
+                                        });
 
-                                }
-                                @Override
-                                public void onFailed() {
+                                    }
 
-                                }
-                            });
+                                    @Override
+                                    public void onFailed() {
+
+                                    }
+                                });
+                    } //Temporal from Internet
+                    if (temporalLocalToggleButton.isChecked()) {
+                        generateEntropy.getNeededEntropySize(getContext(), distance,
+                                new RandonautEntropyListener() {
+                                    @Override
+                                    public void onData(String entropySizeNeeded) {
+                                        Log.d("test", entropySizeNeeded);
+
+                                        generatingTemporalEntropyAsync asyncTask=new generatingTemporalEntropyAsync();
+                                        asyncTask.execute(entropySizeNeeded);
+
+                                    }
+                                    @Override
+                                    public void onFailed() {
+
+                                    }
+                                });
+                    } //Temporal from Local generation
                 }
             }
         });
@@ -588,6 +656,81 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
 
 
         setIntentionDialog.show();
+
+
+    }
+
+    private class generatingTemporalEntropyAsync extends AsyncTask<String, String, String> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            //Start ProgressDialog generating Temporal
+            progressdialog = new ProgressDialog(getContext());
+            progressdialog.setMessage("Generating Temporal entropy. Please wait....");
+            progressdialog.show();
+            progressdialog.setCancelable(false);
+            progressdialog.setCanceledOnTouchOutside(false);
+
+        }
+        @Override
+        protected String doInBackground(String... strings) {
+            //Strings[0] is passed entropySize
+            String temporalEntropy = hitBooks(Integer.parseInt(strings[0])); //Let Steve hit the library
+            return temporalEntropy;
+        }
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            //Set Quantum Entropy after background task is done
+            setQuantumEntropy(result.length(), hitBooks(Integer.parseInt(result)), "Temporal");
+        }
+    }
+
+    public void setTemporalDialog(){
+        setTemporalDialog = new Dialog(getActivity());
+        setTemporalDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setTemporalDialog.setContentView(R.layout.dialog_temporal);
+
+        //Toggle Buttons
+        temporalInternetToggleButton = (ToggleButton) setTemporalDialog.findViewById(R.id.temporalInternetToggleButton);
+        temporalLocalToggleButton = (ToggleButton) setTemporalDialog.findViewById(R.id.temporalLocalToggleButton);
+
+        //Check for click
+        temporalInternetToggleButton.setOnCheckedChangeListener(temporalChangeChecker);
+        temporalLocalToggleButton.setOnCheckedChangeListener(temporalChangeChecker);
+
+        //Buttons
+        Button next = (Button) setTemporalDialog.findViewById(R.id.temporalDialogNextButton);
+        Button previous = (Button) setTemporalDialog.findViewById(R.id.temporalDialogPreviousButton);
+        ImageView temporalHelpImage = (ImageView) setTemporalDialog.findViewById(R.id.imageTemporalRNGHelpButton);
+
+        next.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                setTemporalDialog.cancel();
+                setIntentionDialog();
+            }
+
+        });
+
+        previous.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                setTemporalDialog.cancel();
+                setRngPreferencesDialog();
+            }
+
+        });
+
+        temporalHelpImage.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                setTemporalDialog.cancel();
+                setTemporalExplanationDialog();
+            }
+        });
+
+        setTemporalDialog.show();
 
 
     }
@@ -666,7 +809,31 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
         }
     };
 
-    public void setQuantumEntropy(int size, String Entropy){
+    CompoundButton.OnCheckedChangeListener temporalChangeChecker = new CompoundButton.OnCheckedChangeListener() {
+
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            if (isChecked){
+                if (buttonView == temporalInternetToggleButton) {
+                    temporalInternetToggleButton.setChecked(true);
+                    temporalLocalToggleButton.setChecked(false);
+                }
+                if (buttonView == temporalLocalToggleButton) {
+                    temporalInternetToggleButton.setChecked(false);
+                    temporalLocalToggleButton.setChecked(true);
+                }
+            }
+        }
+    };
+
+    public void setQuantumEntropy(int size, String Entropy, String rngType){
+
+        //Start ProgressDialog
+        progressdialog = new ProgressDialog(this.getContext());
+        progressdialog.setMessage("Setting " + rngType +  " entropy. Please wait....");
+        progressdialog.show();
+        progressdialog.setCancelable(false);
+        progressdialog.setCanceledOnTouchOutside(false);
 
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
                 .connectTimeout(60, TimeUnit.SECONDS)
@@ -687,6 +854,7 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
         response.enqueue(new Callback<SendEntropy.Response>() {
             @Override
             public void onResponse(Call<SendEntropy.Response> call, Response<SendEntropy.Response> response) {
+                progressdialog.dismiss();
                 generateAttractors.getAttractors(rootview, mapboxMap, getContext(), response.body().getGid(),false, false, false, selected, distance, new RandonautAttractorListener() {
                     @Override
                     public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
@@ -697,7 +865,8 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
 
                     @Override
                     public void onFailed() {
-
+                        generateEntropy.onCreateDialogErrorGettingEntropy(getContext());
+                        progressdialog.dismiss();
                     }
                 });
             }
@@ -799,7 +968,7 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
         if (PermissionsManager.areLocationPermissionsGranted(getContext())) {
             //Check if GPS is disabled
             if(loadedMapStyle == null){
-                Toast.makeText(getContext(), "Map was not loaded", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Map was not loaded, please check Internet Connection", Toast.LENGTH_LONG).show();
             } else {
                 //Check if GPS is enabled
                 LocationManager locationManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
