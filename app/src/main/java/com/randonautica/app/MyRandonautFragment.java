@@ -1026,7 +1026,7 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
             //Set Quantum Entropy after background task is done
             progressdialog.dismiss();
             if(result != null ){
-                setQuantumEntropy(result.length(), hitBooks(Integer.parseInt(result)), "Temporal");
+                setQuantumEntropy(result.length(), result, "Temporal");
             } else {
                 generateEntropy.onCreateDialogErrorGettingEntropy(getContext());
             }
