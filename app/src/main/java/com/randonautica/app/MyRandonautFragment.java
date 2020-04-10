@@ -56,7 +56,6 @@ import com.randonautica.app.Interfaces.RandoWrapperApi;
 import com.randonautica.app.Interfaces.RandonautAttractorListener;
 import com.randonautica.app.Interfaces.RandonautEntropyListener;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -118,16 +117,17 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
     //Message to mainactivity
     MainActivityMessage SM;
 
-    //Preferences Dialog variables
+    //Preferences Dialogs
     Dialog preferencesDialog;
+    Dialog setIntentionDialog;
+    Dialog setTemporalDialog;
+
+    //Preferences Explanation Dialogs
     Dialog explanationDialog;
     Dialog rngExplanationDialog;
     Dialog temporalExplanationDialog;
 
-    //Preferences Dialog
-    Dialog setIntentionDialog;
-    Dialog setTemporalDialog;
-
+    //Preference Variables
     private int distance;
     private TextView textViewProgress;
     private SeekBar seekBarProgress;
@@ -151,7 +151,7 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
     //Selected Option
     private String selected;
 
-    //Initialize Class objects
+    //Initialize ProgressDialog
     ProgressDialog progressdialog;
 
     /** create view */
@@ -241,7 +241,6 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
         Mapbox.getInstance(getContext(), new String(Base64.decode(getApiKey(),Base64.DEFAULT)));
 
     }
-
 
     public void setPreferencesAlertDialog(){
         preferencesDialog = new Dialog(getContext());
@@ -345,98 +344,6 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
 
     }
 
-    public void setExplanationDialog(){
-        explanationDialog = new Dialog(getActivity());
-        explanationDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        explanationDialog.setContentView(R.layout.dialog_explanation);
-
-        int  textColor = getResources().getColor(R.color.navSelected);
-
-        String text = "<font color="+textColor+">These are ways the algorithm reads the quantumly randomized information to generate a point<br></br> for you to travel to.</font>";
-
-        TextView textViewExplanationTop = (TextView) explanationDialog.findViewById(R.id.textViewExplanationTop);
-        textViewExplanationTop.setText(Html.fromHtml(text));
-
-        ImageView imageExplanationCloseButton = (ImageView) explanationDialog.findViewById(R.id.imageExplanationCloseButton);
-
-        imageExplanationCloseButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                explanationDialog.cancel();
-                setPreferencesAlertDialog();
-            }
-        });
-
-        explanationDialog.show();
-
-    }
-
-    public void setRNGExplanationDialog(){
-        rngExplanationDialog = new Dialog(getActivity());
-        rngExplanationDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        rngExplanationDialog.setContentView(R.layout.dialog_rngexplanation);
-
-        int  textColor = getResources().getColor(R.color.navSelected);
-
-        String ANU = "<font color="+textColor+"><b>ANU: </b>Australia National University's quantum random number generator</font>";
-        String ANULeftovers = "<font color="+textColor+"><b>ANU Leftovers: </b>Mixed intentions from unused ANU entropy</font>";
-        String TemporalRNG = "<font color="+textColor+"><b>Temporal: </b>Steve divulges entropy using the phone\'s CPU clock</font>";
-        String CameraRNG = "<font color="+textColor+"><b>Camera: </b>Generates entropy from your camera (best try keeping the camera on a still surface - although the jury is still out on that!)</font>";
-
-        TextView ANUExplanation = (TextView) rngExplanationDialog.findViewById(R.id.textViewANUExplanation);
-        TextView ANULeftoversExplanation = (TextView) rngExplanationDialog.findViewById(R.id.textViewANULeftoversExplanation);
-        TextView TemporalRNGExplanation = (TextView) rngExplanationDialog.findViewById(R.id.textViewTemporalRNGExplanation);
-        TextView CameraRNGExplanation = (TextView) rngExplanationDialog.findViewById(R.id.textViewCameraRNGExplanation);
-
-        ANUExplanation.setText(Html.fromHtml(ANU));
-        ANULeftoversExplanation.setText(Html.fromHtml(ANULeftovers));
-        TemporalRNGExplanation.setText(Html.fromHtml(TemporalRNG));
-        CameraRNGExplanation.setText(Html.fromHtml(CameraRNG));
-
-        ImageView imageRNGExplanationCloseButton = (ImageView) rngExplanationDialog.findViewById(R.id.imageRNGExplanationCloseButton);
-
-        imageRNGExplanationCloseButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                rngExplanationDialog.cancel();
-                setRngPreferencesDialog();
-            }
-        });
-
-        rngExplanationDialog.show();
-
-    }
-
-    public void setTemporalExplanationDialog(){
-        temporalExplanationDialog = new Dialog(getActivity());
-        temporalExplanationDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        temporalExplanationDialog.setContentView(R.layout.dialog_temporalexplanation);
-
-        int  textColor = getResources().getColor(R.color.navSelected);
-
-        String Internet = "<font color="+textColor+"><b>Internet: </b>Steve, who is physically connected to the server\'s brain via a quartz crystal clock, will divulge temporal randomness</font>";
-        String Local = "<font color="+textColor+"><b>Local: </b>Steve divulges entropy using the phone's CPU clock</font>";
-
-        TextView internetExplanation = (TextView) temporalExplanationDialog.findViewById(R.id.textViewInternetExplanation);
-        TextView localExplanation = (TextView) temporalExplanationDialog.findViewById(R.id.textViewLocalExplanation);
-
-        internetExplanation.setText(Html.fromHtml(Internet));
-        localExplanation.setText(Html.fromHtml(Local));
-
-        ImageView imageTemporalExplanationCloseButton = (ImageView) temporalExplanationDialog.findViewById(R.id.imageTemporalExplanationCloseButton);
-
-        imageTemporalExplanationCloseButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                temporalExplanationDialog.cancel();
-                setTemporalDialog();
-            }
-        });
-
-        temporalExplanationDialog.show();
-
-    }
-
     public Dialog setRngPreferencesDialog(){
         preferencesDialog = new Dialog(getActivity());
         preferencesDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -450,7 +357,7 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
         //Toggle Buttons
         QuantumToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.AnuToggleButton);
         PoolToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.PoolToggleButton);
-       // GCPToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.gcpToggleButton);
+        // GCPToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.gcpToggleButton);
         TemporalToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.tmprngToggleButton);
         CameraToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.cmrngToggleButton);
 
@@ -630,11 +537,9 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
                                 new RandonautEntropyListener() {
                                     @Override
                                     public void onData(String entropySizeNeeded) {
-                                        Log.d("test", entropySizeNeeded);
-
+                                        //Upload Entropy and Generate Attractors in Background Task
                                         generatingTemporalEntropyAsync asyncTask=new generatingTemporalEntropyAsync();
                                         asyncTask.execute(entropySizeNeeded);
-
                                     }
                                     @Override
                                     public void onFailed() {
@@ -660,30 +565,96 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
 
     }
 
-    private class generatingTemporalEntropyAsync extends AsyncTask<String, String, String> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            //Start ProgressDialog generating Temporal
-            progressdialog = new ProgressDialog(getContext());
-            progressdialog.setMessage("Generating Temporal entropy. Please wait....");
-            progressdialog.show();
-            progressdialog.setCancelable(false);
-            progressdialog.setCanceledOnTouchOutside(false);
+    public void setExplanationDialog(){
+        explanationDialog = new Dialog(getActivity());
+        explanationDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        explanationDialog.setContentView(R.layout.dialog_explanation);
 
-        }
-        @Override
-        protected String doInBackground(String... strings) {
-            //Strings[0] is passed entropySize
-            String temporalEntropy = hitBooks(Integer.parseInt(strings[0])); //Let Steve hit the library
-            return temporalEntropy;
-        }
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            //Set Quantum Entropy after background task is done
-            setQuantumEntropy(result.length(), hitBooks(Integer.parseInt(result)), "Temporal");
-        }
+        int  textColor = getResources().getColor(R.color.navSelected);
+
+        String text = "<font color="+textColor+">These are ways the algorithm reads the quantumly randomized information to generate a point<br></br> for you to travel to.</font>";
+
+        TextView textViewExplanationTop = (TextView) explanationDialog.findViewById(R.id.textViewExplanationTop);
+        textViewExplanationTop.setText(Html.fromHtml(text));
+
+        ImageView imageExplanationCloseButton = (ImageView) explanationDialog.findViewById(R.id.imageExplanationCloseButton);
+
+        imageExplanationCloseButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                explanationDialog.cancel();
+                setPreferencesAlertDialog();
+            }
+        });
+
+        explanationDialog.show();
+
+    }
+
+    public void setRNGExplanationDialog(){
+        rngExplanationDialog = new Dialog(getActivity());
+        rngExplanationDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        rngExplanationDialog.setContentView(R.layout.dialog_rngexplanation);
+
+        int  textColor = getResources().getColor(R.color.navSelected);
+
+        String ANU = "<font color="+textColor+"><b>ANU: </b>Australia National University's quantum random number generator</font>";
+        String ANULeftovers = "<font color="+textColor+"><b>ANU Leftovers: </b>Mixed intentions from unused ANU entropy</font>";
+        String TemporalRNG = "<font color="+textColor+"><b>Temporal: </b>Steve divulges entropy using the phone\'s CPU clock</font>";
+        String CameraRNG = "<font color="+textColor+"><b>Camera: </b>Generates entropy from your camera (best try keeping the camera on a still surface - although the jury is still out on that!)</font>";
+
+        TextView ANUExplanation = (TextView) rngExplanationDialog.findViewById(R.id.textViewANUExplanation);
+        TextView ANULeftoversExplanation = (TextView) rngExplanationDialog.findViewById(R.id.textViewANULeftoversExplanation);
+        TextView TemporalRNGExplanation = (TextView) rngExplanationDialog.findViewById(R.id.textViewTemporalRNGExplanation);
+        TextView CameraRNGExplanation = (TextView) rngExplanationDialog.findViewById(R.id.textViewCameraRNGExplanation);
+
+        ANUExplanation.setText(Html.fromHtml(ANU));
+        ANULeftoversExplanation.setText(Html.fromHtml(ANULeftovers));
+        TemporalRNGExplanation.setText(Html.fromHtml(TemporalRNG));
+        CameraRNGExplanation.setText(Html.fromHtml(CameraRNG));
+
+        ImageView imageRNGExplanationCloseButton = (ImageView) rngExplanationDialog.findViewById(R.id.imageRNGExplanationCloseButton);
+
+        imageRNGExplanationCloseButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                rngExplanationDialog.cancel();
+                setRngPreferencesDialog();
+            }
+        });
+
+        rngExplanationDialog.show();
+
+    }
+
+    public void setTemporalExplanationDialog(){
+        temporalExplanationDialog = new Dialog(getActivity());
+        temporalExplanationDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        temporalExplanationDialog.setContentView(R.layout.dialog_temporalexplanation);
+
+        int  textColor = getResources().getColor(R.color.navSelected);
+
+        String Internet = "<font color="+textColor+"><b>Internet: </b>Steve, who is physically connected to the server\'s brain via a quartz crystal clock, will divulge temporal randomness</font>";
+        String Local = "<font color="+textColor+"><b>Local: </b>Steve divulges entropy using the phone's CPU clock</font>";
+
+        TextView internetExplanation = (TextView) temporalExplanationDialog.findViewById(R.id.textViewInternetExplanation);
+        TextView localExplanation = (TextView) temporalExplanationDialog.findViewById(R.id.textViewLocalExplanation);
+
+        internetExplanation.setText(Html.fromHtml(Internet));
+        localExplanation.setText(Html.fromHtml(Local));
+
+        ImageView imageTemporalExplanationCloseButton = (ImageView) temporalExplanationDialog.findViewById(R.id.imageTemporalExplanationCloseButton);
+
+        imageTemporalExplanationCloseButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                temporalExplanationDialog.cancel();
+                setTemporalDialog();
+            }
+        });
+
+        temporalExplanationDialog.show();
+
     }
 
     public void setTemporalDialog(){
@@ -1022,6 +993,44 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
         } else {
             permissionsManager = new PermissionsManager(this);
             permissionsManager.requestLocationPermissions(getActivity());
+        }
+    }
+
+    private class generatingTemporalEntropyAsync extends AsyncTask<String, String, String> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            //Start ProgressDialog generating Temporal
+            progressdialog = new ProgressDialog(getContext());
+            progressdialog.setMessage("Generating Temporal entropy. Please wait....");
+            progressdialog.show();
+            progressdialog.setCancelable(false);
+            progressdialog.setCanceledOnTouchOutside(false);
+
+        }
+        @Override
+        protected String doInBackground(String... strings) {
+            try {
+                //Strings[0] is passed entropySize
+                Log.d("generating", "Start");
+                String temporalEntropy = hitBooks(Integer.parseInt(strings[0]));
+                Log.d("generating", "Generated " + temporalEntropy.length() + " Entropy");
+                return temporalEntropy;
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            //Set Quantum Entropy after background task is done
+            progressdialog.dismiss();
+            if(result != null ){
+                setQuantumEntropy(result.length(), hitBooks(Integer.parseInt(result)), "Temporal");
+            } else {
+                generateEntropy.onCreateDialogErrorGettingEntropy(getContext());
+            }
+
         }
     }
 
