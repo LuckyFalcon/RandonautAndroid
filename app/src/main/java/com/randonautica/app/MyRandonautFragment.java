@@ -12,7 +12,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -538,8 +537,9 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
                                     @Override
                                     public void onData(String entropySizeNeeded) {
                                         //Upload Entropy and Generate Attractors in Background Task
-                                        generatingTemporalEntropyAsync asyncTask=new generatingTemporalEntropyAsync();
+                                        generatingTemporalEntropyAsync asyncTask = new generatingTemporalEntropyAsync();
                                         asyncTask.execute(entropySizeNeeded);
+
                                     }
                                     @Override
                                     public void onFailed() {
@@ -670,6 +670,9 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
         temporalInternetToggleButton.setOnCheckedChangeListener(temporalChangeChecker);
         temporalLocalToggleButton.setOnCheckedChangeListener(temporalChangeChecker);
 
+        //Set Temporal Internet as default button
+        temporalInternetToggleButton.setChecked(true);
+
         //Buttons
         Button next = (Button) setTemporalDialog.findViewById(R.id.temporalDialogNextButton);
         Button previous = (Button) setTemporalDialog.findViewById(R.id.temporalDialogPreviousButton);
@@ -798,6 +801,8 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
     };
 
     public void setQuantumEntropy(int size, String Entropy, String rngType){
+
+
 
         //Start ProgressDialog
         progressdialog = new ProgressDialog(this.getContext());
@@ -997,6 +1002,8 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
     }
 
     private class generatingTemporalEntropyAsync extends AsyncTask<String, String, String> {
+
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -1012,9 +1019,7 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
         protected String doInBackground(String... strings) {
             try {
                 //Strings[0] is passed entropySize
-                Log.d("generating", "Start");
                 String temporalEntropy = hitBooks(Integer.parseInt(strings[0]));
-                Log.d("generating", "Generated " + temporalEntropy.length() + " Entropy");
                 return temporalEntropy;
             } catch (Exception e) {
                 return null;
@@ -1023,8 +1028,9 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            //Set Quantum Entropy after background task is done
             progressdialog.dismiss();
+
+            //Set Quantum Entropy after background task is done
             if(result != null ){
                 setQuantumEntropy(result.length(), result, "Temporal");
             } else {
