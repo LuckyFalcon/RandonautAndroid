@@ -255,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
 
         //Checks if size was 0, which means it was cancelled
         if(size != 0){
-            randonautfragment.setQuantumEntropy(size, entropy);
+            randonautfragment.setQuantumEntropy(size, entropy, "Camera");
         }
 
         fragmentManager.beginTransaction()
