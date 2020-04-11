@@ -35,7 +35,7 @@ Java_com_randonautica_app_MyRandonautFragment_hitBooks(JNIEnv *env, jobject inst
         hex_steve[i++] = hex_digits[c & 15];
     }
 
-    //__android_log_print(ANDROID_LOG_VERBOSE, "SteveLib", "returning: %s", hex_steve.c_str());
+    __android_log_print(ANDROID_LOG_VERBOSE, "SteveLib", "returning: %s", hex_steve.c_str());
 
     return env->NewStringUTF(hex_steve.c_str()); // this copies the string. No need to free anything then!
 }
