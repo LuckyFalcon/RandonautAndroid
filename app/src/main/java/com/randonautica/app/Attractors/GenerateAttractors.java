@@ -626,6 +626,7 @@ public class GenerateAttractors extends Activity {
                 } else {
                     seed = 23;
                 }
+
                 Call<List<PseudoAttractor>> callGetPsuedo = randoWrapperApi.getPsuedo(N,
                         mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), distance, seed, 4);
 
