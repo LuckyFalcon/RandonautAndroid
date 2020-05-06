@@ -4,7 +4,7 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 
 public class SingleRecyclerViewLocation {
 
-    private int type;
+    private double type;
 
     private double radiusm;
     private double  power;
@@ -13,11 +13,11 @@ public class SingleRecyclerViewLocation {
 
     private LatLng locationCoordinates;
 
-    public int getType() {
+    public double getType() {
         return type;
     }
 
-    public void setType(int name) {
+    public void setType(double name) {
         this.type = name;
     }
 

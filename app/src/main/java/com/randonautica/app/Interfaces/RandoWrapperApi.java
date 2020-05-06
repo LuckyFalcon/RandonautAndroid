@@ -2,6 +2,8 @@ package com.randonautica.app.Interfaces;
 
 import com.randonautica.app.Interfaces.API_Classes.Attractors;
 import com.randonautica.app.Interfaces.API_Classes.Entropy;
+import com.randonautica.app.Interfaces.API_Classes.GoAttractors;
+import com.randonautica.app.Interfaces.API_Classes.Point;
 import com.randonautica.app.Interfaces.API_Classes.Pools;
 import com.randonautica.app.Interfaces.API_Classes.PseudoAttractor;
 import com.randonautica.app.Interfaces.API_Classes.SendEntropy;
@@ -39,13 +41,13 @@ public interface RandoWrapperApi {
     Call<SendReport.Response> postJson(@Body RequestBody params);
 
     @GET("attractors")
-    Call<List<Attractors>> getAttractors(@Query("gid") String gid,
-                                         @Query("center[0]") double  center0,
-                                         @Query("center[1]") double center1,
-                                         @Query("radius") int radius,
-                                         @Query("pool") boolean pool,
-                                         @Query("temporal") boolean temporal,
-                                         @Query("gcp") boolean gcp);
+    Call<GoAttractors> getAttractors(@Query("gid") String gid,
+                                     @Query("center[0]") double  center0,
+                                     @Query("center[1]") double center1,
+                                     @Query("radius") int radius,
+                                     @Query("pool") boolean pool,
+                                     @Query("temporal") boolean temporal,
+                                     @Query("gcp") boolean gcp);
 
     @GET("pseudo")
     Call<List<PseudoAttractor>> getPsuedo(@Query("n") int n,

@@ -1,8 +1,9 @@
 package com.randonautica.app.Classes;
 
+
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
-public class AttractorLocation implements Comparable<AttractorLocation> {
+public class PseudoAttractorLocation {
 
     private LatLng coordinate;
 
@@ -36,13 +37,13 @@ public class AttractorLocation implements Comparable<AttractorLocation> {
 
     private double probability_single;
 
-    private double integral_score;
+    private double doubleegral_score;
 
     private double significance;
 
     private double probability;
 
-    private int FILTERING_SIGNIFICANCE;
+    private double FILTERING_SIGNIFICANCE;
 
     private double type;
 
@@ -116,8 +117,8 @@ public class AttractorLocation implements Comparable<AttractorLocation> {
         return probability_single;
     }
 
-    public double getIntegral_score() {
-        return integral_score;
+    public double getdoubleegral_score() {
+        return doubleegral_score;
     }
 
     public double getSignificance() {
@@ -128,7 +129,7 @@ public class AttractorLocation implements Comparable<AttractorLocation> {
         return probability;
     }
 
-    public int getFILTERING_SIGNIFICANCE() {
+    public double getFILTERING_SIGNIFICANCE() {
         return FILTERING_SIGNIFICANCE;
     }
 
@@ -152,7 +153,7 @@ public class AttractorLocation implements Comparable<AttractorLocation> {
         return z_score;
     }
 
-    public AttractorLocation(LatLng coordinate, double GID, double TID, double LID, double x, double y, double distance, double initialBearing, double finalBearing, double side, double distanceErr, double radiusM, double n, double mean, double rarity, double power_old, double probability_single, double integral_score, double significance, double probability, int FILTERING_SIGNIFICANCE, double type, double radiusm, double power, double z_score) {
+    public PseudoAttractorLocation(LatLng coordinate, double GID, double TID, double LID, double x, double y, double distance, double initialBearing, double finalBearing, double side, double distanceErr, double radiusM, double n, double mean, double rarity, double power_old, double probability_single, double doubleegral_score, double significance, double probability, double FILTERING_SIGNIFICANCE, double type, double radiusm, double power, double z_score) {
         this.coordinate = coordinate;
         this.GID = GID;
         this.TID = TID;
@@ -170,7 +171,7 @@ public class AttractorLocation implements Comparable<AttractorLocation> {
         this.rarity = rarity;
         this.power_old = power_old;
         this.probability_single = probability_single;
-        this.integral_score = integral_score;
+        this.doubleegral_score = doubleegral_score;
         this.significance = significance;
         this.probability = probability;
         this.FILTERING_SIGNIFICANCE = FILTERING_SIGNIFICANCE;
@@ -180,9 +181,7 @@ public class AttractorLocation implements Comparable<AttractorLocation> {
         this.z_score = z_score;
     }
 
-    @Override
-    public int compareTo(AttractorLocation o) {
-        return 0;
-    }
+
 }
+
 

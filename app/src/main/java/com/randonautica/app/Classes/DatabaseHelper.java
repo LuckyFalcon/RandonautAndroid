@@ -155,7 +155,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public boolean addData(String table,double x, double y, String GID, String TID, String LID, double x_, double y_, double distance, double initialBearing, double finalBearing, int side, double distanceErr, double radiusM, int n, double mean, int rarity, double power_old, double probability_single, double integral_score, double significance, double probability, int FILTERING_SIGNIFICANCE, int type, double radiusm, double power, double z_score,double pseudo, int report) {
+    public boolean addData(String table, double x, double y, Double GID, Double TID, Double LID, double x_, double y_, double distance, double initialBearing, double finalBearing, Double side, double distanceErr, double radiusM, Double n, double mean, Double rarity, double power_old, double probability_single, double integral_score, double significance, double probability, double FILTERING_SIGNIFICANCE, double type, double radiusm, double power, double z_score, double pseudo, int report) {
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();

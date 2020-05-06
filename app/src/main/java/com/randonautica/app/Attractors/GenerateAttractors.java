@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
@@ -15,8 +16,10 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.randonautica.app.Classes.AttractorLocation;
 import com.randonautica.app.Classes.DatabaseHelper;
+import com.randonautica.app.Classes.PseudoAttractorLocation;
 import com.randonautica.app.Classes.SingleRecyclerViewLocation;
-import com.randonautica.app.Interfaces.API_Classes.Attractors;
+import com.randonautica.app.Interfaces.API_Classes.GoAttractors;
+import com.randonautica.app.Interfaces.API_Classes.Point;
 import com.randonautica.app.Interfaces.API_Classes.PseudoAttractor;
 import com.randonautica.app.Interfaces.API_Classes.Sizes;
 import com.randonautica.app.Interfaces.RandoWrapperApi;
@@ -80,57 +83,58 @@ public class GenerateAttractors extends Activity {
 
         randoWrapperApi = retrofit.create(RandoWrapperApi.class);
 
-        Call<List<Attractors>> callGetAttractors = randoWrapperApi.getAttractors(GID,
+        Call<GoAttractors> callGetAttractors = randoWrapperApi.getAttractors(GID,
                 mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), distance, pool, temporal, gcp);
 
-        callGetAttractors.enqueue(new Callback<List<Attractors>>() {
+        callGetAttractors.enqueue(new Callback<GoAttractors>() {
             @Override
-            public void onResponse(Call<List<Attractors>> call, Response<List<Attractors>> response) {
+            public void onResponse(Call<GoAttractors> call, Response<GoAttractors> response) {
 
                 int i = 0;
                 int count = 0;
                 int amount = 0;
-
-                for(Attractors attractors: response.body()){
+                for(Point attractors: response.body().getPoints()){
                     count ++;
                 }
 
                 AttractorLocation attractorLocations[] =new AttractorLocation[count];
 
-                for(Attractors attractors: response.body()){
+                for(int attractorcount = 0; attractorcount < count; attractorcount++){
 
                     //First Part
-                    String GID = attractors.getAttractors().getGID();
-                    String TID = attractors.getAttractors().getTID();
-                    String LID = attractors.getAttractors().getLID();
-                    int type = attractors.getAttractors().getType();
-                    double x_ = attractors.getAttractors().getX();
-                    double y_ = attractors.getAttractors().getY();
+                    double GID = response.body().getPoints().get(attractorcount).getGID();
+                    double TID = response.body().getPoints().get(attractorcount).getTID();
+                    double LID = response.body().getPoints().get(attractorcount).getLID();
+                    double type = response.body().getPoints().get(attractorcount).getType();
+                    double x_ = response.body().getPoints().get(attractorcount).getX();
+                    double y_ = response.body().getPoints().get(attractorcount).getY();
 
 
                     //Second part
-                    double x = attractors.getAttractors().getCenter().getLatlng().getPoint().getLatitude(); //Used in map
-                    double y = attractors.getAttractors().getCenter().getLatlng().getPoint().getLongitude(); //Used in map
+                    double x = response.body().getPoints().get(attractorcount).getCenter().getPoint().getLatitude(); //Used in map
+                    double y = response.body().getPoints().get(attractorcount).getCenter().getPoint().getLongitude(); //Used in map
 
-                    double distance = attractors.getAttractors().getCenter().getLatlng().getBearing().getDistance();
-                    double initialBearing = attractors.getAttractors().getCenter().getLatlng().getBearing().getInitialBearing();
-                    double finalBearing = attractors.getAttractors().getCenter().getLatlng().getBearing().getFinalBearing();
+                    double distance = response.body().getPoints().get(attractorcount).getCenter().getBearing().getDistance();
+                    double initialBearing = response.body().getPoints().get(attractorcount).getCenter().getBearing().getInitialBearing();
+                    double finalBearing = response.body().getPoints().get(attractorcount).getCenter().getBearing().getFinalBearing();
 
                     //Third part
-                    int side = attractors.getAttractors().getSide();
-                    double distanceErr = attractors.getAttractors().getDistanceErr();
-                    double radiusM = attractors.getAttractors().getRadiusM();
-                    int n = attractors.getAttractors().getN();
-                    double mean = attractors.getAttractors().getMean();
-                    int rarity = attractors.getAttractors().getRarity();
-                    double power_old = attractors.getAttractors().getPower_old();
-                    double power = attractors.getAttractors().getPower();
-                    double z_score = attractors.getAttractors().getZ_score();
-                    double probability_single = attractors.getAttractors().getProbability_single();
-                    double integral_score = attractors.getAttractors().getIntegral_score();
-                    double significance = attractors.getAttractors().getSignificance();
-                    double probability = attractors.getAttractors().getProbability();
-                    int FILTERING_SIGNIFICANCE = attractors.getAttractors().getFILTERING_SIGNIFICANCE();
+                    double side = response.body().getPoints().get(attractorcount).getSide();
+                    double distanceErr = response.body().getPoints().get(attractorcount).getDistanceErr();
+                    double radiusM = response.body().getPoints().get(attractorcount).getRadiusM();
+                    double n = response.body().getPoints().get(attractorcount).getN();
+                    double mean = response.body().getPoints().get(attractorcount).getMean();
+                    double rarity = response.body().getPoints().get(attractorcount).getRarity();
+                    double power_old = response.body().getPoints().get(attractorcount).getPowerOld();
+                    double power = response.body().getPoints().get(attractorcount).getPower();
+                    double z_score = response.body().getPoints().get(attractorcount).getZScore();
+                    double probability_single = response.body().getPoints().get(attractorcount).getProbabilitySingle();
+                    double integral_score = response.body().getPoints().get(attractorcount).getIntegralScore();
+                    double significance = response.body().getPoints().get(attractorcount).getSignificance();
+                    double probability = response.body().getPoints().get(attractorcount).getProbability();
+
+                    //#TODO: FIX FILTERING SIGNIFICANCE IN GOWRAPPER
+                    int FILTERING_SIGNIFICANCE = 4;
 
                     attractorLocations[i]=new AttractorLocation(new LatLng(x, y), GID,  TID,  LID,  x_,  y_,  distance,  initialBearing,  finalBearing, side,  distanceErr,  radiusM, n,  mean, rarity,  power_old,  probability_single,  integral_score,  significance,  probability, FILTERING_SIGNIFICANCE, type, radiusM,  power,  z_score);
 
@@ -349,7 +353,7 @@ public class GenerateAttractors extends Activity {
             }
 
             @Override
-            public void onFailure(Call<List<Attractors>> call, Throwable t) {
+            public void onFailure(Call<GoAttractors> call, Throwable t) {
                 progressdialog.dismiss();
                 onCreateDialog(context, selected);
             }
@@ -386,58 +390,57 @@ public class GenerateAttractors extends Activity {
 
         randoWrapperApi = retrofit.create(RandoWrapperApi.class);
 
-        Call<List<Attractors>> callGetAttractors = randoWrapperApi.getAttractors(GID,
+        Call<GoAttractors> callGetAttractors = randoWrapperApi.getAttractors(GID,
                 mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), distance, pool, temporal, gcp);
 
-        callGetAttractors.enqueue(new Callback<List<Attractors>>() {
+        callGetAttractors.enqueue(new Callback<GoAttractors>() {
             @Override
-            public void onResponse(Call<List<Attractors>> call, Response<List<Attractors>> response) {
+            public void onResponse(Call<GoAttractors> call, Response<GoAttractors> response) {
 
                 int i = 0;
                 int count = 0;
                 int amount = 0;
 
-                for(Attractors attractors: response.body()){
+                for(Point attractors: response.body().getPoints()){
                     count ++;
                 }
 
                 AttractorLocation attractorLocations[] =new AttractorLocation[count];
 
-                for(Attractors attractors: response.body()){
+                for(Point attractors: response.body().getPoints()){
 
                     //First Part
-                    String GID = attractors.getAttractors().getGID();
-                    String TID = attractors.getAttractors().getTID();
-                    String LID = attractors.getAttractors().getLID();
-                    int type = attractors.getAttractors().getType();
-                    double x_ = attractors.getAttractors().getX();
-                    double y_ = attractors.getAttractors().getY();
+                    double GID = attractors.getGID();
+                    double TID = attractors.getTID();
+                    double LID = attractors.getLID();
+                    double type = attractors.getType();
+                    double x_ = attractors.getX();
+                    double y_ = attractors.getY();
 
 
                     //Second part
-                    double x = attractors.getAttractors().getCenter().getLatlng().getPoint().getLatitude(); //Used in map
-                    double y = attractors.getAttractors().getCenter().getLatlng().getPoint().getLongitude(); //Used in map
+                    double x = attractors.getCenter().getPoint().getLatitude(); //Used in map
+                    double y = attractors.getCenter().getPoint().getLongitude(); //Used in map
 
-                    double distance = attractors.getAttractors().getCenter().getLatlng().getBearing().getDistance();
-                    double initialBearing = attractors.getAttractors().getCenter().getLatlng().getBearing().getInitialBearing();
-                    double finalBearing = attractors.getAttractors().getCenter().getLatlng().getBearing().getFinalBearing();
+                    double distance = attractors.getCenter().getBearing().getDistance();
+                    double initialBearing = attractors.getCenter().getBearing().getInitialBearing();
+                    double finalBearing = attractors.getCenter().getBearing().getFinalBearing();
 
                     //Third part
-                    int side = attractors.getAttractors().getSide();
-                    double distanceErr = attractors.getAttractors().getDistanceErr();
-                    double radiusM = attractors.getAttractors().getRadiusM();
-                    int n = attractors.getAttractors().getN();
-                    double mean = attractors.getAttractors().getMean();
-                    int rarity = attractors.getAttractors().getRarity();
-                    double power_old = attractors.getAttractors().getPower_old();
-                    double power = attractors.getAttractors().getPower();
-                    double z_score = attractors.getAttractors().getZ_score();
-                    double probability_single = attractors.getAttractors().getProbability_single();
-                    double integral_score = attractors.getAttractors().getIntegral_score();
-                    double significance = attractors.getAttractors().getSignificance();
-                    double probability = attractors.getAttractors().getProbability();
-                    int FILTERING_SIGNIFICANCE = attractors.getAttractors().getFILTERING_SIGNIFICANCE();
-
+                    double side = attractors.getSide();
+                    double distanceErr = attractors.getDistanceErr();
+                    double radiusM = attractors.getRadiusM();
+                    double n = attractors.getN();
+                    double mean = attractors.getMean();
+                    double rarity = attractors.getRarity();
+                    double power_old = attractors.getPowerOld();
+                    double power = attractors.getPower();
+                    double z_score = attractors.getZScore();
+                    double probability_single = attractors.getProbabilitySingle();
+                    double integral_score = attractors.getIntegralScore();
+                    double significance = attractors.getSignificance();
+                    double probability = attractors.getProbability();
+                    int FILTERING_SIGNIFICANCE = 4;
                     attractorLocations[i]=new AttractorLocation(new LatLng(x, y), GID,  TID,  LID,  x_,  y_,  distance,  initialBearing,  finalBearing, side,  distanceErr,  radiusM, n,  mean, rarity,  power_old,  probability_single,  integral_score,  significance,  probability, FILTERING_SIGNIFICANCE, type, radiusM,  power,  z_score);
 
                     if(type == 1){
@@ -575,7 +578,7 @@ public class GenerateAttractors extends Activity {
             }
 
             @Override
-            public void onFailure(Call<List<Attractors>> call, Throwable t) {
+            public void onFailure(Call<GoAttractors> call, Throwable t) {
                 progressdialog.dismiss();
             }
 
@@ -641,7 +644,7 @@ public class GenerateAttractors extends Activity {
                             count++;
                         }
 
-                        AttractorLocation attractorLocations[] = new AttractorLocation[count];
+                        PseudoAttractorLocation attractorLocations[] = new PseudoAttractorLocation[count];
 
 
                         for (PseudoAttractor psuedos : response.body()) {
@@ -650,7 +653,7 @@ public class GenerateAttractors extends Activity {
                             String GID = psuedos.getGID();
                             String TID = psuedos.getTID();
                             String LID = psuedos.getLID();
-                            int type = psuedos.getType();
+                            double type = psuedos.getType();
                             double x_ = psuedos.getX();
                             double y_ = psuedos.getY();
 
@@ -663,12 +666,12 @@ public class GenerateAttractors extends Activity {
                             double finalBearing = psuedos.getFinalBearing();
 
                             //Third part
-                            int side = psuedos.getSide();
+                            double side = psuedos.getSide();
                             double distanceErr = psuedos.getDistanceErr();
                             double radiusM = psuedos.getRadiusM();
-                            int n = psuedos.getN();
+                            double n = psuedos.getN();
                             double mean = psuedos.getMean();
-                            int rarity = psuedos.getRarity();
+                            double rarity = psuedos.getRarity();
                             double power_old = psuedos.getPower_old();
                             double power = psuedos.getPower();
                             double z_score = psuedos.getZ_score();
@@ -676,10 +679,10 @@ public class GenerateAttractors extends Activity {
                             double integral_score = psuedos.getIntegral_score();
                             double significance = psuedos.getSignificance();
                             double probability = psuedos.getProbability();
-                            int FILTERING_SIGNIFICANCE = psuedos.getFILTERING_SIGNIFICANCE();
+                            double FILTERING_SIGNIFICANCE = psuedos.getFILTERING_SIGNIFICANCE();
 
-                            attractorLocations[i]=new AttractorLocation(new LatLng(x, y), GID,  TID,  LID,  x_,  y_,  distance,  initialBearing,  finalBearing, side,  distanceErr,  radiusM, n,  mean, rarity,  power_old,  probability_single,  integral_score,  significance,  probability, FILTERING_SIGNIFICANCE, type, radiusM,  power,  z_score);
-
+                            //##TODO: FIX THE GID/TID/UID FOR PSEUDO AND ATTRACTORS
+                            attractorLocations[i]=new PseudoAttractorLocation(new LatLng(x, y), 3333,  3333,  3333,  x_,  y_,  distance,  initialBearing,  finalBearing, side,  distanceErr,  radiusM, n,  mean, rarity,  power_old,  probability_single,  integral_score,  significance,  probability, FILTERING_SIGNIFICANCE, type, radiusM,  power,  z_score);
 
                             if(type == 1) {
                                 mDatabaseHelper = new DatabaseHelper(context, attractorTable);
@@ -725,7 +728,7 @@ public class GenerateAttractors extends Activity {
                                         attractorLocations[i].getRarity(),
                                         attractorLocations[i].getPower_old(),
                                         attractorLocations[i].getProbability_single(),
-                                        attractorLocations[i].getIntegral_score(),
+                                        attractorLocations[i].getdoubleegral_score(),
                                         attractorLocations[i].getSignificance(),
                                         attractorLocations[i].getProbability(),
                                         attractorLocations[i].getFILTERING_SIGNIFICANCE(),
@@ -780,7 +783,7 @@ public class GenerateAttractors extends Activity {
                                         attractorLocations[i].getRarity(),
                                         attractorLocations[i].getPower_old(),
                                         attractorLocations[i].getProbability_single(),
-                                        attractorLocations[i].getIntegral_score(),
+                                        attractorLocations[i].getdoubleegral_score(),
                                         attractorLocations[i].getSignificance(),
                                         attractorLocations[i].getProbability(),
                                         attractorLocations[i].getFILTERING_SIGNIFICANCE(),
@@ -879,7 +882,8 @@ public class GenerateAttractors extends Activity {
     }
 
     //Write to Database
-    public void AddData (String table,double x, double y, String GID, String TID, String LID, double x_, double y_, double distance, double initialBearing, double finalBearing, int side, double distanceErr, double radiusM, int n, double mean, int rarity, double power_old, double probability_single, double integral_score, double significance, double probability, int FILTERING_SIGNIFICANCE, int type, double radiusm, double power, double z_score,double pseudo, int report) {
+    //#TODO: FIX THE GID/TID/LID
+    public void AddData (String table, double x, double y, double GID, double TID, double LID, double x_, double y_, double distance, double initialBearing, double finalBearing, Double side, double distanceErr, double radiusM, Double n, double mean, Double rarity, double power_old, double probability_single, double integral_score, double significance, double probability, double FILTERING_SIGNIFICANCE, double type, double radiusm, double power, double z_score, double pseudo, int report) {
         boolean insertData = mDatabaseHelper.addData(table, x,  y,  GID,  TID,  LID,  x_,  y_,  distance,  initialBearing,  finalBearing,  side,  distanceErr,  radiusM,  n,  mean,  rarity,  power_old,  probability_single,  integral_score,  significance,  probability,  FILTERING_SIGNIFICANCE,  type,  radiusm,  power,  z_score, pseudo,  report);
 
         if (insertData){
