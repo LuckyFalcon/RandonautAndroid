@@ -657,11 +657,21 @@ public class MyAnomalyListFragment extends Fragment {
                 "This will remove the old attractors from the map, do you wish to proceed?");
 
         Button okButton = (Button) reportDialog.findViewById(R.id.preferencesDialogStartButton);
+        Button cancelButton = (Button) reportDialog.findViewById(R.id.preferencesDialogCancelButton);
+
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 SM.sendData(type, power, x, y, radiusm, z_score, pseudo);
+                reportDialog.dismiss();
+
+            }
+        });
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
                 reportDialog.dismiss();
 
             }
