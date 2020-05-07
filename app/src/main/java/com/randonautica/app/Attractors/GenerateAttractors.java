@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.util.Base64;
-import android.util.Log;
 import android.view.View;
 
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
@@ -38,6 +37,11 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static java.lang.Math.atan2;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+import static java.lang.Math.sqrt;
+
 public class GenerateAttractors extends Activity {
 
     //Pseudo range
@@ -57,7 +61,7 @@ public class GenerateAttractors extends Activity {
     String anomalyTable = "Anomalies";
 
     public void getAttractors(final View view, final MapboxMap mapboxMap, final Context context,
-                              String GID, boolean pool, boolean temporal, boolean gcp, final String selected, int distance, final RandonautAttractorListener randonautDialogsListener){
+                              String GID, boolean pool, boolean temporal, boolean gcp, final String selected, final int distance, final RandonautAttractorListener randonautDialogsListener){
         //Empty previous run
         locationList = new ArrayList<>();
         mapboxMap.clear();
@@ -345,7 +349,7 @@ public class GenerateAttractors extends Activity {
                     MyRandonautFragment.resetButton.setVisibility(View.VISIBLE);
                 } else {
                     //Nothhing was found
-                    onCreateDialog(context, selected);
+                    createDialogEmptyResults(context, selected, mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), distance, randonautDialogsListener, mapboxMap);
                 }
 
                 //saveData();
@@ -355,7 +359,7 @@ public class GenerateAttractors extends Activity {
             @Override
             public void onFailure(Call<GoAttractors> call, Throwable t) {
                 progressdialog.dismiss();
-                onCreateDialog(context, selected);
+                createDialogEmptyResults(context, selected, mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), distance, randonautDialogsListener, mapboxMap);
             }
 
 
@@ -363,7 +367,7 @@ public class GenerateAttractors extends Activity {
     }
 
     public void getAttractorsFromSetEntropy(final View view, final MapboxMap mapboxMap, final Context context,
-                              String GID, boolean pool, boolean temporal, boolean gcp, final String selected, int distance, final RandonautAttractorListener randonautDialogsListener){
+                                            String GID, boolean pool, boolean temporal, boolean gcp, final String selected, final int distance, final RandonautAttractorListener randonautDialogsListener){
         //Empty previous run
         locationList = new ArrayList<>();
         mapboxMap.clear();
@@ -570,7 +574,7 @@ public class GenerateAttractors extends Activity {
                     MyRandonautFragment.resetButton.setVisibility(View.VISIBLE);
                 } else {
                     //Nothhing was found
-                    onCreateDialog(context, selected);
+                    createDialogEmptyResults(context, selected, mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), distance, randonautDialogsListener, mapboxMap);
                 }
 
                 //saveData();
@@ -580,6 +584,8 @@ public class GenerateAttractors extends Activity {
             @Override
             public void onFailure(Call<GoAttractors> call, Throwable t) {
                 progressdialog.dismiss();
+                createDialogEmptyResults(context, selected, mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), distance, randonautDialogsListener, mapboxMap);
+
             }
 
 
@@ -808,9 +814,12 @@ public class GenerateAttractors extends Activity {
                             MyRandonautFragment.resetButton.setVisibility(View.VISIBLE);
                         } else {
 
-                            onCreateDialog(context, selected);
+                            createDialogEmptyResults(context, selected, mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), distance, randonautDialogsListener, mapboxMap);
                         }
-                     //   saveData();
+                     //   saveData(); -> REMOVE later
+
+
+
                         progressdialog.dismiss();
 
 
@@ -818,7 +827,7 @@ public class GenerateAttractors extends Activity {
 
                     @Override
                     public void onFailure(Call<List<PseudoAttractor>> call, Throwable t) {
-                        onCreateDialog(context, selected);
+                        createDialogEmptyResults(context, selected, mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude(), distance, randonautDialogsListener, mapboxMap);
                         progressdialog.dismiss();
                     }
                 });
@@ -834,30 +843,96 @@ public class GenerateAttractors extends Activity {
         });
     }
 
-    public void onCreateDialog(Context context, String selected) {
+    public void createDialogEmptyResults(Context context, String selected, final double lat, final double lon, final int radius, final RandonautAttractorListener randonautDialogsListener, final MapboxMap mapboxMap) {
 
         new AlertDialog.Builder(context)
                 .setTitle("No " + selected + "s found")
-                .setMessage("Oops! No clear quantum points derived. Sometimes quantum generation takes a couple of tries. Go again!")
+                .setMessage("Oops! No clear quantum points derived. Sometimes quantum generation takes a couple of tries. Supplying a point for you instead.")
 
                 // Specifying a listener allows you to take an action before dismissing the dialog.
                 // The dialog is automatically dismissed when a dialog button is clicked.
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // Continue with delete operation
+                        // getQuantumRandom(lat, lon, radius);
+
+                        double[] testresutlt = getQuantumRandom(lat, lon, radius);
+                        mapboxMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(testresutlt[0], testresutlt[1]))
+                                .title("Pseudo Point"));
+
+//                        //Generate Circle
+//                        mapboxMap.addPolygon(generatePerimeter(
+//                                new LatLng(testresutlt[0], testresutlt[1]),
+//                                (attractorLocations[i].getRadiusM()/1000),
+//                                64));
+
+
+                        SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
+
+                        singleLocation.setType(0);
+                        singleLocation.setLocationCoordinates(new LatLng(testresutlt[0], testresutlt[1]));
+
+                        locationList.add(singleLocation);
+                        randonautDialogsListener.onData(locationList);
+                        MyRandonautFragment.startButton.setVisibility(View.GONE);
+                        //   navigateButton.setVisibility(View.VISIBLE);
+                        MyRandonautFragment.resetButton.setVisibility(View.VISIBLE);
+                        dialog.dismiss();
+
                     }
                 })
-
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
     }
 
+    
+
+    public static double[] getQuantumRandom(double lat, double lon, int radius){
+        double[] result = new double[2];
+
+        Boolean dnn = false;
+        while (dnn == false)
+        {
+            double lat01 = lat + radius * cos(180 * Math.PI / 180) / (6371000 * Math.PI / 180);
+            double dlat = ((lat + radius / (6371000 * Math.PI / 180)) - lat01) * 1000000;
+            double lon01 = lon + radius * sin(270 * Math.PI / 180) / cos(lat * Math.PI / 180) / (6371000 * Math.PI / 180);
+            double dlon = ((lon + radius * sin(90 * Math.PI / 180) / cos(lat * Math.PI / 180) / (6371000 * Math.PI / 180)) - lon01) * 1000000;
+            double lat1 = lat;
+            double lon1 = lon;
+            double rlat;
+            double rlon;
+            rlat = ThreadLocalRandom.current().nextInt(0, (int)dlat);
+            rlon = ThreadLocalRandom.current().nextInt(0, (int)dlon);
+            lat1 = lat01 + (rlat / 1000000);
+            lon1 = lon01 + (rlon / 1000000);
+            int dif = GetDistance(lat, lon, lat1, lon1);
+            if (dif > radius) { }
+            else
+            {
+                result[0] = lat1;
+                result[1] = lon1;
+                dnn = true;
+            }
+        }
+        return result;
+    }
+
+    public static int GetDistance(double lat0, double lon0, double lat1, double lon1){
+        double dlon = (lon1 - lon0) * Math.PI / 180;
+        double dlat = (lat1 - lat0) * Math.PI / 180;
+
+        double a = (sin(dlat / 2) * sin(dlat / 2)) + cos(lat0 * Math.PI / 180) * cos(lat1 * Math.PI / 180) * (sin(dlon / 2) * sin(dlon / 2));
+        double angle = 2 * atan2(sqrt(a), sqrt(1 - a));
+        return (int) (angle * 6371000);
+    }
+    
     /**
      * Draw circle on the mapview
      */
     public PolygonOptions generatePerimeter(LatLng centerCoordinates, double radiusInKilometers, int numberOfSides) {
         List<LatLng> positions = new ArrayList<>();
-        double distanceX = radiusInKilometers / (111.319 * Math.cos(centerCoordinates.getLatitude() * Math.PI / 180));
+        double distanceX = radiusInKilometers / (111.319 * cos(centerCoordinates.getLatitude() * Math.PI / 180));
         double distanceY = radiusInKilometers / 110.574;
 
         double slice = (2 * Math.PI) / numberOfSides;
@@ -868,8 +943,8 @@ public class GenerateAttractors extends Activity {
         LatLng position;
         for (int i = 0; i < numberOfSides; ++i) {
             theta = i * slice;
-            x = distanceX * Math.cos(theta);
-            y = distanceY * Math.sin(theta);
+            x = distanceX * cos(theta);
+            y = distanceY * sin(theta);
 
             position = new LatLng(centerCoordinates.getLatitude() + y,
                     centerCoordinates.getLongitude() + x);

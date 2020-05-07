@@ -13,6 +13,26 @@ public class SingleRecyclerViewLocation {
 
     private LatLng locationCoordinates;
 
+    private Double lan;
+
+    private Double lon;
+
+    public Double getLan() {
+        return lan;
+    }
+
+    public void setLan(Double lan) {
+        this.lan = lan;
+    }
+
+    public Double getLon() {
+        return lon;
+    }
+
+    public void setLon(Double lon) {
+        this.lon = lon;
+    }
+
     public double getType() {
         return type;
     }

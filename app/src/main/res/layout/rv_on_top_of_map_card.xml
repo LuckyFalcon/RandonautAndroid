@@ -51,7 +51,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
                     android:layout_marginRight="20dp"
-                    android:text="radiusm"
+                    android:text=""
                     android:textAlignment="center"
                     android:textColor="@color/buttonText" />
 
@@ -61,7 +61,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
                     android:layout_marginRight="20dp"
-                    android:text="power"
+                    android:text=""
                     android:textAlignment="center"
                     android:textColor="@color/buttonText" />
 
@@ -71,7 +71,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
                     android:layout_marginRight="20dp"
-                    android:text="z_score"
+                    android:text=""
                     android:textAlignment="center"
                     android:textColor="@color/buttonText" />
 

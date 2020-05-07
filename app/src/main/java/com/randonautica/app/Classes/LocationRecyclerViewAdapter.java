@@ -48,9 +48,22 @@ public class LocationRecyclerViewAdapter extends
     public void onBindViewHolder(final MyViewHolder holder, int position) {
         SingleRecyclerViewLocation singleRecyclerViewLocation = locationList.get(position);
         String type = "Attractor";
-        if (singleRecyclerViewLocation.getType() == 2) {
+        final Double latitude = singleRecyclerViewLocation.getLocationCoordinates().getLatitude();
+        final Double longitude = singleRecyclerViewLocation.getLocationCoordinates().getLongitude();
+
+        String radiusm = "Radius: " + (int) singleRecyclerViewLocation.getRadiusm();
+        String power = "Power: " + String.format("%.2f", singleRecyclerViewLocation.getPower());
+        String z_score = "Z Score: " + String.format("%.2f", singleRecyclerViewLocation.getZ_score());
+
+        if (singleRecyclerViewLocation.getType() == 0) {
+            type = "Pseudo Point";
+            radiusm = "Radius: Unknown";
+            power = "Power: Unknown";
+            z_score = "Z Score: Unknown";
+        } else if (singleRecyclerViewLocation.getType() == 2) {
             type = "Void";
         }
+        //Check for pseudo
         if (singleRecyclerViewLocation.isPsuedo()) {
             type = "Pseudo Attractor";
             if (singleRecyclerViewLocation.getType() == 2) {
@@ -58,11 +71,6 @@ public class LocationRecyclerViewAdapter extends
             }
         }
 
-        String radiusm = "Radius: " + (int) singleRecyclerViewLocation.getRadiusm();
-        String power = "Power: " + String.format("%.2f", singleRecyclerViewLocation.getPower());
-        String z_score = "Z Score: " + String.format("%.2f", singleRecyclerViewLocation.getZ_score());
-        final Double latitude = singleRecyclerViewLocation.getLocationCoordinates().getLatitude();
-        final Double longitude = singleRecyclerViewLocation.getLocationCoordinates().getLongitude();
         holder.type.setText(type);
         holder.radiusm.setText(radiusm);
         holder.power.setText(power);

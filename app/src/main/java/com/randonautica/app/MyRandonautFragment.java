@@ -267,8 +267,8 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
         PsuedoToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.PsuedoToggleButton);
 
         //Set Attractor as default button
-        PsuedoToggleButton.setChecked(true);
-        selected = "Pseudo";
+        AttractorToggleButton.setChecked(true);
+        selected = "Attractor";
 
         //Check for click
         AttractorToggleButton.setOnCheckedChangeListener(changeChecker);

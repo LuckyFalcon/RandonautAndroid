@@ -64,8 +64,7 @@
         android:text="Choose quantum point type:" />
 
     <ToggleButton
-        android:id="@+id/PsuedoToggleButton"
-
+        android:id="@+id/AttractorToggleButton"
         android:layout_width="249dp"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
@@ -76,13 +75,12 @@
         android:layout_marginLeft="24dp"
         android:layout_marginTop="28dp"
         android:textStyle="bold"
-
-        android:text="ToggleButton"
-        android:textOff="pseudo"
-        android:textOn="pseudo"/>
+        android:text="@string/menu_myAttractors"
+        android:textOff="attractor"
+        android:textOn="attractor" />
 
     <ToggleButton
-        android:id="@+id/AnomalyToggleButton"
+        android:id="@+id/VoidToggleButton"
         android:layout_width="251dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -94,11 +92,11 @@
         android:textStyle="bold"
         android:layout_marginRight="24dp"
         android:text="ToggleButton"
-        android:textOff="Anomaly"
-        android:textOn="Anomaly"/>
+        android:textOff="VOID"
+        android:textOn="VOID" />
 
     <ToggleButton
-        android:id="@+id/AttractorToggleButton"
+        android:id="@+id/AnomalyToggleButton"
         android:layout_width="251dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -109,12 +107,12 @@
         android:layout_marginEnd="22dp"
         android:textStyle="bold"
         android:layout_marginRight="22dp"
-        android:text="@string/menu_myAttractors"
-        android:textOff="attractor"
-        android:textOn="attractor"/>
+        android:text="ToggleButton"
+        android:textOff="Anomaly"
+        android:textOn="Anomaly" />
 
     <ToggleButton
-        android:id="@+id/VoidToggleButton"
+        android:id="@+id/PsuedoToggleButton"
         android:layout_width="251dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -126,8 +124,8 @@
         android:layout_marginRight="22dp"
         android:textStyle="bold"
         android:text="ToggleButton"
-        android:textOff="VOID"
-        android:textOn="VOID"/>
+        android:textOff="pseudo"
+        android:textOn="pseudo"/>
 
     <TextView
         android:id="@+id/textViewSetRadius"
