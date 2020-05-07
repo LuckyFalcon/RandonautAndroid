@@ -847,7 +847,7 @@ public class GenerateAttractors extends Activity {
 
         new AlertDialog.Builder(context)
                 .setTitle("No " + selected + "s found")
-                .setMessage("Oops! No clear quantum points derived. Sometimes quantum generation takes a couple of tries. Supplying a point for you instead.")
+                .setMessage("No anomalies currently detected in the area, supplying a pseudo-point for you instead.")
 
                 // Specifying a listener allows you to take an action before dismissing the dialog.
                 // The dialog is automatically dismissed when a dialog button is clicked.
