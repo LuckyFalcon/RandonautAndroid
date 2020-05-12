@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.MenuItem;
@@ -26,6 +27,7 @@ import androidx.fragment.app.FragmentManager;
 import com.google.android.material.navigation.NavigationView;
 import com.randonautica.app.Interfaces.MainActivityMessage;
 
+import java.io.InputStream;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity implements MainActivityMessage, MyAttractorsListFragment.SendMessage, MyCamRngFragment.SendMessage,NavigationView.OnNavigationItemSelectedListener  {
@@ -193,6 +195,15 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
 
         TextView privacyPolicyTextView = (TextView) privacyPolicyDialog.findViewById(R.id.privacyTextView);
         privacyPolicyTextView.setMovementMethod(new ScrollingMovementMethod());
+
+        try {
+            Resources res = getResources(); InputStream in_s = res.openRawResource(R.raw.term);
+            byte[] b = new byte[in_s.available()];
+            in_s.read(b);
+            privacyPolicyTextView.setText(new String(b));
+        } catch (Exception e) {
+            privacyPolicyTextView.setText("Error: can't show terms.");
+        }
 
         //Button listener for yes
         yesAnwserButton.setOnClickListener(new View.OnClickListener() {
