@@ -202,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
             in_s.read(b);
             privacyPolicyTextView.setText(new String(b));
         } catch (Exception e) {
-            privacyPolicyTextView.setText("Error: can't show terms.");
+            privacyPolicyTextView.setText("https://bot.randonauts.com/privacy-and-terms.html");
         }
 
         //Button listener for yes
