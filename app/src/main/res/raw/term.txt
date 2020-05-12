@@ -1,7 +1,10 @@
-#### PRIVACY POLICY AND TERMS OF USE
-By using Randonautica you agree to the Terms of Use and Privacy Policy. 
+PRIVACY POLICY AND TERMS OF USE
 
-Randonautica uses truly randomized coordinates. It is the user’s responsibility and wholly at their own risk should they decide to physically travel to coordinates in the real world.  
+Brief:
+
+By using Randonautica you agree to the Terms of Use and Privacy Policy.
+
+Randonautica uses truly randomized coordinates. It is the user’s responsibility and wholly at their own risk should they decide to physically travel to coordinates in the real world.
 
 By using the Randonautica app, you do so at your own risk. Randonautica is not liable for any positive or adverse affects or consequences from the use of this platform.  
 
@@ -15,8 +18,7 @@ Any location data that you send is automatically deleted after 24 hours.  Anonym
 
 If you chose to write up a trip report, the report will be posted anonymously on the /r/randonaut_reports subreddit. Don't worry, we will never post your location, just the point generated.
 
-
-Linked (full)
+Full:
 
 1 Terms
 Welcome to RANDONAUTICA,  a real-world adventure game which uses quantum entropy to randomize and output coordinates for the user to journey to. RANDONAUTICA offers a reality driven experience after the user has derived coordinates within the apps ("Apps").  Please read these RANDONAUTICA Terms of Service and any applicable App guidelines (the “Guidelines” and, collectively, “the Terms”), because the Terms govern your use of the Apps. The Terms also govern your interaction and use of any RANDONAUTICA (owned by Randonaut, LLC)  products or services (together with Apps, the “Services”).
