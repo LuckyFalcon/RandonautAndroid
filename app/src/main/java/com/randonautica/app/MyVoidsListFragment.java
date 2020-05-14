@@ -494,7 +494,7 @@ public class MyVoidsListFragment extends Fragment {
                             .build();
 
                     Retrofit retrofit = new Retrofit.Builder()
-                            .baseUrl(new String(Base64.decode(MyRandonautFragment.getBaseApi(),Base64.DEFAULT)))
+                            .baseUrl(new String(Base64.decode(RandonautFragment.getBaseApi(),Base64.DEFAULT)))
                             .client(okHttpClient)
                             .addConverterFactory(GsonConverterFactory.create())
                             .build();

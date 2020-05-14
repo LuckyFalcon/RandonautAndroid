@@ -12,29 +12,27 @@ import android.widget.TextView;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.mapbox.mapboxsdk.camera.CameraPosition;
-import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
-import com.mapbox.mapboxsdk.geometry.LatLng;
-import com.mapbox.mapboxsdk.maps.MapboxMap;
+import com.google.android.gms.maps.GoogleMap;
 import com.randonautica.app.Interfaces.ItemClickListener;
-import com.randonautica.app.MyRandonautFragment;
 import com.randonautica.app.R;
+import com.randonautica.app.RandonautFragment;
 
 import java.util.List;
-
-import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
 public class LocationRecyclerViewAdapter extends
         RecyclerView.Adapter<LocationRecyclerViewAdapter.MyViewHolder> {
 
     private List<SingleRecyclerViewLocation> locationList;
-    private MapboxMap map;
+    private GoogleMap map;
+    private static final float DEFAULT_ZOOM = 15f;
+    private Context context;
 
     public LocationRecyclerViewAdapter(Context activity,
                                        List<SingleRecyclerViewLocation> locationList,
-                                       MapboxMap mapBoxMap) {
+                                       GoogleMap mapBoxMap) {
         this.locationList = locationList;
         this.map = mapBoxMap;
+        this.context = activity;
     }
 
     @Override
@@ -48,8 +46,8 @@ public class LocationRecyclerViewAdapter extends
     public void onBindViewHolder(final MyViewHolder holder, int position) {
         SingleRecyclerViewLocation singleRecyclerViewLocation = locationList.get(position);
         String type = "Attractor";
-        final Double latitude = singleRecyclerViewLocation.getLocationCoordinates().getLatitude();
-        final Double longitude = singleRecyclerViewLocation.getLocationCoordinates().getLongitude();
+        final Double latitude = singleRecyclerViewLocation.getLocationCoordinates().latitude;
+        final Double longitude = singleRecyclerViewLocation.getLocationCoordinates().longitude;
 
         String radiusm = "Radius: " + (int) singleRecyclerViewLocation.getRadiusm();
         String power = "Power: " + String.format("%.2f", singleRecyclerViewLocation.getPower());
@@ -79,12 +77,10 @@ public class LocationRecyclerViewAdapter extends
         holder.setClickListener(new ItemClickListener() {
             @Override
             public void onClick(View view, int position) {
-                LatLng selectedLocationLatLng = locationList.get(position).getLocationCoordinates();
-                CameraPosition newCameraPosition = new CameraPosition.Builder()
-                        .target(selectedLocationLatLng)
-                        .build();
-                map.easeCamera(CameraUpdateFactory.newCameraPosition(newCameraPosition));
-                Button newbutton = (Button) MyRandonautFragment.reportButton;
+
+                map.moveCamera(com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom(new com.google.android.gms.maps.model.LatLng(latitude, longitude), DEFAULT_ZOOM));
+
+                Button newbutton = (Button) RandonautFragment.reportButton;
                 newbutton.setVisibility(View.VISIBLE);
 
                 newbutton.setOnClickListener(new View.OnClickListener() {
@@ -92,14 +88,14 @@ public class LocationRecyclerViewAdapter extends
                         Intent intent = null;
                         try {
                             // Google maps app
-                            getApplicationContext().getPackageManager().getPackageInfo("com.google.android.apps.maps", 0);
+                            context.getApplicationContext().getPackageManager().getPackageInfo("com.google.android.apps.maps", 0);
                             intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/place/" + latitude + "+" + longitude + "/@" + latitude + "+" + longitude + ",14z"));
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         } catch (Exception e) {
                             // Maps in Browser
                             intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/place/" + latitude + "+" + longitude + "/@" + latitude + "+" + longitude + ",14z"));
                         }
-                        getApplicationContext().startActivity(intent);
+                        context.getApplicationContext().startActivity(intent);
 
                     }
                 });

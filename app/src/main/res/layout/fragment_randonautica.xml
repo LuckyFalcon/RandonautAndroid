@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    android:background="@color/colorBackground">
+
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_on_top_of_map"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="120dp">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/startButton"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="336dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="41dp"
+        android:text="@string/randonaut_button"
+        android:textColor="@color/buttonText"
+        mapbox:backgroundTint="@color/buttonColor" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/reportButton"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="336dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="70dp"
+        android:text="@string/google_maps_button"
+        android:textColor="@color/buttonText"
+        android:visibility="gone"
+        mapbox:backgroundTint="@color/buttonColor" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/resetRandonaut"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="336dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="21dp"
+        android:text="@string/reset_button"
+        android:textColor="@color/buttonText"
+        android:visibility="gone"
+        mapbox:backgroundTint="@color/buttonColor" />
+
+
+</RelativeLayout>
+

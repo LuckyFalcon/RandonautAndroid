@@ -10,11 +10,10 @@
             android:title="Randonaut" />
         <item
             android:id="@+id/nav_attractors"
-            android:icon="@drawable/mapbox_compass_icon"
             android:title="My Attractors" />
         <item
             android:id="@+id/nav_profile"
-            android:icon="@drawable/mapbox_compass_icon"
+
             android:title="MY profile" />
 
     </group>
@@ -23,11 +22,9 @@
         <menu>
             <item
                 android:id="@+id/nav_share"
-                android:icon="@drawable/mapbox_compass_icon"
                 android:title="Share" />
             <item
                 android:id="@+id/nav_send"
-                android:icon="@drawable/mapbox_compass_icon"
                 android:title="Send" />
         </menu>
     </item>

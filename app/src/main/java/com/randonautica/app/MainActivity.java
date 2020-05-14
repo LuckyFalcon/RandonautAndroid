@@ -30,8 +30,8 @@ import com.randonautica.app.Interfaces.MainActivityMessage;
 import java.io.InputStream;
 import java.util.UUID;
 
-public class MainActivity extends AppCompatActivity implements MainActivityMessage, MyAttractorsListFragment.SendMessage, MyCamRngFragment.SendMessage,NavigationView.OnNavigationItemSelectedListener  {
-
+public class MainActivity extends AppCompatActivity implements MainActivityMessage, MyAttractorsListFragment.SendMessage, MyCamRngFragment.SendMessage, NavigationView.OnNavigationItemSelectedListener  {
+    public static NavigationView navigationView;
     Dialog privacyPolicyDialog;
 
     public static final String SHARED_PREFS = "sharedPrefs";
@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
     private String userId;
     private String tag;
 
-    private FragmentManager fragmentManager;
+    private androidx.fragment.app.FragmentManager fragmentManager;
     private DrawerLayout drawer;
 
     private boolean darkModeSwitch;
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
         //Enable drawer menu within the toolbar
         drawer = findViewById(R.id.drawer_layout);
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -99,11 +99,10 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
         } else {
             //Continue loading the app
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                    new MyRandonautFragment(), "randonaut")
+                    new RandonautFragment(), "randonaut")
                     .addToBackStack("randonaut")
                     .commit();
             navigationView.setCheckedItem(R.id.nav_randonaut);
-
         }
     }
 
@@ -119,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
 
                 //Check for existing randonaut fragment
                 if (randonautfragment == null) {
-                    randonautfragment = new MyRandonautFragment();
+                    randonautfragment = new RandonautFragment();
                 }
 
                 //Add the fragment in stack with the corresponding tag and start the fragment
@@ -127,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
                         .replace(R.id.fragment_container, randonautfragment, tag)
                         .addToBackStack(tag)
                         .commit();
+
                 break;
             case R.id.nav_attractors:
                 fragmentManager = getSupportFragmentManager();
@@ -215,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
                 saveData();
                 //Continue loading the app
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                        new MyRandonautFragment(), "randonaut")
+                        new RandonautFragment(), "randonaut")
                         .addToBackStack("randonaut")
                         .commit();
                 navigationView.setCheckedItem(R.id.nav_randonaut);
@@ -244,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
     public void sendData(int type, double power, double x, double y, double radiusm, double z_score, double pseudo) {
         tag = "randonaut";
         FragmentManager fragmentManager = getSupportFragmentManager();
-        MyRandonautFragment randonautfragment = (MyRandonautFragment) fragmentManager.findFragmentByTag(tag);
+        RandonautFragment randonautfragment = (RandonautFragment) fragmentManager.findFragmentByTag(tag);
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setCheckedItem(R.id.nav_randonaut);
@@ -262,7 +262,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
     public void sendEntropyObj(int size, String entropy) {
         tag = "randonaut";
         FragmentManager fragmentManager = getSupportFragmentManager();
-        MyRandonautFragment randonautfragment = (MyRandonautFragment) fragmentManager.findFragmentByTag(tag);
+        RandonautFragment randonautfragment = (RandonautFragment) fragmentManager.findFragmentByTag(tag);
 
         //Checks if size was 0, which means it was cancelled
         if(size != 0){

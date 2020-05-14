@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
-import com.mapbox.mapboxsdk.maps.MapboxMap;
+import com.google.android.gms.maps.GoogleMap;
 import com.randonautica.app.Classes.LocationRecyclerViewAdapter;
 import com.randonautica.app.Classes.SingleRecyclerViewLocation;
 import com.randonautica.app.R;
@@ -17,7 +17,7 @@ import java.util.List;
 
 public class GenerateRecyclerView {
 
-    public void initRecyclerView(List<SingleRecyclerViewLocation> locationList, View view, MapboxMap mapboxMap) {
+    public void initRecyclerView(List<SingleRecyclerViewLocation> locationList, View view, GoogleMap mapboxMap) {
 
         RecyclerView recyclerView = view.findViewById(R.id.rv_on_top_of_map);
         recyclerView.setOnFlingListener(null);

@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="300dp"
-    android:layout_height="200dp">
+    android:layout_height="150dp">
 
     <TextView
         android:id="@+id/textViewChoosePoint"
@@ -71,7 +71,7 @@
         android:textOff="Internet"
         android:textOn="Internet" />
 
-    <ToggleButton
+<!--    <ToggleButton
         android:id="@+id/temporalLocalToggleButton"
         android:layout_width="251dp"
         android:layout_height="wrap_content"
@@ -82,10 +82,11 @@
         android:layout_marginTop="87dp"
         android:layout_marginEnd="24dp"
         android:layout_marginRight="24dp"
+        android:visibility="invisible"
         android:text="ToggleButton"
         android:textOff="Local (Beta)"
         android:textOn="Local (Beta)"
-        android:textStyle="bold" />
+        android:textStyle="bold" />-->
 
 
 </RelativeLayout>
