@@ -66,7 +66,7 @@ public class MyProfileFragment extends Fragment {
     }
 
     public void loadData() {
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(MyRandonautFragment.STATS, Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(RandonautFragment.STATS, Context.MODE_PRIVATE);
 
         attractors = sharedPreferences.getLong("ATTRACTORS", 0);
         voids = sharedPreferences.getLong("VOID", 0);

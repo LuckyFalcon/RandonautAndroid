@@ -213,7 +213,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getData(String table){
         SQLiteDatabase db = this.getWritableDatabase();
-        String query = "SELECT * FROM " + table + " ORDER BY " + COL0 + " DESC" + " LIMIT 10";
+        String query = "SELECT * FROM " + table + " ORDER BY " + COL0 + " DESC" + " LIMIT 20";
         Cursor data = db.rawQuery(query, null);
         return data;
     }

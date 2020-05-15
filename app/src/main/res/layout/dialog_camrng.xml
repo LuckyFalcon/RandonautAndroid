@@ -61,7 +61,7 @@
         android:layout_above="@+id/camRNGCancelButton"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:background="@color/mapbox_blue"
+        android:background="@color/buttonColor"
         android:keepScreenOn="true"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -1,17 +1,23 @@
 package com.randonautica.app;
 
+import android.Manifest;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,26 +31,23 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LifecycleOwner;
 
-import com.mapbox.android.core.permissions.PermissionsListener;
-import com.mapbox.android.core.permissions.PermissionsManager;
-import com.mapbox.mapboxsdk.Mapbox;
-import com.mapbox.mapboxsdk.annotations.MarkerOptions;
-import com.mapbox.mapboxsdk.camera.CameraPosition;
-import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
-import com.mapbox.mapboxsdk.geometry.LatLng;
-import com.mapbox.mapboxsdk.location.LocationComponent;
-import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
-import com.mapbox.mapboxsdk.location.LocationComponentOptions;
-import com.mapbox.mapboxsdk.location.modes.CameraMode;
-import com.mapbox.mapboxsdk.location.modes.RenderMode;
-import com.mapbox.mapboxsdk.maps.MapView;
-import com.mapbox.mapboxsdk.maps.MapboxMap;
-import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
-import com.mapbox.mapboxsdk.maps.Style;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.randonautica.app.Attractors.GenerateAttractors;
 import com.randonautica.app.Attractors.GenerateEntropy;
 import com.randonautica.app.Attractors.GenerateRecyclerView;
@@ -56,7 +59,6 @@ import com.randonautica.app.Interfaces.RandonautAttractorListener;
 import com.randonautica.app.Interfaces.RandonautEntropyListener;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -66,10 +68,11 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static android.content.Context.LOCATION_SERVICE;
 import static com.randonautica.app.Attractors.GenerateAttractors.locationList;
 
-public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnMapReadyCallback, PermissionsListener  {
+public class RandonautFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMyLocationClickListener {
+
+    private GoogleMap mMap;
 
     //Load keys
     static {
@@ -78,9 +81,9 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
     }
 
     //Native Modules
-    protected native String getApiKey();
+//    protected native String getApiKey();
     public static native String getBaseApi();
-    public static native String hitBooks(int size);
+//    public static native String hitBooks(int size);
 
     //Load Functions
     GenerateEntropy generateEntropy = new GenerateEntropy();
@@ -90,13 +93,8 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
     //Fragment View
     private View rootview;
 
-    //Fragment related
-    private PermissionsManager permissionsManager;
-
-    //Mapbox related
-    private MapView mapView;
-    public  MapboxMap mapboxMap;
-    String style = Style.MAPBOX_STREETS;
+    //Google style related
+    String style = "Normal";
 
     //Storing information globally
     public static final String STATS = "stats";
@@ -153,34 +151,54 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
     //Initialize ProgressDialog
     ProgressDialog progressdialog;
 
-    /** create view */
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    private Boolean mLocationPermissionsGranted = false;
+    private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
+    private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 3333;
+    private static final float DEFAULT_ZOOM = 15f;
 
+    private Circle lastUserCircle;
+    private long pulseDuration = 10000;
+    private ValueAnimator lastPulseAnimator;
+
+    private FusedLocationProviderClient mFusedLocationProviderClient;
+
+    SupportMapFragment mapFragment;
+
+    public RandonautFragment() {
+        // Required empty public constructor
+    }
+
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         if (rootview == null) {
-            createMapInstance();
-            rootview = inflater.inflate(R.layout.fragment_randonaut, container, false);
-            mapView = (MapView) rootview.findViewById(R.id.mapView);
-            mapView.getMapAsync(this);
-            mapView.onCreate(savedInstanceState);
+            Log.d("test", "test");
+            rootview = inflater.inflate(R.layout.fragment_randonautica, container, false);
+            mapFragment =
+                    (SupportMapFragment)
+                            getChildFragmentManager().findFragmentById(R.id.map);
+
+            mapFragment.getMapAsync(this);
+
         }
 
         getActivity().setTitle("Randonaut");
 
+
         switch (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) {
             case Configuration.UI_MODE_NIGHT_YES:
-                style = Style.DARK;
+                style = "Dark";
                 break;
             case Configuration.UI_MODE_NIGHT_NO:
-                style = Style.MAPBOX_STREETS;
+                style = "Normal";
                 break;
         }
 
-
+        getLocationPermission();
         loadData();
         return rootview;
     }
+
 
 
     @Override
@@ -196,12 +214,41 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
             @SuppressLint("CheckResult")
             @Override
             public void onClick(View v) {
-
-                if(mapboxMap.getLocationComponent().isLocationComponentActivated() == false){
-                    enableLocationComponent(mapboxMap.getStyle());
-                } else {
+                if(mFusedLocationProviderClient != null) {
                     setPreferencesAlertDialog();
+                } else {
+
+                    if (mLocationPermissionsGranted) {
+                        LocationManager lm = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
+                        boolean gps_enabled = false;
+                        gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                        if(gps_enabled){
+                            getDeviceLocation();
+
+                            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                                    != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(),
+                                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                return;
+                            }
+                            mMap.setMyLocationEnabled(true);
+                            mMap.getUiSettings().setMyLocationButtonEnabled(false);
+                        } else {
+                            Toast.makeText(getContext(), "GPS is disabled!", Toast.LENGTH_SHORT).show();
+                        }
+
+
+                    } else {
+                        Toast.makeText(getContext(), "Permissions not accepted!", Toast.LENGTH_SHORT).show();
+
+                    }
                 }
+
+
+//                if(mapboxMap.getLocationComponent().isLocationComponentActivated() == false){
+//                    //enableLocationComponent(mapboxMap.getStyle());
+//                } else {
+//                    setPreferencesAlertDialog();
+//                }
             }
         });
 
@@ -216,29 +263,123 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
             }
         });
 
+    }
+
+    /** reset instance */
+    public void resetRandonaut() {
+        //Empty previous run
+        locationList = new ArrayList<>();
+        mMap.clear();
+        generateRecyclerView.removeRecyclerView(rootview);
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        mLocationPermissionsGranted = false;
+
+        switch(requestCode){
+            case LOCATION_PERMISSION_REQUEST_CODE:{
+                if(grantResults.length > 0){
+                    for(int i = 0; i < grantResults.length; i++){
+                        if(grantResults[i] != PackageManager.PERMISSION_GRANTED){
+                            mLocationPermissionsGranted = false;
+                            return;
+                        }
+                    }
+                    mLocationPermissionsGranted = true;
+
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+
+        if (mLocationPermissionsGranted) {
+            LocationManager lm = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
+            boolean gps_enabled = false;
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            if(gps_enabled){
+                getDeviceLocation();
+
+                if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(),
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                mMap.setMyLocationEnabled(true);
+                mMap.getUiSettings().setMyLocationButtonEnabled(false);
+            } else {
+                Toast.makeText(getContext(), "GPS is disabled!", Toast.LENGTH_SHORT).show();
+            }
+
+
+        }
+
+        if(style == "Dark"){
+            googleMap.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                            getActivity(), R.raw.style_json));
+        }
 
 
     }
 
-    /** set map view */
-    @Override
-    public void onMapReady(@NonNull final MapboxMap mapboxMap) {
+    private void getDeviceLocation(){
 
-        MyRandonautFragment.this.mapboxMap = mapboxMap;
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
 
-        mapboxMap.setStyle(new Style.Builder().fromUri(style),
-                new Style.OnStyleLoaded() {
+        try{
+            if(mLocationPermissionsGranted){
+
+                final Task location = mFusedLocationProviderClient.getLastLocation();
+                location.addOnCompleteListener(new OnCompleteListener() {
                     @Override
-                    public void onStyleLoaded(@NonNull Style style) {
-                        enableLocationComponent(style);
+                    public void onComplete(@NonNull Task task) {
+                        if(task.isSuccessful()){
+
+                            Location currentLocation = (Location) task.getResult();
+
+                            moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
+                                    DEFAULT_ZOOM);
+
+                        }else{
+                            Toast.makeText(getContext(), "unable to get current location", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
+            }
+        }catch (SecurityException e){
+        }
     }
 
-    protected void createMapInstance(){
+    private void moveCamera(LatLng latLng, float zoom){
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+    }
 
-        Mapbox.getInstance(getContext(), new String(Base64.decode(getApiKey(),Base64.DEFAULT)));
+    private void getLocationPermission(){
+        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION};
 
+        if(ContextCompat.checkSelfPermission(this.getContext(),
+                FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            if(ContextCompat.checkSelfPermission(this.getContext(),
+                    COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+                mLocationPermissionsGranted = true;
+
+            }else{
+                ActivityCompat.requestPermissions(getActivity(),
+                        permissions,
+                        LOCATION_PERMISSION_REQUEST_CODE);
+            }
+        }else{
+            ActivityCompat.requestPermissions(getActivity(),
+                    permissions,
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        }
     }
 
     public void setPreferencesAlertDialog(){
@@ -281,11 +422,11 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
             public void onClick(View view) {
                 if (PsuedoToggleButton.isChecked()) {
                     preferencesDialog.cancel();
-                    generateAttractors.getPsuedo(rootview, mapboxMap, getContext(), distance, selected, new RandonautAttractorListener() {
+                    generateAttractors.getPsuedo(rootview, mMap, getContext(), distance, selected, mFusedLocationProviderClient, new RandonautAttractorListener() {
                         @Override
                         public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
                             saveData();
-                            generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mapboxMap);
+                            generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mMap);
                         }
 
                         @Override
@@ -441,11 +582,11 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
                                 @Override
                                 public void onData(String GID) {
                                     saveData();
-                                    generateAttractors.getAttractors(rootview, mapboxMap, getContext(), GID,false, false, false, selected, distance, new RandonautAttractorListener() {
+                                    generateAttractors.getAttractors(rootview, mMap, getContext(), GID,false, false, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
                                         @Override
                                         public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
                                             saveData();
-                                            generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mapboxMap);
+                                            generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mMap);
 
                                         }
 
@@ -469,11 +610,11 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
                                 @Override
                                 public void onData(String GID) {
                                     saveData();
-                                    generateAttractors.getAttractors(rootview, mapboxMap, getContext(), GID,true, false, false, selected, distance, new RandonautAttractorListener() {
+                                    generateAttractors.getAttractors(rootview, mMap, getContext(), GID,true, false, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
                                         @Override
                                         public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
                                             saveData();
-                                            generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mapboxMap);
+                                            generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mMap);
 
                                         }
 
@@ -509,11 +650,11 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
                                 new RandonautEntropyListener() {
                                     @Override
                                     public void onData(String GID) {
-                                        generateAttractors.getAttractors(rootview, mapboxMap, getContext(), GID, false, true, false, selected, distance, new RandonautAttractorListener() {
+                                        generateAttractors.getAttractors(rootview, mMap, getContext(), GID, false, true, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
                                             @Override
                                             public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
                                                 saveData();
-                                                generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mapboxMap);
+                                                generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mMap);
 
                                             }
 
@@ -537,7 +678,7 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
                                     @Override
                                     public void onData(String entropySizeNeeded) {
                                         //Upload Entropy and Generate Attractors in Background Task
-                                        generatingTemporalEntropyAsync asyncTask = new generatingTemporalEntropyAsync();
+                                        RandonautFragment.generatingTemporalEntropyAsync asyncTask = new RandonautFragment.generatingTemporalEntropyAsync();
                                         asyncTask.execute(entropySizeNeeded);
 
                                     }
@@ -658,13 +799,13 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
     }
 
     public void setTemporalDialog(){
-        setTemporalDialog = new Dialog(getActivity());
+        final Dialog setTemporalDialog = new Dialog(getActivity());
         setTemporalDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setTemporalDialog.setContentView(R.layout.dialog_temporal);
 
         //Toggle Buttons
         temporalInternetToggleButton = (ToggleButton) setTemporalDialog.findViewById(R.id.temporalInternetToggleButton);
-        temporalLocalToggleButton = (ToggleButton) setTemporalDialog.findViewById(R.id.temporalLocalToggleButton);
+      //  temporalLocalToggleButton = (ToggleButton) setTemporalDialog.findViewById(R.id.temporalLocalToggleButton);
 
         //Check for click
         temporalInternetToggleButton.setOnCheckedChangeListener(temporalChangeChecker);
@@ -708,18 +849,6 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
 
 
     }
-
-    /** reset instance */
-    public void resetRandonaut() {
-        //Empty previous run
-        locationList = new ArrayList<>();
-        mapboxMap.clear();
-        generateRecyclerView.removeRecyclerView(rootview);
-    }
-
-    /**
-     * Compound buttons listeners
-     */
 
     CompoundButton.OnCheckedChangeListener changeChecker = new CompoundButton.OnCheckedChangeListener() {
 
@@ -818,7 +947,7 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(new String(Base64.decode(MyRandonautFragment.getBaseApi(),Base64.DEFAULT)))
+                .baseUrl(new String(Base64.decode(RandonautFragment.getBaseApi(),Base64.DEFAULT)))
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -831,11 +960,11 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
             @Override
             public void onResponse(Call<SendEntropy.Response> call, Response<SendEntropy.Response> response) {
                 progressdialog.dismiss();
-                generateAttractors.getAttractors(rootview, mapboxMap, getContext(), response.body().getGid(),false, false, false, selected, distance, new RandonautAttractorListener() {
+                generateAttractors.getAttractors(rootview, mMap, getContext(), response.body().getGid(),false, false, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
                     @Override
                     public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
                         saveData();
-                        generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mapboxMap);
+                        generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mMap);
 
                     }
 
@@ -856,15 +985,17 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
     /** set attractor from my attractors */
     //From profile attractors
     public void onShowProfileAttractors(int type, double power, double x, double y, double radiusm, double z_score, double pseudo){
-
+        resetRandonaut();
         if(type == 1){
-            mapboxMap.addMarker(new MarkerOptions()
+            mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(x, y))
                     .title("Attractor"));
+
         } else {
-            mapboxMap.addMarker(new MarkerOptions()
+            mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(x, y))
                     .title("Void"));
+
         }
 
         SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
@@ -879,18 +1010,90 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
             singleLocation.setPsuedo(false);
         }
 
-        //Set circle of radius
-        mapboxMap.addPolygon(generateAttractors.generatePerimeter(
-                new LatLng(x, y),
-                (radiusm/1000),
-                64));
-
         locationList.add(singleLocation);
-        generateRecyclerView.initRecyclerView(locationList, rootview, mapboxMap);
+        generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
+
+        Location loc = new Location("dummy");
+        loc.setLatitude(x);
+        loc.setLongitude(y);
+        addPulsatingEffect(new LatLng(x, y), mMap, loc);
+
+        RandonautFragment.startButton.setVisibility(View.GONE);
+        RandonautFragment.resetButton.setVisibility(View.VISIBLE);
+    }
+
+    private void addPulsatingEffect(final LatLng userLatlng, final GoogleMap map, Location currentLocation) {
+        if (lastPulseAnimator != null) {
+            lastPulseAnimator.cancel();
+        }
+        if (lastUserCircle != null)
+            lastUserCircle.setCenter(userLatlng);
+        lastPulseAnimator = valueAnimate(getDisplayPulseRadius(20, map), pulseDuration, new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                if (lastUserCircle != null)
+                    lastUserCircle.setRadius((Float) animation.getAnimatedValue());
+                else {
+                    lastUserCircle = map.addCircle(new CircleOptions()
+                            .center(userLatlng)
+                            .radius(getDisplayPulseRadius((Float) animation.getAnimatedValue(), map))
+                            .strokeColor(Color.RED));
+                    //.fillColor(Color.BLUE));
+                    lastUserCircle.setFillColor(adjustAlpha(0x220000FF, 1 - animation.getAnimatedFraction()));
 
 
-        MyRandonautFragment.startButton.setVisibility(View.GONE);
-        MyRandonautFragment.resetButton.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+    }
+
+    private int adjustAlpha(int color, float factor) {
+        int alpha = Math.round(Color.alpha(color) * factor);
+        int red = Color.red(color);
+        int green = Color.green(color);
+        int blue = Color.blue(color);
+        return Color.argb(alpha, red, green, blue);
+    }
+
+    protected ValueAnimator valueAnimate(float accuracy, long duration, ValueAnimator.AnimatorUpdateListener updateListener) {
+        ValueAnimator va = ValueAnimator.ofFloat(0, accuracy);
+        va.setDuration(duration);
+        va.addUpdateListener(updateListener);
+        va.setRepeatCount(ValueAnimator.INFINITE);
+        va.setRepeatMode(ValueAnimator.RESTART);
+
+        va.start();
+        return va;
+    }
+
+    protected float getDisplayPulseRadius(float radius, GoogleMap map) {
+        float diff = (map.getMaxZoomLevel() - map.getCameraPosition().zoom);
+        if (diff < 3)
+            return radius;
+        if (diff < 3.7)
+            return radius * (diff / 2);
+        if (diff < 4.5)
+            return (radius * diff);
+        if (diff < 5.5)
+            return (radius * diff) * 1.5f;
+        if (diff < 7)
+            return (radius * diff) * 2f;
+        if (diff < 7.8)
+            return (radius * diff) * 3.5f;
+        if (diff < 8.5)
+            return (float) (radius * diff) * 5;
+        if (diff < 10)
+            return (radius * diff) * 10f;
+        if (diff < 12)
+            return (radius * diff) * 18f;
+        if (diff < 13)
+            return (radius * diff) * 28f;
+        if (diff < 16)
+            return (radius * diff) * 40f;
+        if (diff < 18)
+            return (radius * diff) * 60;
+        return (radius * diff) * 80;
     }
 
     /**
@@ -917,92 +1120,12 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
         psuedo = sharedPreferences.getLong("PSEUDO", 0);
     }
 
-    /**
-     * Permissions for setting the location
-     */
     @Override
-    public void onExplanationNeeded(List<String> permissionsToExplain) {
-
-    }
-
-    @Override
-    public void onPermissionResult(boolean granted) {
-        if (granted) {
-            mapboxMap.getStyle(new Style.OnStyleLoaded() {
-                @Override
-                public void onStyleLoaded(@NonNull Style style) {
-                    enableLocationComponent(style);
-                }
-            });
-        } else {
-            getActivity().finish();
-        }
-    }
-
-    private void enableLocationComponent(@NonNull Style loadedMapStyle) {
-        // Check if permissions are enabled and if not request
-        if (PermissionsManager.areLocationPermissionsGranted(getContext())) {
-            //Check if GPS is disabled
-            if(loadedMapStyle == null){
-                Toast.makeText(getContext(), "Map was not loaded, please check Internet Connection", Toast.LENGTH_LONG).show();
-            } else {
-                //Check if GPS is enabled
-                LocationManager locationManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
-                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    Toast.makeText(getContext(), "GPS is disabled!", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(getContext(), "GPS is enabled!", Toast.LENGTH_LONG).show();
-
-                    LocationComponentOptions locationComponentOptions = LocationComponentOptions.builder(getContext())
-                            .accuracyAnimationEnabled(true)
-                            .build();
-
-                    LocationComponentActivationOptions locationComponentActivationOptions = LocationComponentActivationOptions
-                            .builder(getContext(), loadedMapStyle)
-                            .locationComponentOptions(locationComponentOptions)
-                            .build();
-
-                    // Get an instance of the component
-                    final LocationComponent locationComponent = mapboxMap.getLocationComponent();
-
-                    // Activate with options
-                    locationComponent.activateLocationComponent(locationComponentActivationOptions);
-                    // locationComponent.activateLocationComponent(
-                    //       LocationComponentActivationOptions.builder(getContext(), loadedMapStyle).build());
-
-                    // Enable to make component visible
-                    locationComponent.setLocationComponentEnabled(true);
-
-
-                    // Set the component's camera mode
-                    locationComponent.setCameraMode(CameraMode.TRACKING_GPS);
-
-                    // Set the component's render mode
-                    locationComponent.setRenderMode(RenderMode.COMPASS);
-
-                    if (locationComponent.getLastKnownLocation() != null) {
-                        // locationComponent.getLastKnownLocation();
-                        CameraPosition position = new CameraPosition.Builder()
-                                .target(new LatLng(locationComponent.getLastKnownLocation()))
-                                .zoom(13)
-                                .build();
-                        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 5000);
-
-                    }
-                }
-
-            }
-
-
-
-        } else {
-            permissionsManager = new PermissionsManager(this);
-            permissionsManager.requestLocationPermissions(getActivity());
-        }
+    public void onMyLocationClick(@NonNull Location location) {
+        Toast.makeText(getContext(), "Current location:\n" + location, Toast.LENGTH_LONG).show();
     }
 
     private class generatingTemporalEntropyAsync extends AsyncTask<String, String, String> {
-
 
         @Override
         protected void onPreExecute() {
@@ -1018,8 +1141,9 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
         @Override
         protected String doInBackground(String... strings) {
             try {
-                //Strings[0] is passed entropySize
-                String temporalEntropy = hitBooks(Integer.parseInt(strings[0]));
+                String temporalEntropy = "null";
+                //UNCOMMENT LATER with updated Temporal lib 15-5-2020
+                //String temporalEntropy = hitBooks(Integer.parseInt(strings[0]));
                 return temporalEntropy;
             } catch (Exception e) {
                 return null;
@@ -1040,63 +1164,42 @@ public class MyRandonautFragment extends Fragment implements LifecycleOwner, OnM
         }
     }
 
-    /**
-     * Attach to the mainactivity, used for camrng
-     * */
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try {
-            SM = (MainActivityMessage) getActivity();
-        } catch (ClassCastException e) {
-            throw new ClassCastException("Error in retrieving data. Please try again");
+    private void setupMapIfNeeded() {
+        Log.d("test", "reached");
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        if (mMap == null) {
+            Log.d("test", "null");
+            SupportMapFragment mapFragment =
+                    (SupportMapFragment)
+                            getChildFragmentManager().findFragmentById(R.id.map);
+            mapFragment.getMapAsync(this);
         }
-    }
 
-    /**
-     *  Contains all the mapbox functions
-     */
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mapView.onStart();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mapView.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mapView.onPause();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        mapView.onStop();
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mapView.onSaveInstanceState(outState);
+    public void onStart() {
+        super.onStart();
+
     }
 
     @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        mapView.onLowMemory();
+    public void onPause() {
+        super.onPause();
+
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mapView.onDestroy();
+    public void onResume() {
+        super.onResume();
+        mapFragment.onResume();
+
     }
+
 
 }

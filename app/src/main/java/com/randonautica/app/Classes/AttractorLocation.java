@@ -1,6 +1,6 @@
 package com.randonautica.app.Classes;
 
-import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.google.android.gms.maps.model.LatLng;
 
 public class AttractorLocation implements Comparable<AttractorLocation> {
 

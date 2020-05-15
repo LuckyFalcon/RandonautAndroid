@@ -11,7 +11,8 @@ import com.randonautica.app.Interfaces.API_Classes.Pools;
 import com.randonautica.app.Interfaces.API_Classes.Sizes;
 import com.randonautica.app.Interfaces.RandoWrapperApi;
 import com.randonautica.app.Interfaces.RandonautEntropyListener;
-import com.randonautica.app.MyRandonautFragment;
+import com.randonautica.app.RandonautFragment;
+import com.randonautica.app.RandonautFragment;
 
 import java.net.SocketTimeoutException;
 import java.util.List;
@@ -51,7 +52,7 @@ public class GenerateEntropy {
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(new String(Base64.decode(MyRandonautFragment.getBaseApi(),Base64.DEFAULT)))
+                .baseUrl(new String(Base64.decode(RandonautFragment.getBaseApi(),Base64.DEFAULT)))
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -71,7 +72,7 @@ public class GenerateEntropy {
                     @Override
                     public void onResponse(Call<Entropy> call, Response<Entropy> response) {
                         GID = response.body().getGid();
-                        MyRandonautFragment.entropy = MyRandonautFragment.entropy + hexsize;
+                        RandonautFragment.entropy = RandonautFragment.entropy + hexsize;
                         progressdialog.dismiss();
                         randonautDialogsListener.onData(GID);
                     }
@@ -116,7 +117,7 @@ public class GenerateEntropy {
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(new String(Base64.decode(MyRandonautFragment.getBaseApi(),Base64.DEFAULT)))
+                .baseUrl(new String(Base64.decode(RandonautFragment.getBaseApi(),Base64.DEFAULT)))
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -136,7 +137,7 @@ public class GenerateEntropy {
                     @Override
                     public void onResponse(Call<Entropy> call, Response<Entropy> response) {
                         GID = response.body().getGid();
-                        MyRandonautFragment.entropy = MyRandonautFragment.entropy + hexsize;
+                        RandonautFragment.entropy = RandonautFragment.entropy + hexsize;
                         progressdialog.dismiss();
                         randonautDialogsListener.onData(GID);
                     }
@@ -177,7 +178,7 @@ public class GenerateEntropy {
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(new String(Base64.decode(MyRandonautFragment.getBaseApi(),Base64.DEFAULT)))
+                .baseUrl(new String(Base64.decode(RandonautFragment.getBaseApi(),Base64.DEFAULT)))
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -197,7 +198,7 @@ public class GenerateEntropy {
                     @Override
                     public void onResponse(Call<Entropy> call, Response<Entropy> response) {
                         GID = response.body().getGid();
-                        MyRandonautFragment.entropy = MyRandonautFragment.entropy + hexsize;
+                        RandonautFragment.entropy = RandonautFragment.entropy + hexsize;
                         progressdialog.dismiss();
                         randonautDialogsListener.onData(GID);
                     }
@@ -239,7 +240,7 @@ public class GenerateEntropy {
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(new String(Base64.decode(MyRandonautFragment.getBaseApi(),Base64.DEFAULT)))
+                .baseUrl(new String(Base64.decode(RandonautFragment.getBaseApi(),Base64.DEFAULT)))
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -285,7 +286,7 @@ public class GenerateEntropy {
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(new String(Base64.decode(MyRandonautFragment.getBaseApi(),Base64.DEFAULT)))
+                .baseUrl(new String(Base64.decode(RandonautFragment.getBaseApi(),Base64.DEFAULT)))
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();

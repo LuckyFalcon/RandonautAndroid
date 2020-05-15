@@ -42,6 +42,7 @@ public class MySettingsFragment extends PreferenceFragmentCompat {
                     darkModeSwitch = false;
                     saveData();
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                    MainActivity.navigationView.setCheckedItem(R.id.nav_randonaut);
                 } else {
                     darkModeSwitch = true;
                     saveData();
