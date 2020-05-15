@@ -53,7 +53,6 @@ public class LocationRecyclerViewAdapter extends
         String radiusm = "Radius: " + (int) singleRecyclerViewLocation.getRadiusm();
         String power = "Power: " + String.format("%.2f", singleRecyclerViewLocation.getPower());
         String z_score = "Z Score: " + String.format("%.2f", singleRecyclerViewLocation.getZ_score());
-        Log.d("test", ""+singleRecyclerViewLocation.getType());
         if (singleRecyclerViewLocation.getType() == 0) {
             type = "Pseudo Point";
             radiusm = "Radius: Unknown";

@@ -175,7 +175,6 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         if (rootview == null) {
-            Log.d("test", "test");
             rootview = inflater.inflate(R.layout.fragment_randonautica, container, false);
             mapFragment =
                     (SupportMapFragment)
@@ -273,12 +272,10 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         //Empty previous run
 
         if(lastUserCircle != null){
-            Log.d("test", "working");
             lastUserCircle.remove();
             lastUserCircle = null;
             lastPulseAnimator.cancel();
             if(lastUserCircle != null){
-                Log.d("test", "working2");
 
             }
         }
@@ -1200,10 +1197,8 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
     }
 
     private void setupMapIfNeeded() {
-        Log.d("test", "reached");
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         if (mMap == null) {
-            Log.d("test", "null");
             SupportMapFragment mapFragment =
                     (SupportMapFragment)
                             getChildFragmentManager().findFragmentById(R.id.map);

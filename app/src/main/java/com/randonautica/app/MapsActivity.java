@@ -22,7 +22,6 @@ public class MapsActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d("test", "load map");
         setContentView(R.layout.activity_maps);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
