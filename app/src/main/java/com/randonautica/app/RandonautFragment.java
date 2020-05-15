@@ -85,6 +85,10 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
     public static native String getBaseApi();
 //    public static native String hitBooks(int size);
 
+    public static Circle lastUserCircle;
+    public static long pulseDuration = 10000;
+    public static ValueAnimator lastPulseAnimator;
+
     //Load Functions
     GenerateEntropy generateEntropy = new GenerateEntropy();
     GenerateAttractors generateAttractors = new GenerateAttractors();
@@ -157,9 +161,8 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 3333;
     private static final float DEFAULT_ZOOM = 15f;
 
-    private Circle lastUserCircle;
-    private long pulseDuration = 10000;
-    private ValueAnimator lastPulseAnimator;
+
+
 
     private FusedLocationProviderClient mFusedLocationProviderClient;
 
@@ -268,9 +271,31 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
     /** reset instance */
     public void resetRandonaut() {
         //Empty previous run
+
+        if(lastUserCircle != null){
+            Log.d("test", "working");
+            lastUserCircle.remove();
+            lastUserCircle = null;
+            lastPulseAnimator.cancel();
+            if(lastUserCircle != null){
+                Log.d("test", "working2");
+
+            }
+        }
         locationList = new ArrayList<>();
-        mMap.clear();
-        generateRecyclerView.removeRecyclerView(rootview);
+        if(mMap != null){
+            mMap.clear();
+        }
+        if(generateRecyclerView != null){
+            try {
+                generateRecyclerView.removeRecyclerView(rootview);
+            }
+            catch(Exception e) {
+                //  Block of code to handle errors
+            }
+
+        }
+
     }
 
 
@@ -311,7 +336,9 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                     return;
                 }
                 mMap.setMyLocationEnabled(true);
-                mMap.getUiSettings().setMyLocationButtonEnabled(false);
+                mMap.getUiSettings().setMyLocationButtonEnabled(true);
+
+
             } else {
                 Toast.makeText(getContext(), "GPS is disabled!", Toast.LENGTH_SHORT).show();
             }
@@ -345,6 +372,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
                             moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
                                     DEFAULT_ZOOM);
+
 
                         }else{
                             Toast.makeText(getContext(), "unable to get current location", Toast.LENGTH_SHORT).show();
@@ -408,8 +436,8 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         PsuedoToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.PsuedoToggleButton);
 
         //Set Attractor as default button
-        AttractorToggleButton.setChecked(true);
-        selected = "Attractor";
+        AnomalyToggleButton.setChecked(true);
+        selected = "Anomalie";
 
         //Check for click
         AttractorToggleButton.setOnCheckedChangeListener(changeChecker);
@@ -672,22 +700,22 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                                     }
                                 });
                     } //Temporal from Internet
-                    if (temporalLocalToggleButton.isChecked()) {
-                        generateEntropy.getNeededEntropySize(getContext(), distance,
-                                new RandonautEntropyListener() {
-                                    @Override
-                                    public void onData(String entropySizeNeeded) {
-                                        //Upload Entropy and Generate Attractors in Background Task
-                                        RandonautFragment.generatingTemporalEntropyAsync asyncTask = new RandonautFragment.generatingTemporalEntropyAsync();
-                                        asyncTask.execute(entropySizeNeeded);
-
-                                    }
-                                    @Override
-                                    public void onFailed() {
-
-                                    }
-                                });
-                    } //Temporal from Local generation
+//                    if (temporalLocalToggleButton.isChecked()) {
+//                        generateEntropy.getNeededEntropySize(getContext(), distance,
+//                                new RandonautEntropyListener() {
+//                                    @Override
+//                                    public void onData(String entropySizeNeeded) {
+//                                        //Upload Entropy and Generate Attractors in Background Task
+//                                        RandonautFragment.generatingTemporalEntropyAsync asyncTask = new RandonautFragment.generatingTemporalEntropyAsync();
+//                                        asyncTask.execute(entropySizeNeeded);
+//
+//                                    }
+//                                    @Override
+//                                    public void onFailed() {
+//
+//                                    }
+//                                });
+//                    } //Temporal from Local generation
                 }
             }
         });
@@ -741,7 +769,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
         String ANU = "<font color="+textColor+"><b>ANU: </b>Australia National University's quantum random number generator</font>";
         String ANULeftovers = "<font color="+textColor+"><b>ANU Leftovers: </b>Mixed intentions from unused ANU entropy</font>";
-        String TemporalRNG = "<font color="+textColor+"><b>Temporal: </b>Steve divulges entropy using the phone\'s CPU clock</font>";
+        String TemporalRNG = "<font color="+textColor+"><b>Temporal: </b>Get entropy using the server\'s CPU clock</font>";
         String CameraRNG = "<font color="+textColor+"><b>Camera: </b>Generates entropy from your camera (best try keeping the camera on a still surface - although the jury is still out on that!)</font>";
 
         TextView ANUExplanation = (TextView) rngExplanationDialog.findViewById(R.id.textViewANUExplanation);
@@ -809,7 +837,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
         //Check for click
         temporalInternetToggleButton.setOnCheckedChangeListener(temporalChangeChecker);
-        temporalLocalToggleButton.setOnCheckedChangeListener(temporalChangeChecker);
+        //temporalLocalToggleButton.setOnCheckedChangeListener(temporalChangeChecker);
 
         //Set Temporal Internet as default button
         temporalInternetToggleButton.setChecked(true);
@@ -919,12 +947,12 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
             if (isChecked){
                 if (buttonView == temporalInternetToggleButton) {
                     temporalInternetToggleButton.setChecked(true);
-                    temporalLocalToggleButton.setChecked(false);
+//                    temporalLocalToggleButton.setChecked(false);
                 }
-                if (buttonView == temporalLocalToggleButton) {
-                    temporalInternetToggleButton.setChecked(false);
-                    temporalLocalToggleButton.setChecked(true);
-                }
+//                if (buttonView == temporalLocalToggleButton) {
+//                    temporalInternetToggleButton.setChecked(false);
+//                    temporalLocalToggleButton.setChecked(true);
+//                }
             }
         }
     };
@@ -986,15 +1014,16 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
     //From profile attractors
     public void onShowProfileAttractors(int type, double power, double x, double y, double radiusm, double z_score, double pseudo){
         resetRandonaut();
-        if(type == 1){
+
+        if(type == 2){
             mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(x, y))
-                    .title("Attractor"));
+                    .title("Void"));
 
         } else {
             mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(x, y))
-                    .title("Void"));
+                    .title("Attractor"));
 
         }
 
@@ -1019,7 +1048,13 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         addPulsatingEffect(new LatLng(x, y), mMap, loc);
 
         RandonautFragment.startButton.setVisibility(View.GONE);
+        if(startButton.getVisibility() == View.VISIBLE){
+            RandonautFragment.startButton.setVisibility(View.GONE);
+        }
         RandonautFragment.resetButton.setVisibility(View.VISIBLE);
+        if(startButton.getVisibility() == View.GONE){
+            RandonautFragment.resetButton.setVisibility(View.VISIBLE);
+        }
     }
 
     private void addPulsatingEffect(final LatLng userLatlng, final GoogleMap map, Location currentLocation) {
@@ -1175,6 +1210,19 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
             mapFragment.getMapAsync(this);
         }
 
+    }
+
+    /**
+     * Attach to the mainactivity, used for camrng
+     * */
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            SM = (MainActivityMessage) getActivity();
+        } catch (ClassCastException e) {
+            throw new ClassCastException("Error in retrieving data. Please try again");
+        }
     }
 
     @Override

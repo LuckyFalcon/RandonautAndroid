@@ -3,6 +3,7 @@ package com.randonautica.app.Classes;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,7 +53,7 @@ public class LocationRecyclerViewAdapter extends
         String radiusm = "Radius: " + (int) singleRecyclerViewLocation.getRadiusm();
         String power = "Power: " + String.format("%.2f", singleRecyclerViewLocation.getPower());
         String z_score = "Z Score: " + String.format("%.2f", singleRecyclerViewLocation.getZ_score());
-
+        Log.d("test", ""+singleRecyclerViewLocation.getType());
         if (singleRecyclerViewLocation.getType() == 0) {
             type = "Pseudo Point";
             radiusm = "Radius: Unknown";

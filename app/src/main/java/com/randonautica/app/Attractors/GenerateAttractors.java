@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.location.Location;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -492,7 +493,7 @@ public class GenerateAttractors extends Activity {
 
     public int getMaxVoid(AttractorLocation[] list){
         int result = 0;
-        int position = 0;
+        int position = -1;
         for(int i=0; i<list.length; i++){
             if(list[i].getPower() < 0 && list[i].getType() == 2){
                 if (result == 0 || list[i].getPower() > result) {
@@ -841,7 +842,7 @@ public class GenerateAttractors extends Activity {
 
                                             Marker marker = mapboxMap.addMarker(new MarkerOptions()
                                                     .position(new LatLng(x, y))
-                                                    .title("Hello world"));
+                                                    .title("Pseudo Attractor"));
 
                                             marker.showInfoWindow();
 
@@ -895,7 +896,7 @@ public class GenerateAttractors extends Activity {
 
                                             Marker marker = mapboxMap.addMarker(new MarkerOptions()
                                                     .position(new LatLng(x, y))
-                                                    .title("Void"));
+                                                    .title("Pseudo Void"));
 
 //                                            // Instantiates a new CircleOptions object and defines the center and radius
 //                                            CircleOptions circleOptions = new CircleOptions()
@@ -1007,29 +1008,31 @@ public class GenerateAttractors extends Activity {
         });
     }
 
-    private Circle lastUserCircle;
-    private long pulseDuration = 5000;
-    private ValueAnimator lastPulseAnimator;
+
+
 
     private void addPulsatingEffect(final LatLng userLatlng, final GoogleMap map, int radius) {
-        if (lastPulseAnimator != null) {
-            lastPulseAnimator.cancel();
-        }
-        if (lastUserCircle != null)
-            lastUserCircle.setCenter(userLatlng);
 
-        lastPulseAnimator = valueAnimate(getDisplayPulseRadius(radius, map), pulseDuration, new ValueAnimator.AnimatorUpdateListener() {
+        if (RandonautFragment.lastPulseAnimator != null) {
+            RandonautFragment.lastPulseAnimator.cancel();
+        }
+        if (RandonautFragment.lastUserCircle != null){
+            RandonautFragment.lastUserCircle.remove();
+            RandonautFragment.lastUserCircle.setCenter(userLatlng);
+        }
+
+        RandonautFragment.lastPulseAnimator = valueAnimate(getDisplayPulseRadius(radius, map), RandonautFragment.pulseDuration, new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                if (lastUserCircle != null)
-                    lastUserCircle.setRadius((Float) animation.getAnimatedValue());
+                if (RandonautFragment.lastUserCircle != null)
+                    RandonautFragment.lastUserCircle.setRadius((Float) animation.getAnimatedValue());
                 else {
-                    lastUserCircle = map.addCircle(new CircleOptions()
+                    RandonautFragment.lastUserCircle = map.addCircle(new CircleOptions()
                             .center(userLatlng)
                             .radius(getDisplayPulseRadius((Float) animation.getAnimatedValue(), map))
                             .strokeColor(Color.RED));
                     //.fillColor(Color.BLUE));
-                    lastUserCircle.setFillColor(adjustAlpha(0x220000FF, 1 - animation.getAnimatedFraction()));
+                    RandonautFragment.lastUserCircle.setFillColor(adjustAlpha(0x220000FF, 1 - animation.getAnimatedFraction()));
 
 
                 }
@@ -1038,65 +1041,68 @@ public class GenerateAttractors extends Activity {
 
     }
 
-    private void addPulsatingEffectPsuedo(final LatLng userLatlng, final GoogleMap map, int radius) {
-        if (lastPulseAnimator != null) {
-            lastPulseAnimator.cancel();
-        }
-        if (lastUserCircle != null)
-            lastUserCircle.setCenter(userLatlng);
-
-        lastPulseAnimator = valueAnimate(getDisplayPulseRadius(radius, map), pulseDuration, new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                if (lastUserCircle != null) {
-                 //   Random rnd = new Random();
-               ///     int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-                    lastUserCircle.setRadius((Float) animation.getAnimatedValue());
-                   // lastUserCircle.setFillColor(color);
-                } else {
-
-                    lastUserCircle = map.addCircle(new CircleOptions()
-                            .center(userLatlng)
-                            .radius(getDisplayPulseRadius((Float) animation.getAnimatedValue(), map))
-                            //.strokeColor(0x220000));
-                          //  .strokeColor(Color.RED));
-                 //           .strokeColor(Color.BLACK));
-                       //   .strokeColor(Color.GRAY));
-        //                  .strokeColor(Color.WHITE));
-//                          .strokeColor(Color.GREEN));
-                          .strokeColor(Color.BLUE));
-        //                  .strokeColor(0x10613173));
-        //                  .strokeColor(	0xFFA500)));
-        //                  .strokeColor(Color.RED));
-
-                    //.fillColor(Color.BLUE));
-                    //Test
-                    lastUserCircle.setFillColor(adjustAlpha(0x220000FF, 1 - animation.getAnimatedFraction()));
-                    //Black
-
-                    //Gray
-
-                    //White
-
-                    //Green
-
-                    //Blue
-
-                    //Purple
-
-                    //Orange
-
-                    //Light gold
-
-                    //Rainbow
-
-                    //Octarine
-
-                }
-            }
-        });
-
-    }
+//    private void addPulsatingEffectPsuedo(final LatLng userLatlng, final GoogleMap map, int radius) {
+//        if (lastPulseAnimator != null) {
+//            lastPulseAnimator.cancel();
+//        }
+//        if (lastUserCircle != null)
+//            lastUserCircle.setCenter(userLatlng);
+//
+//        lastPulseAnimator = valueAnimate(getDisplayPulseRadius(radius, map), pulseDuration, new ValueAnimator.AnimatorUpdateListener() {
+//            @Override
+//            public void onAnimationUpdate(ValueAnimator animation) {
+//                if (lastUserCircle != null) {
+//                 //   Random rnd = new Random();
+//               ///     int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+//                    lastUserCircle.setRadius((Float) animation.getAnimatedValue());
+//                   // lastUserCircle.setFillColor(color);
+//                } else {
+//
+//                    lastUserCircle = map.addCircle(new CircleOptions()
+//                            .center(userLatlng)
+//                            .radius(getDisplayPulseRadius((Float) animation.getAnimatedValue(), map))
+//                            //.strokeColor(0x220000));
+//                          //  .strokeColor(Color.RED));
+//                 //           .strokeColor(Color.BLACK));
+//                       //   .strokeColor(Color.GRAY));
+//        //                  .strokeColor(Color.WHITE));
+////                          .strokeColor(Color.GREEN));
+//                          .strokeColor(Color.BLUE));
+//
+//
+//
+//        //                  .strokeColor(0x10613173));
+//        //                  .strokeColor(	0xFFA500)));
+//        //                  .strokeColor(Color.RED));
+//
+//                    //.fillColor(Color.BLUE));
+//                    //Test
+//                    lastUserCircle.setFillColor(adjustAlpha(0x220000FF, 1 - animation.getAnimatedFraction()));
+//                    //Black
+//
+//                    //Gray
+//
+//                    //White
+//
+//                    //Green
+//
+//                    //Blue
+//
+//                    //Purple
+//
+//                    //Orange
+//
+//                    //Light gold
+//
+//                    //Rainbow
+//
+//                    //Octarine
+//
+//                }
+//            }
+//        });
+//
+//    }
 
     private int adjustAlpha(int color, float factor) {
         int alpha = Math.round(Color.alpha(color) * factor);
@@ -1118,7 +1124,7 @@ public class GenerateAttractors extends Activity {
     }
 
     protected float getDisplayPulseRadius(float radius, @NotNull GoogleMap map) {
-        float diff = (map.getMaxZoomLevel() - map.getCameraPosition().zoom);
+        float diff = 1;
         if (diff < 3)
             return radius;
         if (diff < 3.7)

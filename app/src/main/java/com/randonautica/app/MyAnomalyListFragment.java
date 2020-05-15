@@ -198,7 +198,7 @@ public class MyAnomalyListFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
 
-                    setShowAlertDialog(Integer.parseInt(getItem(position).getId()),
+                    setShowAlertDialog(Integer.parseInt(getItem(position).getType()),
                             Double.valueOf(getItem(position).getPower()),
                             Double.valueOf(getItem(position).getLatitude()),
                             Double.valueOf(getItem(position).getLongitude()),

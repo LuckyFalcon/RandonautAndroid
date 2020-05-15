@@ -6,7 +6,6 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
-    <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyDO_8SsfidQnfEv37Cu_kSW2tWBUkOceP8"/>
 
     <application
         android:allowBackup="true"
@@ -29,7 +28,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyDO_8SsfidQnfEv37Cu_kSW2tWBUkOceP8"/>
 
     </application>
 
