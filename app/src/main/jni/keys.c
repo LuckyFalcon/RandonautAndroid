@@ -1,12 +1,6 @@
 #include <jni.h>
 
 JNIEXPORT jstring JNICALL
-Java_com_randonautica_app_RandonautFragment_getApiKey(JNIEnv *env, jobject instance) {
-
-
-}
-
-JNIEXPORT jstring JNICALL
 Java_com_randonautica_app_RandonautFragment_getBaseApi(JNIEnv *env, jobject instance) {
 
     // https://api.randonauts.com
