@@ -238,7 +238,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
                     } else {
                         Toast.makeText(getContext(), "Permissions not accepted!", Toast.LENGTH_SHORT).show();
-
+                        getLocationPermission();
                     }
                 }
 
