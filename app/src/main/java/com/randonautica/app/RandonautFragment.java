@@ -162,8 +162,6 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
     private static final float DEFAULT_ZOOM = 15f;
 
 
-
-
     private FusedLocationProviderClient mFusedLocationProviderClient;
 
     SupportMapFragment mapFragment;
@@ -202,7 +200,6 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
     }
 
 
-
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -216,15 +213,15 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
             @SuppressLint("CheckResult")
             @Override
             public void onClick(View v) {
-                if(mFusedLocationProviderClient != null) {
+                if (mFusedLocationProviderClient != null) {
                     setPreferencesAlertDialog();
                 } else {
 
                     if (mLocationPermissionsGranted) {
-                        LocationManager lm = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
+                        LocationManager lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
                         boolean gps_enabled = false;
                         gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                        if(gps_enabled){
+                        if (gps_enabled) {
                             getDeviceLocation();
 
                             if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
@@ -267,27 +264,28 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
     }
 
-    /** reset instance */
+    /**
+     * reset instance
+     */
     public void resetRandonaut() {
         //Empty previous run
 
-        if(lastUserCircle != null){
+        if (lastUserCircle != null) {
             lastUserCircle.remove();
             lastUserCircle = null;
             lastPulseAnimator.cancel();
-            if(lastUserCircle != null){
+            if (lastUserCircle != null) {
 
             }
         }
         locationList = new ArrayList<>();
-        if(mMap != null){
+        if (mMap != null) {
             mMap.clear();
         }
-        if(generateRecyclerView != null){
+        if (generateRecyclerView != null) {
             try {
                 generateRecyclerView.removeRecyclerView(rootview);
-            }
-            catch(Exception e) {
+            } catch (Exception e) {
                 //  Block of code to handle errors
             }
 
@@ -300,11 +298,11 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         mLocationPermissionsGranted = false;
 
-        switch(requestCode){
-            case LOCATION_PERMISSION_REQUEST_CODE:{
-                if(grantResults.length > 0){
-                    for(int i = 0; i < grantResults.length; i++){
-                        if(grantResults[i] != PackageManager.PERMISSION_GRANTED){
+        switch (requestCode) {
+            case LOCATION_PERMISSION_REQUEST_CODE: {
+                if (grantResults.length > 0) {
+                    for (int i = 0; i < grantResults.length; i++) {
+                        if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                             mLocationPermissionsGranted = false;
                             return;
                         }
@@ -321,10 +319,10 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         mMap = googleMap;
 
         if (mLocationPermissionsGranted) {
-            LocationManager lm = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
+            LocationManager lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
             boolean gps_enabled = false;
             gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-            if(gps_enabled){
+            if (gps_enabled) {
                 getDeviceLocation();
 
                 if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
@@ -343,7 +341,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
         }
 
-        if(style == "Dark"){
+        if (style == "Dark") {
             googleMap.setMapStyle(
                     MapStyleOptions.loadRawResourceStyle(
                             getActivity(), R.raw.style_json));
@@ -352,62 +350,67 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
     }
 
-    private void getDeviceLocation(){
+    private void getDeviceLocation() {
 
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
 
-        try{
-            if(mLocationPermissionsGranted){
+        try {
+            if (mLocationPermissionsGranted) {
 
                 final Task location = mFusedLocationProviderClient.getLastLocation();
                 location.addOnCompleteListener(new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
 
                             Location currentLocation = (Location) task.getResult();
+                            if(currentLocation != null) {
+                                moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
+                                        DEFAULT_ZOOM);
+                            }
 
-                            moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
-                                    DEFAULT_ZOOM);
-
-
-                        }else{
+                        } else {
                             Toast.makeText(getContext(), "unable to get current location", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
             }
-        }catch (SecurityException e){
+        } catch (SecurityException e) {
         }
     }
 
-    private void moveCamera(LatLng latLng, float zoom){
+    private void moveCamera(LatLng latLng, float zoom) {
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
     }
 
-    private void getLocationPermission(){
+    private void getLocationPermission() {
         String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION};
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && getActivity() != null) {
 
-        if(ContextCompat.checkSelfPermission(this.getContext(),
-                FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-            if(ContextCompat.checkSelfPermission(this.getContext(),
-                    COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-                mLocationPermissionsGranted = true;
 
-            }else{
+            if (ContextCompat.checkSelfPermission(this.getContext(),
+                    FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(this.getContext(),
+                        COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    mLocationPermissionsGranted = true;
+
+                } else {
+                    ActivityCompat.requestPermissions(getActivity(),
+                            permissions,
+                            LOCATION_PERMISSION_REQUEST_CODE);
+                }
+            } else {
                 ActivityCompat.requestPermissions(getActivity(),
                         permissions,
                         LOCATION_PERMISSION_REQUEST_CODE);
             }
-        }else{
-            ActivityCompat.requestPermissions(getActivity(),
-                    permissions,
-                    LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
+            mLocationPermissionsGranted = true;
         }
     }
 
-    public void setPreferencesAlertDialog(){
+    public void setPreferencesAlertDialog() {
         preferencesDialog = new Dialog(getContext());
         preferencesDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         preferencesDialog.setContentView(R.layout.dialog_preferences);
@@ -421,7 +424,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
         //TextView
         textViewProgress = (TextView) preferencesDialog.findViewById(R.id.textViewProgress);
-        textViewProgress.setText("" + 30*100);
+        textViewProgress.setText("" + 30 * 100);
 
         //SeekBar
         seekBarProgress = (SeekBar) preferencesDialog.findViewById(R.id.seekBarProgress);
@@ -465,7 +468,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                 }
             }
         });
-        cancel.setOnClickListener(new View.OnClickListener(){
+        cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 preferencesDialog.cancel();
@@ -474,7 +477,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
         });
 
-        helpImagButton.setOnClickListener(new View.OnClickListener(){
+        helpImagButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 preferencesDialog.cancel();
@@ -485,9 +488,9 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         seekBarProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                distance = (1000+(progress*100));
+                distance = (1000 + (progress * 100));
                 textViewProgress.setText("" + distance);
-                if(progress == 0){
+                if (progress == 0) {
                     distance = 1000;
                     textViewProgress.setText("" + 1000);
                 }
@@ -509,7 +512,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
     }
 
-    public Dialog setRngPreferencesDialog(){
+    public Dialog setRngPreferencesDialog() {
         preferencesDialog = new Dialog(getActivity());
         preferencesDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         preferencesDialog.setContentView(R.layout.dialog_rngpreferences);
@@ -543,7 +546,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         CameraToggleButton.setOnCheckedChangeListener(RNGchangeChecker);
 
 
-        start.setOnClickListener(new View.OnClickListener(){
+        start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (TemporalToggleButton.isChecked()) {
@@ -557,7 +560,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
         });
 
-        previous.setOnClickListener(new View.OnClickListener(){
+        previous.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 preferencesDialog.cancel();
@@ -567,7 +570,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
         });
 
-        rngHelpImage.setOnClickListener(new View.OnClickListener(){
+        rngHelpImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 preferencesDialog.cancel();
@@ -579,7 +582,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         return preferencesDialog;
     }
 
-    public void setIntentionDialog(){
+    public void setIntentionDialog() {
         setIntentionDialog = new Dialog(getActivity());
         setIntentionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setIntentionDialog.setContentView(R.layout.dialog_setinention);
@@ -597,7 +600,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         Button start = (Button) setIntentionDialog.findViewById(R.id.setintentionDialogStartButton);
         Button cancel = (Button) setIntentionDialog.findViewById(R.id.setintentionDialogCancelButton);
 
-        start.setOnClickListener(new View.OnClickListener(){
+        start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
                 if (QuantumToggleButton.isChecked()) {
@@ -607,7 +610,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                                 @Override
                                 public void onData(String GID) {
                                     saveData();
-                                    generateAttractors.getAttractors(rootview, mMap, getContext(), GID,false, false, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
+                                    generateAttractors.getAttractors(rootview, mMap, getContext(), GID, false, false, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
                                         @Override
                                         public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
                                             saveData();
@@ -635,7 +638,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                                 @Override
                                 public void onData(String GID) {
                                     saveData();
-                                    generateAttractors.getAttractors(rootview, mMap, getContext(), GID,true, false, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
+                                    generateAttractors.getAttractors(rootview, mMap, getContext(), GID, true, false, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
                                         @Override
                                         public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
                                             saveData();
@@ -663,6 +666,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                                 public void onData(String entropySizeNeeded) {
                                     SM.rng(Integer.parseInt(entropySizeNeeded));
                                 }
+
                                 @Override
                                 public void onFailed() {
 
@@ -716,7 +720,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                 }
             }
         });
-        cancel.setOnClickListener(new View.OnClickListener(){
+        cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 setIntentionDialog.cancel();
@@ -731,21 +735,21 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
     }
 
-    public void setExplanationDialog(){
+    public void setExplanationDialog() {
         explanationDialog = new Dialog(getActivity());
         explanationDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         explanationDialog.setContentView(R.layout.dialog_explanation);
 
-        int  textColor = getResources().getColor(R.color.navSelected);
+        int textColor = getResources().getColor(R.color.navSelected);
 
-        String text = "<font color="+textColor+">These are ways the algorithm reads the quantumly randomized information to generate a point<br></br> for you to travel to.</font>";
+        String text = "<font color=" + textColor + ">These are ways the algorithm reads the quantumly randomized information to generate a point<br></br> for you to travel to.</font>";
 
         TextView textViewExplanationTop = (TextView) explanationDialog.findViewById(R.id.textViewExplanationTop);
         textViewExplanationTop.setText(Html.fromHtml(text));
 
         ImageView imageExplanationCloseButton = (ImageView) explanationDialog.findViewById(R.id.imageExplanationCloseButton);
 
-        imageExplanationCloseButton.setOnClickListener(new View.OnClickListener(){
+        imageExplanationCloseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 explanationDialog.cancel();
@@ -757,17 +761,17 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
     }
 
-    public void setRNGExplanationDialog(){
+    public void setRNGExplanationDialog() {
         rngExplanationDialog = new Dialog(getActivity());
         rngExplanationDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         rngExplanationDialog.setContentView(R.layout.dialog_rngexplanation);
 
-        int  textColor = getResources().getColor(R.color.navSelected);
+        int textColor = getResources().getColor(R.color.navSelected);
 
-        String ANU = "<font color="+textColor+"><b>ANU: </b>Australia National University's quantum random number generator</font>";
-        String ANULeftovers = "<font color="+textColor+"><b>ANU Leftovers: </b>Mixed intentions from unused ANU entropy</font>";
-        String TemporalRNG = "<font color="+textColor+"><b>Temporal: </b>Get entropy using the server\'s CPU clock</font>";
-        String CameraRNG = "<font color="+textColor+"><b>Camera: </b>Generates entropy from your camera (best try keeping the camera on a still surface - although the jury is still out on that!)</font>";
+        String ANU = "<font color=" + textColor + "><b>ANU: </b>Australia National University's quantum random number generator</font>";
+        String ANULeftovers = "<font color=" + textColor + "><b>ANU Leftovers: </b>Mixed intentions from unused ANU entropy</font>";
+        String TemporalRNG = "<font color=" + textColor + "><b>Temporal: </b>Get entropy using the server\'s CPU clock</font>";
+        String CameraRNG = "<font color=" + textColor + "><b>Camera: </b>Generates entropy from your camera (best try keeping the camera on a still surface - although the jury is still out on that!)</font>";
 
         TextView ANUExplanation = (TextView) rngExplanationDialog.findViewById(R.id.textViewANUExplanation);
         TextView ANULeftoversExplanation = (TextView) rngExplanationDialog.findViewById(R.id.textViewANULeftoversExplanation);
@@ -781,7 +785,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
         ImageView imageRNGExplanationCloseButton = (ImageView) rngExplanationDialog.findViewById(R.id.imageRNGExplanationCloseButton);
 
-        imageRNGExplanationCloseButton.setOnClickListener(new View.OnClickListener(){
+        imageRNGExplanationCloseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 rngExplanationDialog.cancel();
@@ -793,15 +797,15 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
     }
 
-    public void setTemporalExplanationDialog(){
+    public void setTemporalExplanationDialog() {
         temporalExplanationDialog = new Dialog(getActivity());
         temporalExplanationDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         temporalExplanationDialog.setContentView(R.layout.dialog_temporalexplanation);
 
-        int  textColor = getResources().getColor(R.color.navSelected);
+        int textColor = getResources().getColor(R.color.navSelected);
 
-        String Internet = "<font color="+textColor+"><b>Internet: </b>Steve, who is physically connected to the server\'s brain via a quartz crystal clock, will divulge temporal randomness</font>";
-        String Local = "<font color="+textColor+"><b>Local: </b>Steve divulges entropy using the phone's CPU clock</font>";
+        String Internet = "<font color=" + textColor + "><b>Internet: </b>Steve, who is physically connected to the server\'s brain via a quartz crystal clock, will divulge temporal randomness</font>";
+        String Local = "<font color=" + textColor + "><b>Local: </b>Steve divulges entropy using the phone's CPU clock</font>";
 
         TextView internetExplanation = (TextView) temporalExplanationDialog.findViewById(R.id.textViewInternetExplanation);
         TextView localExplanation = (TextView) temporalExplanationDialog.findViewById(R.id.textViewLocalExplanation);
@@ -811,7 +815,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
         ImageView imageTemporalExplanationCloseButton = (ImageView) temporalExplanationDialog.findViewById(R.id.imageTemporalExplanationCloseButton);
 
-        imageTemporalExplanationCloseButton.setOnClickListener(new View.OnClickListener(){
+        imageTemporalExplanationCloseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 temporalExplanationDialog.cancel();
@@ -823,14 +827,14 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
     }
 
-    public void setTemporalDialog(){
+    public void setTemporalDialog() {
         final Dialog setTemporalDialog = new Dialog(getActivity());
         setTemporalDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setTemporalDialog.setContentView(R.layout.dialog_temporal);
 
         //Toggle Buttons
         temporalInternetToggleButton = (ToggleButton) setTemporalDialog.findViewById(R.id.temporalInternetToggleButton);
-      //  temporalLocalToggleButton = (ToggleButton) setTemporalDialog.findViewById(R.id.temporalLocalToggleButton);
+        //  temporalLocalToggleButton = (ToggleButton) setTemporalDialog.findViewById(R.id.temporalLocalToggleButton);
 
         //Check for click
         temporalInternetToggleButton.setOnCheckedChangeListener(temporalChangeChecker);
@@ -844,7 +848,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         Button previous = (Button) setTemporalDialog.findViewById(R.id.temporalDialogPreviousButton);
         ImageView temporalHelpImage = (ImageView) setTemporalDialog.findViewById(R.id.imageTemporalRNGHelpButton);
 
-        next.setOnClickListener(new View.OnClickListener(){
+        next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 setTemporalDialog.cancel();
@@ -853,7 +857,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
         });
 
-        previous.setOnClickListener(new View.OnClickListener(){
+        previous.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 setTemporalDialog.cancel();
@@ -862,7 +866,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
         });
 
-        temporalHelpImage.setOnClickListener(new View.OnClickListener(){
+        temporalHelpImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 setTemporalDialog.cancel();
@@ -879,7 +883,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            if (isChecked){
+            if (isChecked) {
                 if (buttonView == AttractorToggleButton) {
                     selected = "Attractor";
                     VoidToggleButton.setChecked(false);
@@ -912,7 +916,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            if (isChecked){
+            if (isChecked) {
                 if (buttonView == QuantumToggleButton) {
                     PoolToggleButton.setChecked(false);
                     CameraToggleButton.setChecked(false);
@@ -941,7 +945,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            if (isChecked){
+            if (isChecked) {
                 if (buttonView == temporalInternetToggleButton) {
                     temporalInternetToggleButton.setChecked(true);
 //                    temporalLocalToggleButton.setChecked(false);
@@ -954,13 +958,12 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         }
     };
 
-    public void setQuantumEntropy(int size, String Entropy, String rngType){
-
+    public void setQuantumEntropy(int size, String Entropy, String rngType) {
 
 
         //Start ProgressDialog
         progressdialog = new ProgressDialog(this.getContext());
-        progressdialog.setMessage("Setting " + rngType +  " entropy. Please wait....");
+        progressdialog.setMessage("Setting " + rngType + " entropy. Please wait....");
         progressdialog.show();
         progressdialog.setCancelable(false);
         progressdialog.setCanceledOnTouchOutside(false);
@@ -972,7 +975,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(new String(Base64.decode(RandonautFragment.getBaseApi(),Base64.DEFAULT)))
+                .baseUrl(new String(Base64.decode(RandonautFragment.getBaseApi(), Base64.DEFAULT)))
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -985,7 +988,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
             @Override
             public void onResponse(Call<SendEntropy.Response> call, Response<SendEntropy.Response> response) {
                 progressdialog.dismiss();
-                generateAttractors.getAttractors(rootview, mMap, getContext(), response.body().getGid(),false, false, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
+                generateAttractors.getAttractors(rootview, mMap, getContext(), response.body().getGid(), false, false, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
                     @Override
                     public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
                         saveData();
@@ -1000,6 +1003,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                     }
                 });
             }
+
             @Override
             public void onFailure(Call<SendEntropy.Response> call, Throwable t) {
                 generateEntropy.onCreateDialogErrorGettingEntropy(getContext());
@@ -1007,12 +1011,14 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         });
     }
 
-    /** set attractor from my attractors */
+    /**
+     * set attractor from my attractors
+     */
     //From profile attractors
-    public void onShowProfileAttractors(int type, double power, double x, double y, double radiusm, double z_score, double pseudo){
+    public void onShowProfileAttractors(int type, double power, double x, double y, double radiusm, double z_score, double pseudo) {
         resetRandonaut();
 
-        if(type == 2){
+        if (type == 2) {
             mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(x, y))
                     .title("Void"));
@@ -1030,7 +1036,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         singleLocation.setPower((power));
         singleLocation.setZ_score((z_score));
         singleLocation.setLocationCoordinates(new LatLng(x, y));
-        if(pseudo == 1){
+        if (pseudo == 1) {
             singleLocation.setPsuedo(true);
         } else {
             singleLocation.setPsuedo(false);
@@ -1045,11 +1051,11 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         addPulsatingEffect(new LatLng(x, y), mMap, loc);
 
         RandonautFragment.startButton.setVisibility(View.GONE);
-        if(startButton.getVisibility() == View.VISIBLE){
+        if (startButton.getVisibility() == View.VISIBLE) {
             RandonautFragment.startButton.setVisibility(View.GONE);
         }
         RandonautFragment.resetButton.setVisibility(View.VISIBLE);
-        if(startButton.getVisibility() == View.GONE){
+        if (startButton.getVisibility() == View.GONE) {
             RandonautFragment.resetButton.setVisibility(View.VISIBLE);
         }
     }
@@ -1170,6 +1176,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
             progressdialog.setCanceledOnTouchOutside(false);
 
         }
+
         @Override
         protected String doInBackground(String... strings) {
             try {
@@ -1181,13 +1188,14 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                 return null;
             }
         }
+
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             progressdialog.dismiss();
 
             //Set Quantum Entropy after background task is done
-            if(result != null ){
+            if (result != null) {
                 setQuantumEntropy(result.length(), result, "Temporal");
             } else {
                 generateEntropy.onCreateDialogErrorGettingEntropy(getContext());
@@ -1209,7 +1217,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
     /**
      * Attach to the mainactivity, used for camrng
-     * */
+     */
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);

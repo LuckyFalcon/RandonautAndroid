@@ -169,7 +169,7 @@ public class GenerateAttractors extends Activity {
 
                                 if (selected == "Attractor") {
                                     int position = getMaxAttractor(attractorLocations);
-                                    if(position == -1){
+                                    if (position == -1) {
                                         //Nothhing was found
                                         createDialogEmptyResults(context, selected, currentLocation.getLatitude(), currentLocation.getLongitude(), distance, randonautDialogsListener, mapboxMap);
 
@@ -183,7 +183,7 @@ public class GenerateAttractors extends Activity {
 
                                         marker.showInfoWindow();
 
-                                        addPulsatingEffect(new LatLng(attractorLocations[position].getCoordinate().latitude, attractorLocations[position].getCoordinate().longitude), mapboxMap, (int)attractorLocations[position].getRadiusM());
+                                        addPulsatingEffect(new LatLng(attractorLocations[position].getCoordinate().latitude, attractorLocations[position].getCoordinate().longitude), mapboxMap, (int) attractorLocations[position].getRadiusM());
 
                                         RandonautFragment.atts++;
 
@@ -234,7 +234,7 @@ public class GenerateAttractors extends Activity {
                                 }
                                 if (selected == "Void") {
                                     int position = getMaxVoid(attractorLocations);
-                                    if(position == -1){
+                                    if (position == -1) {
                                         //Nothhing was found
                                         createDialogEmptyResults(context, selected, currentLocation.getLatitude(), currentLocation.getLongitude(), distance, randonautDialogsListener, mapboxMap);
 
@@ -248,7 +248,7 @@ public class GenerateAttractors extends Activity {
 
                                         marker.showInfoWindow();
 
-                                        addPulsatingEffect(new LatLng(attractorLocations[position].getCoordinate().latitude, attractorLocations[position].getCoordinate().longitude), mapboxMap, (int)attractorLocations[position].getRadiusM());
+                                        addPulsatingEffect(new LatLng(attractorLocations[position].getCoordinate().latitude, attractorLocations[position].getCoordinate().longitude), mapboxMap, (int) attractorLocations[position].getRadiusM());
 
                                         RandonautFragment.atts++;
 
@@ -366,10 +366,10 @@ public class GenerateAttractors extends Activity {
                                         }
                                     } //End bubblesort
 
-                                        //Make databaseHelper
-                                        mDatabaseHelper = new DatabaseHelper(context, anomalyTable);
+                                    //Make databaseHelper
+                                    mDatabaseHelper = new DatabaseHelper(context, anomalyTable);
 
-                                    if(attractorLocations[0].getType() == 1){
+                                    if (attractorLocations[0].getType() == 1) {
                                         Marker marker = mapboxMap.addMarker(new MarkerOptions()
                                                 .position(new LatLng(attractorLocations[0].getCoordinate().latitude, attractorLocations[0].getCoordinate().longitude))
                                                 .title("Attractor"));
@@ -386,52 +386,49 @@ public class GenerateAttractors extends Activity {
                                     }
 
 
-                                        addPulsatingEffect(new LatLng(attractorLocations[0].getCoordinate().latitude, attractorLocations[0].getCoordinate().longitude), mapboxMap, (int)attractorLocations[0].getRadiusM());
+                                    addPulsatingEffect(new LatLng(attractorLocations[0].getCoordinate().latitude, attractorLocations[0].getCoordinate().longitude), mapboxMap, (int) attractorLocations[0].getRadiusM());
 
-                                        //  amount++;
-                                        RandonautFragment.anomalies++;
-                                        SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
-                                        singleLocation.setType((attractorLocations[0].getType()));
-                                        singleLocation.setRadiusm((attractorLocations[0].getRadiusM()));
-                                        singleLocation.setPower((attractorLocations[0].getPower()));
-                                        singleLocation.setZ_score((attractorLocations[0].getZ_score()));
-                                        singleLocation.setLocationCoordinates(attractorLocations[0].getCoordinate());
-                                        singleLocation.setPsuedo(false);
+                                    //  amount++;
+                                    RandonautFragment.anomalies++;
+                                    SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
+                                    singleLocation.setType((attractorLocations[0].getType()));
+                                    singleLocation.setRadiusm((attractorLocations[0].getRadiusM()));
+                                    singleLocation.setPower((attractorLocations[0].getPower()));
+                                    singleLocation.setZ_score((attractorLocations[0].getZ_score()));
+                                    singleLocation.setLocationCoordinates(attractorLocations[0].getCoordinate());
+                                    singleLocation.setPsuedo(false);
 
-                                        AddData(anomalyTable,
-                                                attractorLocations[0].getCoordinate().latitude,
-                                                attractorLocations[0].getCoordinate().longitude,
-                                                attractorLocations[0].getGID(),
-                                                attractorLocations[0].getTID(),
-                                                attractorLocations[0].getLID(),
+                                    AddData(anomalyTable,
+                                            attractorLocations[0].getCoordinate().latitude,
+                                            attractorLocations[0].getCoordinate().longitude,
+                                            attractorLocations[0].getGID(),
+                                            attractorLocations[0].getTID(),
+                                            attractorLocations[0].getLID(),
 
-                                                attractorLocations[0].getX(),
-                                                attractorLocations[0].getY(),
-                                                attractorLocations[0].getDistance(),
-                                                attractorLocations[0].getInitialBearing(),
-                                                attractorLocations[0].getFinalBearing(),
-                                                attractorLocations[0].getSide(),
-                                                attractorLocations[0].getDistanceErr(),
-                                                attractorLocations[0].getRadiusM(),
-                                                attractorLocations[0].getN(),
-                                                attractorLocations[0].getMean(),
-                                                attractorLocations[0].getRarity(),
-                                                attractorLocations[0].getPower_old(),
-                                                attractorLocations[0].getProbability_single(),
-                                                attractorLocations[0].getIntegral_score(),
-                                                attractorLocations[0].getSignificance(),
-                                                attractorLocations[0].getProbability(),
-                                                attractorLocations[0].getFILTERING_SIGNIFICANCE(),
-                                                attractorLocations[0].getType(),
-                                                attractorLocations[0].getRadiusM(),
-                                                attractorLocations[0].getPower(),
-                                                attractorLocations[0].getZ_score(),
-                                                0, 0);
+                                            attractorLocations[0].getX(),
+                                            attractorLocations[0].getY(),
+                                            attractorLocations[0].getDistance(),
+                                            attractorLocations[0].getInitialBearing(),
+                                            attractorLocations[0].getFinalBearing(),
+                                            attractorLocations[0].getSide(),
+                                            attractorLocations[0].getDistanceErr(),
+                                            attractorLocations[0].getRadiusM(),
+                                            attractorLocations[0].getN(),
+                                            attractorLocations[0].getMean(),
+                                            attractorLocations[0].getRarity(),
+                                            attractorLocations[0].getPower_old(),
+                                            attractorLocations[0].getProbability_single(),
+                                            attractorLocations[0].getIntegral_score(),
+                                            attractorLocations[0].getSignificance(),
+                                            attractorLocations[0].getProbability(),
+                                            attractorLocations[0].getFILTERING_SIGNIFICANCE(),
+                                            attractorLocations[0].getType(),
+                                            attractorLocations[0].getRadiusM(),
+                                            attractorLocations[0].getPower(),
+                                            attractorLocations[0].getZ_score(),
+                                            0, 0);
 
-                                        locationList.add(singleLocation);
-
-
-
+                                    locationList.add(singleLocation);
 
 
                                 } //End anomaly
@@ -467,11 +464,11 @@ public class GenerateAttractors extends Activity {
         });
     }
 
-    public int getMaxAnomaly(AttractorLocation[] list){
+    public int getMaxAnomaly(AttractorLocation[] list) {
         double max = Integer.MIN_VALUE;
         int position = -1;
-        for(int i=0; i<list.length; i++){
-            if(list[i].getPower() > max){
+        for (int i = 0; i < list.length; i++) {
+            if (list[i].getPower() > max) {
                 max = list[i].getPower();
                 position = i;
             }
@@ -479,11 +476,11 @@ public class GenerateAttractors extends Activity {
         return position;
     }
 
-    public int getMaxAttractor(AttractorLocation[] list){
+    public int getMaxAttractor(AttractorLocation[] list) {
         double max = Integer.MIN_VALUE;
         int position = -1;
-        for(int i=0; i<list.length; i++){
-            if(list[i].getPower() > max && list[i].getType() == 1){
+        for (int i = 0; i < list.length; i++) {
+            if (list[i].getPower() > max && list[i].getType() == 1) {
                 max = list[i].getPower();
                 position = i;
             }
@@ -491,11 +488,11 @@ public class GenerateAttractors extends Activity {
         return position;
     }
 
-    public int getMaxVoid(AttractorLocation[] list){
+    public int getMaxVoid(AttractorLocation[] list) {
         int result = 0;
         int position = -1;
-        for(int i=0; i<list.length; i++){
-            if(list[i].getPower() < 0 && list[i].getType() == 2){
+        for (int i = 0; i < list.length; i++) {
+            if (list[i].getPower() < 0 && list[i].getType() == 2) {
                 if (result == 0 || list[i].getPower() > result) {
                     result = (int) list[i].getPower();
                     position = i;
@@ -846,7 +843,7 @@ public class GenerateAttractors extends Activity {
 
                                             marker.showInfoWindow();
 
-                                            addPulsatingEffect(new LatLng(x, y), mapboxMap, (int)radiusM);
+                                            addPulsatingEffect(new LatLng(x, y), mapboxMap, (int) radiusM);
 
                                             amount++;
                                             RandonautFragment.psuedo++;
@@ -906,7 +903,7 @@ public class GenerateAttractors extends Activity {
 
                                             marker.showInfoWindow();
 
-                                            addPulsatingEffect(new LatLng(x, y), mapboxMap, (int)radiusM);
+                                            addPulsatingEffect(new LatLng(x, y), mapboxMap, (int) radiusM);
 
                                             // Get back the mutable Circle
                                             //      mapboxMap.addCircle(circleOptions);
@@ -1009,14 +1006,12 @@ public class GenerateAttractors extends Activity {
     }
 
 
-
-
     private void addPulsatingEffect(final LatLng userLatlng, final GoogleMap map, int radius) {
 
         if (RandonautFragment.lastPulseAnimator != null) {
             RandonautFragment.lastPulseAnimator.cancel();
         }
-        if (RandonautFragment.lastUserCircle != null){
+        if (RandonautFragment.lastUserCircle != null) {
             RandonautFragment.lastUserCircle.remove();
             RandonautFragment.lastUserCircle.setCenter(userLatlng);
         }

@@ -30,7 +30,7 @@ import com.randonautica.app.Interfaces.MainActivityMessage;
 import java.io.InputStream;
 import java.util.UUID;
 
-public class MainActivity extends AppCompatActivity implements MainActivityMessage, MyAttractorsListFragment.SendMessage, MyCamRngFragment.SendMessage, NavigationView.OnNavigationItemSelectedListener  {
+public class MainActivity extends AppCompatActivity implements MainActivityMessage, MyAttractorsListFragment.SendMessage, MyCamRngFragment.SendMessage, NavigationView.OnNavigationItemSelectedListener {
     public static NavigationView navigationView;
     Dialog privacyPolicyDialog;
 
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
         loadData();
 
         //Check for userId
-        if(userId == null){
+        if (userId == null) {
             //userId
             userId = UUID.randomUUID().toString();
             saveData();
@@ -86,15 +86,15 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
         //Set Navigation header username equal to userId
         View headerView = navigationView.getHeaderView(0);
         TextView text = headerView.findViewById(R.id.textViewuserId);
-        text.setText(userId.substring(0,8));
+        text.setText(userId.substring(0, 8));
 
         //Check if dark mode is enabled
-        if(darkModeSwitch){
+        if (darkModeSwitch) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         }
 
         //Check if Privacy and Policy was accepted
-        if(privacyPolicyAccepted == false){
+        if (privacyPolicyAccepted == false) {
             showPrivacyPolicyAlertDialog(navigationView);
         } else {
             //Continue loading the app
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        switch (menuItem.getItemId()){
+        switch (menuItem.getItemId()) {
             case R.id.nav_randonaut:
                 fragmentManager = getSupportFragmentManager();
 
@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
         builder.setMessage("Coming soon!")
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                       dialog.dismiss();
+                        dialog.dismiss();
                     }
                 }).show();
 
@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
         return builder.create();
     }
 
-    public void showPrivacyPolicyAlertDialog(final NavigationView navigationView){
+    public void showPrivacyPolicyAlertDialog(final NavigationView navigationView) {
 
         privacyPolicyDialog = new Dialog(this);
         privacyPolicyDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -197,7 +197,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
         privacyPolicyTextView.setMovementMethod(new ScrollingMovementMethod());
 
         try {
-            Resources res = getResources(); InputStream in_s = res.openRawResource(R.raw.term);
+            Resources res = getResources();
+            InputStream in_s = res.openRawResource(R.raw.term);
             byte[] b = new byte[in_s.available()];
             in_s.read(b);
             privacyPolicyTextView.setText(new String(b));
@@ -265,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
         RandonautFragment randonautfragment = (RandonautFragment) fragmentManager.findFragmentByTag(tag);
 
         //Checks if size was 0, which means it was cancelled
-        if(size != 0){
+        if (size != 0) {
             randonautfragment.setQuantumEntropy(size, entropy, "Camera");
         }
 
@@ -293,7 +294,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
     @Override
     public void onBackPressed() {
         FragmentManager fragmentManager = getSupportFragmentManager();
-        if(fragmentManager.getBackStackEntryCount() != 0) {
+        if (fragmentManager.getBackStackEntryCount() != 0) {
             fragmentManager.popBackStack();
         } else if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
