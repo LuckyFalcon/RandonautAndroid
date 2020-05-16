@@ -166,6 +166,8 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
     SupportMapFragment mapFragment;
 
+    Location currentLocation;
+
     public RandonautFragment() {
         // Required empty public constructor
     }
@@ -213,7 +215,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
             @SuppressLint("CheckResult")
             @Override
             public void onClick(View v) {
-                if (mFusedLocationProviderClient != null) {
+                if (currentLocation != null) {
                     setPreferencesAlertDialog();
                 } else {
 
@@ -229,6 +231,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                                     Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                                 return;
                             }
+                            Toast.makeText(getContext(), "Trying to get location...", Toast.LENGTH_SHORT).show();
                             mMap.setMyLocationEnabled(true);
                             mMap.getUiSettings().setMyLocationButtonEnabled(false);
                         } else {
@@ -363,7 +366,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                     public void onComplete(@NonNull Task task) {
                         if (task.isSuccessful()) {
 
-                            Location currentLocation = (Location) task.getResult();
+                            currentLocation = (Location) task.getResult();
                             if(currentLocation != null) {
                                 moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
                                         DEFAULT_ZOOM);

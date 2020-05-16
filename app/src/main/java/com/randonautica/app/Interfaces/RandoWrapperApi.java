@@ -42,8 +42,8 @@ public interface RandoWrapperApi {
 
     @GET("attractors")
     Call<GoAttractors> getAttractors(@Query("gid") String gid,
-                                     @Query("center[0]") double  center0,
-                                     @Query("center[1]") double center1,
+                                     @Query("x") double  center0,
+                                     @Query("y") double center1,
                                      @Query("radius") int radius,
                                      @Query("pool") boolean pool,
                                      @Query("temporal") boolean temporal,
@@ -51,8 +51,8 @@ public interface RandoWrapperApi {
 
     @GET("pseudo")
     Call<List<PseudoAttractor>> getPsuedo(@Query("n") int n,
-                                          @Query("center[0]") double  center0,
-                                          @Query("center[1]") double center1,
+                                          @Query("x") double  center0,
+                                          @Query("y") double center1,
                                           @Query("radius") int radius,
                                           @Query("seed") int seed,
                                           @Query("filtering") int filtering);
