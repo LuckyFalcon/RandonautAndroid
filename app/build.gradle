@@ -10,8 +10,8 @@ android {
         applicationId "com.randonautica.app"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 100001101
-        versionName "1.0.11"
+        versionCode 100001200
+        versionName "1.0.12"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         ndk {
