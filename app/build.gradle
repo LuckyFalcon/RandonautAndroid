@@ -1,11 +1,17 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
+apply plugin: 'com.onesignal.androidsdk.onesignal-gradle-plugin'
 
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
+        manifestPlaceholders = [
+                onesignal_app_id: 'ad353d57-fe54-4e06-94ff-52f7d0909f3d',
+                // Project number pulled from dashboard, local value is ignored.
+                onesignal_google_project_number: 'REMOTE'
+        ]
         multiDexEnabled true
         applicationId "com.randonautica.app"
         minSdkVersion 21
@@ -42,6 +48,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta4"
     //noinspection GradleCompatible
+    implementation 'com.onesignal:OneSignal:[3.13.0, 3.99.99]'
     implementation 'com.android.support:support-v4:28.0.0'
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'androidx.appcompat:appcompat:1.0.2'

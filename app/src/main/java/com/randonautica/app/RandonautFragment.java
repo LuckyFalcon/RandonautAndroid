@@ -17,7 +17,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,6 +58,7 @@ import com.randonautica.app.Interfaces.RandonautAttractorListener;
 import com.randonautica.app.Interfaces.RandonautEntropyListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -69,6 +69,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.randonautica.app.Attractors.GenerateAttractors.locationList;
+import static com.randonautica.app.MyCamRngFragment.REQUEST_PERMISSIONS;
 
 public class RandonautFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMyLocationClickListener {
 
@@ -141,7 +142,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
     //RNG Dialog Toggle Buttons
     ToggleButton QuantumToggleButton;
-    ToggleButton PoolToggleButton;
+    ToggleButton GCPToggleButton;
     ToggleButton TemporalToggleButton;
     ToggleButton CameraToggleButton;
 
@@ -527,8 +528,8 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
         //Toggle Buttons
         QuantumToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.AnuToggleButton);
-        PoolToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.PoolToggleButton);
-        // GCPToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.gcpToggleButton);
+        //PoolToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.PoolToggleButton);
+        GCPToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.GCPToggleButton);
         TemporalToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.tmprngToggleButton);
         CameraToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.cmrngToggleButton);
 
@@ -544,7 +545,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
         //Check for click
         QuantumToggleButton.setOnCheckedChangeListener(RNGchangeChecker);
-        PoolToggleButton.setOnCheckedChangeListener(RNGchangeChecker);
+        GCPToggleButton.setOnCheckedChangeListener(RNGchangeChecker);
         TemporalToggleButton.setOnCheckedChangeListener(RNGchangeChecker);
         CameraToggleButton.setOnCheckedChangeListener(RNGchangeChecker);
 
@@ -603,12 +604,13 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         Button start = (Button) setIntentionDialog.findViewById(R.id.setintentionDialogStartButton);
         Button cancel = (Button) setIntentionDialog.findViewById(R.id.setintentionDialogCancelButton);
 
+
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
                 if (QuantumToggleButton.isChecked()) {
                     setIntentionDialog.cancel();
-                    generateEntropy.getANUQuantumEntropy(getContext(), distance,
+                    generateEntropy.getANUQuantumEntropy(getContext(), distance, mFusedLocationProviderClient, mMap, selected,
                             new RandonautEntropyListener() {
                                 @Override
                                 public void onData(String GID) {
@@ -630,13 +632,16 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                                 }
 
                                 @Override
-                                public void onFailed() {
+                                public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
+
+                                    generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
+
                                 }
                             });
 
-                } else if (PoolToggleButton.isChecked()) {
+                } else if (GCPToggleButton.isChecked()) {
                     setIntentionDialog.cancel();
-                    generateEntropy.poolQuantumEntropy(getContext(), distance,
+                    generateEntropy.getGCPEntropy(getContext(), distance, mFusedLocationProviderClient, mMap, selected,
                             new RandonautEntropyListener() {
                                 @Override
                                 public void onData(String GID) {
@@ -651,34 +656,39 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
                                         @Override
                                         public void onFailed() {
-
                                         }
                                     });
 
                                 }
 
                                 @Override
-                                public void onFailed() {
+                                public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
+                                    generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
                                 }
                             });
                 } else if (CameraToggleButton.isChecked()) {
                     setIntentionDialog.cancel();
-                    generateEntropy.getNeededEntropySize(getContext(), distance,
-                            new RandonautEntropyListener() {
-                                @Override
-                                public void onData(String entropySizeNeeded) {
-                                    SM.rng(Integer.parseInt(entropySizeNeeded));
-                                }
+                    if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                        generateEntropy.getNeededEntropySize(getContext(), distance,
+                                new RandonautEntropyListener() {
+                                    @Override
+                                    public void onData(String entropySizeNeeded) {
+                                        SM.rng(Integer.parseInt(entropySizeNeeded));
+                                    }
 
-                                @Override
-                                public void onFailed() {
+                                    @Override
+                                    public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
 
-                                }
-                            });//---> This will run the MyCamRngFragment on success
+                                    }
+                                });//---> This will run the MyCamRngFragment on success
+                    } else {
+                        ActivityCompat.requestPermissions(requireActivity(), new String[] {Manifest.permission.CAMERA}, REQUEST_PERMISSIONS);
+                    }
+
                 } else if (TemporalToggleButton.isChecked()) {
                     setIntentionDialog.cancel();
                     if (temporalInternetToggleButton.isChecked()) {
-                        generateEntropy.getTemporalEntropy(getContext(), distance,
+                        generateEntropy.getTemporalEntropy(getContext(), distance, mFusedLocationProviderClient, mMap, selected,
                                 new RandonautEntropyListener() {
                                     @Override
                                     public void onData(String GID) {
@@ -699,8 +709,8 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                                     }
 
                                     @Override
-                                    public void onFailed() {
-
+                                    public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
+                                        generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
                                     }
                                 });
                     } //Temporal from Internet
@@ -723,6 +733,9 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                 }
             }
         });
+
+
+
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -736,6 +749,29 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         setIntentionDialog.show();
 
 
+    }
+
+    public void onRequestPermissionsResultCamera(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == REQUEST_PERMISSIONS) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                generateEntropy.getNeededEntropySize(getContext(), distance,
+                        new RandonautEntropyListener() {
+                            @Override
+                            public void onData(String entropySizeNeeded) {
+                                SM.rng(Integer.parseInt(entropySizeNeeded));
+                            }
+
+                            @Override
+                            public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
+
+                            }
+                        });//---> This will run the MyCamRngFragment on success
+            } else {
+                //  finish()
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 
     public void setExplanationDialog() {
@@ -921,23 +957,23 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if (isChecked) {
                 if (buttonView == QuantumToggleButton) {
-                    PoolToggleButton.setChecked(false);
+                    GCPToggleButton.setChecked(false);
                     CameraToggleButton.setChecked(false);
                     TemporalToggleButton.setChecked(false);
                 }
-                if (buttonView == PoolToggleButton) {
+                if (buttonView == GCPToggleButton) {
                     QuantumToggleButton.setChecked(false);
                     CameraToggleButton.setChecked(false);
                     TemporalToggleButton.setChecked(false);
                 }
                 if (buttonView == CameraToggleButton) {
                     QuantumToggleButton.setChecked(false);
-                    PoolToggleButton.setChecked(false);
+                    GCPToggleButton.setChecked(false);
                     TemporalToggleButton.setChecked(false);
                 }
                 if (buttonView == TemporalToggleButton) {
                     QuantumToggleButton.setChecked(false);
-                    PoolToggleButton.setChecked(false);
+                    GCPToggleButton.setChecked(false);
                     CameraToggleButton.setChecked(false);
                 }
             }

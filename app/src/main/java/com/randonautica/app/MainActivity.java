@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.navigation.NavigationView;
+import com.onesignal.OneSignal;
 import com.randonautica.app.Interfaces.MainActivityMessage;
 
 import java.io.InputStream;
@@ -55,6 +56,12 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // OneSignal Initialization
+        OneSignal.startInit(this)
+                .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
+                .unsubscribeWhenNotificationsAreDisabled(true)
+                .init();
 
         setContentView(R.layout.activity_main);
 

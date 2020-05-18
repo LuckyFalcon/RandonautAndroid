@@ -72,7 +72,7 @@
         android:textOn="ANU" />
 
     <ToggleButton
-        android:id="@+id/PoolToggleButton"
+        android:id="@+id/GCPToggleButton"
         android:layout_width="251dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -84,8 +84,8 @@
         android:layout_marginRight="24dp"
         android:textStyle="bold"
         android:text="ToggleButton"
-        android:textOff="ANU Leftovers"
-        android:textOn="ANU Leftovers"/>
+        android:textOff="GCP"
+        android:textOn="GCP"/>
 
     <ToggleButton
         android:id="@+id/tmprngToggleButton"

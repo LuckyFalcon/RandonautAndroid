@@ -101,12 +101,13 @@ public class GenerateAttractors extends Activity {
 
         randoWrapperApi = retrofit.create(RandoWrapperApi.class);
 
-
+        Log.d("test", ""+GID);
         final Task location = mFusedLocationProviderClient.getLastLocation();
         location.addOnCompleteListener(new OnCompleteListener() {
             @Override
             public void onComplete(@NonNull Task task) {
                 if (task.isSuccessful()) {
+
                     final Location currentLocation = (Location) task.getResult();
 
                     Call<GoAttractors> callGetAttractors = randoWrapperApi.getAttractors(GID,
@@ -114,10 +115,12 @@ public class GenerateAttractors extends Activity {
                     callGetAttractors.enqueue(new Callback<GoAttractors>() {
                         @Override
                         public void onResponse(Call<GoAttractors> call, Response<GoAttractors> response) {
-
+                            try {
                             int i = 0;
                             int count = 0;
                             int amount = 0;
+                            Log.d("test", ""+response.code());
+
                             for (Point attractors : response.body().getPoints()) {
                                 count++;
                             }
@@ -444,6 +447,12 @@ public class GenerateAttractors extends Activity {
 
                             //saveData();
                             progressdialog.dismiss();
+
+                        }catch (Exception e) {
+                            // This will catch any exception, because they are all descended from Exception
+                                createDialogEmptyResults(context, selected, currentLocation.getLatitude(), currentLocation.getLongitude(), distance, randonautDialogsListener, mapboxMap);
+
+                            }
                         }
 
                         @Override
@@ -786,6 +795,7 @@ public class GenerateAttractors extends Activity {
                             callGetPsuedo.enqueue(new Callback<List<PseudoAttractor>>() {
                                 @Override
                                 public void onResponse(Call<List<PseudoAttractor>> call, Response<List<PseudoAttractor>> response) {
+                                    try{
                                     int i = 0;
                                     int count = 0;
                                     int amount = 0;
@@ -977,6 +987,11 @@ public class GenerateAttractors extends Activity {
 
                                     progressdialog.dismiss();
 
+                                }catch (Exception e) {
+                                    // This will catch any exception, because they are all descended from Exception
+                                    createDialogEmptyResults(context, selected, currentLocation.getLatitude(), currentLocation.getLongitude(), distance, randonautDialogsListener, mapboxMap);
+
+                                }
 
                                 }
 
