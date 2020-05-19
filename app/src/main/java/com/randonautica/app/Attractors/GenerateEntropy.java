@@ -68,7 +68,7 @@ public class GenerateEntropy {
 
         //Start ProgressDialog
         progressdialog = new ProgressDialog(context);
-        progressdialog.setMessage("Getting quantum entropy. The quantum entropy process may take a few times. Please wait then try again if needed.");
+        progressdialog.setMessage("Getting quantum entropy, focus on your intent.");
         progressdialog.show();
         progressdialog.setCancelable(false);
         progressdialog.setCanceledOnTouchOutside(false);
@@ -98,12 +98,34 @@ public class GenerateEntropy {
                     Call<Entropy> callGetEntropy = randoWrapperApi.getEntropy(hexsize, false, false, false);
 
                     callGetEntropy.enqueue(new Callback<Entropy>() {
+
                         @Override
                         public void onResponse(Call<Entropy> call, Response<Entropy> response) {
+                            try {
                             GID = response.body().getGid();
                             RandonautFragment.entropy = RandonautFragment.entropy + hexsize;
                             progressdialog.dismiss();
                             randonautDialogsListener.onData(GID);
+
+                            }catch (Exception e) {
+                                // This will catch any exception, because they are all descended from Exception
+                                final Task location = mFusedLocationProviderClient.getLastLocation();
+                                location.addOnCompleteListener(new OnCompleteListener() {
+                                    @Override
+                                    public void onComplete(@NonNull Task task) {
+                                        if (task.isSuccessful()) {
+
+                                            final Location currentLocation = (Location) task.getResult();
+
+                                            createDialogEmptyResults(context, selected, currentLocation.getLatitude(), currentLocation.getLongitude(), distance, randonautDialogsListener, mapboxMap);
+                                            progressdialog.cancel();
+
+                                        } else {
+                                            onCreateDialogErrorGettingEntropy(context);
+                                        }
+                                    }
+                                });
+                            }
                         }
 
                         @Override
@@ -351,7 +373,7 @@ public class GenerateEntropy {
 
         //Start ProgressDialog
         progressdialog = new ProgressDialog(context);
-        progressdialog.setMessage("Getting Temporal entropy. Please wait....");
+        progressdialog.setMessage("Getting quantum entropy, focus on your intent.");
         progressdialog.show();
         progressdialog.setCancelable(false);
         progressdialog.setCanceledOnTouchOutside(false);
@@ -383,10 +405,31 @@ public class GenerateEntropy {
                 callGetEntropy.enqueue(new Callback<Entropy>() {
                     @Override
                     public void onResponse(Call<Entropy> call, Response<Entropy> response) {
+                        try{
                         GID = response.body().getGid();
                         RandonautFragment.entropy = RandonautFragment.entropy + hexsize;
                         progressdialog.dismiss();
                         randonautDialogsListener.onData(GID);
+
+                    }catch (Exception e) {
+                        // This will catch any exception, because they are all descended from Exception
+                        final Task location = mFusedLocationProviderClient.getLastLocation();
+                        location.addOnCompleteListener(new OnCompleteListener() {
+                            @Override
+                            public void onComplete(@NonNull Task task) {
+                                if (task.isSuccessful()) {
+
+                                    final Location currentLocation = (Location) task.getResult();
+
+                                    createDialogEmptyResults(context, selected, currentLocation.getLatitude(), currentLocation.getLongitude(), distance, randonautDialogsListener, mapboxMap);
+                                    progressdialog.cancel();
+
+                                } else {
+                                    onCreateDialogErrorGettingEntropy(context);
+                                }
+                            }
+                        });
+                    }
                     }
                     @Override
                     public void onFailure(Call<Entropy> call, Throwable t) {
@@ -463,7 +506,7 @@ public class GenerateEntropy {
 
         //Start ProgressDialog
         progressdialog = new ProgressDialog(context);
-        progressdialog.setMessage("Getting quantum entropy. The quantum entropy process may take a few times. Please wait then try again if needed.");
+        progressdialog.setMessage("Getting quantum entropy, focus on your intent.");
         progressdialog.show();
         progressdialog.setCancelable(false);
         progressdialog.setCanceledOnTouchOutside(false);
@@ -495,10 +538,30 @@ public class GenerateEntropy {
                 callGetEntropy.enqueue(new Callback<Entropy>() {
                     @Override
                     public void onResponse(Call<Entropy> call, Response<Entropy> response) {
+                        try{
                         GID = response.body().getGid();
                         RandonautFragment.entropy = RandonautFragment.entropy + hexsize;
                         progressdialog.dismiss();
                         randonautDialogsListener.onData(GID);
+                    }catch (Exception e) {
+                        // This will catch any exception, because they are all descended from Exception
+                        final Task location = mFusedLocationProviderClient.getLastLocation();
+                        location.addOnCompleteListener(new OnCompleteListener() {
+                            @Override
+                            public void onComplete(@NonNull Task task) {
+                                if (task.isSuccessful()) {
+
+                                    final Location currentLocation = (Location) task.getResult();
+
+                                    createDialogEmptyResults(context, selected, currentLocation.getLatitude(), currentLocation.getLongitude(), distance, randonautDialogsListener, mapboxMap);
+                                    progressdialog.cancel();
+
+                                } else {
+                                    onCreateDialogErrorGettingEntropy(context);
+                                }
+                            }
+                        });
+                    }
                     }
                     @Override
                     public void onFailure(Call<Entropy> call, Throwable t) {
