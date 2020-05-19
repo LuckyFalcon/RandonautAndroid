@@ -101,7 +101,7 @@ public class GenerateAttractors extends Activity {
 
         randoWrapperApi = retrofit.create(RandoWrapperApi.class);
 
-        Log.d("test", ""+GID);
+
         final Task location = mFusedLocationProviderClient.getLastLocation();
         location.addOnCompleteListener(new OnCompleteListener() {
             @Override
@@ -119,7 +119,7 @@ public class GenerateAttractors extends Activity {
                             int i = 0;
                             int count = 0;
                             int amount = 0;
-                            Log.d("test", ""+response.code());
+                            
 
                             for (Point attractors : response.body().getPoints()) {
                                 count++;
