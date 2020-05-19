@@ -240,7 +240,6 @@ public class GenerateAttractors extends Activity {
                                     if (position == -1) {
                                         //Nothhing was found
                                         createDialogEmptyResults(context, selected, currentLocation.getLatitude(), currentLocation.getLongitude(), distance, randonautDialogsListener, mapboxMap);
-
                                     } else {
                                         //Make databaseHelper
                                         mDatabaseHelper = new DatabaseHelper(context, attractorTable);
@@ -498,12 +497,13 @@ public class GenerateAttractors extends Activity {
     }
 
     public int getMaxVoid(AttractorLocation[] list) {
-        int result = 0;
+        double result = 0;
         int position = -1;
+
         for (int i = 0; i < list.length; i++) {
-            if (list[i].getPower() < 0 && list[i].getType() == 2) {
-                if (result == 0 || list[i].getPower() > result) {
-                    result = (int) list[i].getPower();
+            if (list[i].getZ_score() < 0 && list[i].getType() == 2) {
+                if (result == 0 || list[i].getZ_score() > result) {
+                    result = list[i].getZ_score();
                     position = i;
                 }
             }
