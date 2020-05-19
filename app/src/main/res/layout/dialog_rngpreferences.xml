@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="300dp"
-    android:layout_height="310dp">
+    android:layout_height="260dp">
 
     <TextView
         android:id="@+id/textViewChoosePoint"
@@ -83,6 +83,7 @@
         android:layout_marginEnd="24dp"
         android:layout_marginRight="24dp"
         android:textStyle="bold"
+        android:visibility="gone"
         android:text="ToggleButton"
         android:textOff="GCP"
         android:textOn="GCP"/>
@@ -95,9 +96,10 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerInParent="true"
-        android:layout_marginTop="145dp"
-        android:layout_marginEnd="22dp"
-        android:layout_marginRight="22dp"
+
+        android:layout_marginTop="87dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginRight="24dp"
         android:visibility="visible"
         android:textStyle="bold"
         android:text="ToggleButton"
@@ -112,7 +114,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerInParent="true"
-        android:layout_marginTop="203dp"
+        android:layout_marginTop="145dp"
         android:layout_marginEnd="22dp"
         android:layout_marginRight="22dp"
         android:textStyle="bold"
