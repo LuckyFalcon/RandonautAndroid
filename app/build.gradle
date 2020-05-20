@@ -46,6 +46,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.billingclient:billing:2.2.0'
     implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta4"
     //noinspection GradleCompatible
     implementation 'com.onesignal:OneSignal:[3.13.0, 3.99.99]'

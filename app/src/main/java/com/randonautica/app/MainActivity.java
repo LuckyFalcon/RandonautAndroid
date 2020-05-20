@@ -6,15 +6,19 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -24,16 +28,34 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.android.billingclient.api.BillingClient;
+import com.android.billingclient.api.BillingClientStateListener;
+import com.android.billingclient.api.BillingFlowParams;
+import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.Purchase;
+import com.android.billingclient.api.PurchasesUpdatedListener;
+import com.android.billingclient.api.SkuDetails;
+import com.android.billingclient.api.SkuDetailsParams;
+import com.android.billingclient.api.SkuDetailsResponseListener;
 import com.google.android.material.navigation.NavigationView;
 import com.onesignal.OneSignal;
 import com.randonautica.app.Interfaces.MainActivityMessage;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-public class MainActivity extends AppCompatActivity implements MainActivityMessage, MyAttractorsListFragment.SendMessage, MyCamRngFragment.SendMessage, NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements MainActivityMessage, PurchasesUpdatedListener, MyAttractorsListFragment.SendMessage, MyCamRngFragment.SendMessage, NavigationView.OnNavigationItemSelectedListener {
     public static NavigationView navigationView;
     Dialog privacyPolicyDialog;
+
+    //Amount of IDAs
+    private long attractors;
+    private long voids;
+    private long anomalies;
+
+    private BillingClient billingClient;
 
     public static final String SHARED_PREFS = "sharedPrefs";
     public static final String STATS = "stats";
@@ -104,12 +126,17 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
         if (privacyPolicyAccepted == false) {
             showPrivacyPolicyAlertDialog(navigationView);
         } else {
+
             //Continue loading the app
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                     new RandonautFragment(), "randonaut")
                     .addToBackStack("randonaut")
                     .commit();
             navigationView.setCheckedItem(R.id.nav_randonaut);
+
+//            if(attractors > 5 || voids > 5 || anomalies > 5){
+//                showUpgradeDialog();
+//            }
         }
     }
 
@@ -186,6 +213,95 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
 
         // Create the AlertDialog object and return it
         return builder.create();
+    }
+
+    public Dialog showUpgradeDialog() {
+        final Dialog upgradeDialog = new Dialog(this);
+        upgradeDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        upgradeDialog.setContentView(R.layout.dialog_crowdfunding);
+
+        //Buttons
+        Button upgrade = (Button) upgradeDialog.findViewById(R.id.upgradeAccept);
+        Button cancel = (Button) upgradeDialog.findViewById(R.id.upgradeCancel);
+
+        upgradeDialog.show();
+
+
+
+        upgrade.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                test();
+            }
+
+        });
+
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                upgradeDialog.cancel();
+
+            }
+
+        });
+
+
+
+
+        return upgradeDialog;
+    }
+
+    public void test(){
+        billingClient = BillingClient.newBuilder(this)
+                .enablePendingPurchases()
+                .setListener(this).build();
+        billingClient.startConnection(new BillingClientStateListener() {
+            @Override
+            public void onBillingSetupFinished(BillingResult billingResult) {
+                if (billingResult.getResponseCode() ==  BillingClient.BillingResponseCode.OK) {
+                    // The BillingClient is ready. You can query purchases here.
+                    List<String> skuList = new ArrayList<> ();
+                    skuList.add("premium_upgrade");
+                    skuList.add("gas");
+                    SkuDetailsParams.Builder params = SkuDetailsParams.newBuilder();
+                    params.setSkusList(skuList).setType(BillingClient.SkuType.INAPP);
+                    billingClient.querySkuDetailsAsync(params.build(),
+                            new SkuDetailsResponseListener() {
+                                @Override
+                                public void onSkuDetailsResponse(BillingResult billingResult,
+                                                                 List<SkuDetails> skuDetailsList) {
+
+                                    for (SkuDetails skuDetails : skuDetailsList) {
+                                        String sku = skuDetails.getSku();
+                                        String price = skuDetails.getPrice();
+                                        if ("premium_upgrade".equals(sku)) {
+                                            test2(skuDetails);
+                                        } else if ("gas".equals(sku)) {
+                                            test2(skuDetails);
+                                        }
+                                    }
+                                }
+                            });
+                }
+            }
+            @Override
+            public void onBillingServiceDisconnected() {
+                // Try to restart the connection on the next request to
+                // Google Play by calling the startConnection() method.
+            }
+        });
+
+
+
+    }
+
+    public void test2(SkuDetails skuDetails){
+
+        BillingFlowParams flowParams = BillingFlowParams.newBuilder()
+                .setSkuDetails(skuDetails)
+                .build();
+        BillingResult responseCode = billingClient.launchBillingFlow(this, flowParams);
+
     }
 
     public void showPrivacyPolicyAlertDialog(final NavigationView navigationView) {
@@ -326,10 +442,18 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
         userId = sharedPreferences.getString("userId", null);
         privacyPolicyAccepted = sharedPreferences.getBoolean("PRIVACY", false);
 
+        attractors = sharedPreferences.getLong("ATTRACTORS", 0);
+        voids = sharedPreferences.getLong("VOID", 0);
+        anomalies = sharedPreferences.getLong("ANOMALIES", 0);
+
         //Check for dark mode in SHARED_PREFS
         sharedPreferences = this.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
         darkModeSwitch = sharedPreferences.getBoolean(SWTICHEnableDarkMode, false);
 
     }
 
+    @Override
+    public void onPurchasesUpdated(BillingResult billingResult, @Nullable List<Purchase> list) {
+
+    }
 }
