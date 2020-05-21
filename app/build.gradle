@@ -8,7 +8,7 @@ android {
     buildToolsVersion "29.0.2"
     defaultConfig {
         manifestPlaceholders = [
-                onesignal_app_id: 'ad353d57-fe54-4e06-94ff-52f7d0909f3d',
+                onesignal_app_id: 'da21a078-babf-4e22-a032-0ea22de561a7',
                 // Project number pulled from dashboard, local value is ignored.
                 onesignal_google_project_number: 'REMOTE'
         ]
