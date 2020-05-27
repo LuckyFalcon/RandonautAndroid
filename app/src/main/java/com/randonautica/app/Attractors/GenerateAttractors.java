@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Location;
 import android.util.Base64;
@@ -35,6 +36,7 @@ import com.randonautica.app.Interfaces.API_Classes.PseudoAttractor;
 import com.randonautica.app.Interfaces.API_Classes.Sizes;
 import com.randonautica.app.Interfaces.RandoWrapperApi;
 import com.randonautica.app.Interfaces.RandonautAttractorListener;
+import com.randonautica.app.MainActivity;
 import com.randonautica.app.RandonautFragment;
 
 import org.jetbrains.annotations.NotNull;
@@ -116,189 +118,189 @@ public class GenerateAttractors extends Activity {
                         @Override
                         public void onResponse(Call<GoAttractors> call, Response<GoAttractors> response) {
                             try {
-                            int i = 0;
-                            int count = 0;
-                            int amount = 0;
-                            
+                                int i = 0;
+                                int count = 0;
+                                int amount = 0;
 
-                            for (Point attractors : response.body().getPoints()) {
-                                count++;
-                            }
 
-                            AttractorLocation attractorLocations[] = new AttractorLocation[count];
+                                for (Point attractors : response.body().getPoints()) {
+                                    count++;
+                                }
 
-                            for (int attractorcount = 0; attractorcount < count; attractorcount++) {
+                                AttractorLocation attractorLocations[] = new AttractorLocation[count];
 
-                                //First Part
-                                double GID = response.body().getPoints().get(attractorcount).getGID();
-                                double TID = response.body().getPoints().get(attractorcount).getTID();
-                                double LID = response.body().getPoints().get(attractorcount).getLID();
-                                double type = response.body().getPoints().get(attractorcount).getType();
-                                double x_ = response.body().getPoints().get(attractorcount).getX();
-                                double y_ = response.body().getPoints().get(attractorcount).getY();
+                                for (int attractorcount = 0; attractorcount < count; attractorcount++) {
 
-                                //Second part
-                                double x = response.body().getPoints().get(attractorcount).getCenter().getPoint().getLatitude(); //Used in map
-                                double y = response.body().getPoints().get(attractorcount).getCenter().getPoint().getLongitude(); //Used in map
+                                    //First Part
+                                    double GID = response.body().getPoints().get(attractorcount).getGID();
+                                    double TID = response.body().getPoints().get(attractorcount).getTID();
+                                    double LID = response.body().getPoints().get(attractorcount).getLID();
+                                    double type = response.body().getPoints().get(attractorcount).getType();
+                                    double x_ = response.body().getPoints().get(attractorcount).getX();
+                                    double y_ = response.body().getPoints().get(attractorcount).getY();
 
-                                double distance = response.body().getPoints().get(attractorcount).getCenter().getBearing().getDistance();
-                                double initialBearing = response.body().getPoints().get(attractorcount).getCenter().getBearing().getInitialBearing();
-                                double finalBearing = response.body().getPoints().get(attractorcount).getCenter().getBearing().getFinalBearing();
+                                    //Second part
+                                    double x = response.body().getPoints().get(attractorcount).getCenter().getPoint().getLatitude(); //Used in map
+                                    double y = response.body().getPoints().get(attractorcount).getCenter().getPoint().getLongitude(); //Used in map
 
-                                //Third part
-                                double side = response.body().getPoints().get(attractorcount).getSide();
-                                double distanceErr = response.body().getPoints().get(attractorcount).getDistanceErr();
-                                double radiusM = response.body().getPoints().get(attractorcount).getRadiusM();
-                                double n = response.body().getPoints().get(attractorcount).getN();
-                                double mean = response.body().getPoints().get(attractorcount).getMean();
-                                double rarity = response.body().getPoints().get(attractorcount).getRarity();
-                                double power_old = response.body().getPoints().get(attractorcount).getPowerOld();
-                                double power = response.body().getPoints().get(attractorcount).getPower();
-                                double z_score = response.body().getPoints().get(attractorcount).getZScore();
-                                double probability_single = response.body().getPoints().get(attractorcount).getProbabilitySingle();
-                                double integral_score = response.body().getPoints().get(attractorcount).getIntegralScore();
-                                double significance = response.body().getPoints().get(attractorcount).getSignificance();
-                                double probability = response.body().getPoints().get(attractorcount).getProbability();
+                                    double distance = response.body().getPoints().get(attractorcount).getCenter().getBearing().getDistance();
+                                    double initialBearing = response.body().getPoints().get(attractorcount).getCenter().getBearing().getInitialBearing();
+                                    double finalBearing = response.body().getPoints().get(attractorcount).getCenter().getBearing().getFinalBearing();
 
-                                //#TODO: FIX FILTERING SIGNIFICANCE IN GOWRAPPER
-                                int FILTERING_SIGNIFICANCE = 4;
+                                    //Third part
+                                    double side = response.body().getPoints().get(attractorcount).getSide();
+                                    double distanceErr = response.body().getPoints().get(attractorcount).getDistanceErr();
+                                    double radiusM = response.body().getPoints().get(attractorcount).getRadiusM();
+                                    double n = response.body().getPoints().get(attractorcount).getN();
+                                    double mean = response.body().getPoints().get(attractorcount).getMean();
+                                    double rarity = response.body().getPoints().get(attractorcount).getRarity();
+                                    double power_old = response.body().getPoints().get(attractorcount).getPowerOld();
+                                    double power = response.body().getPoints().get(attractorcount).getPower();
+                                    double z_score = response.body().getPoints().get(attractorcount).getZScore();
+                                    double probability_single = response.body().getPoints().get(attractorcount).getProbabilitySingle();
+                                    double integral_score = response.body().getPoints().get(attractorcount).getIntegralScore();
+                                    double significance = response.body().getPoints().get(attractorcount).getSignificance();
+                                    double probability = response.body().getPoints().get(attractorcount).getProbability();
 
-                                attractorLocations[i] = new AttractorLocation(new LatLng(x, y), GID, TID, LID, x_, y_, distance, initialBearing, finalBearing, side, distanceErr, radiusM, n, mean, rarity, power_old, probability_single, integral_score, significance, probability, FILTERING_SIGNIFICANCE, type, radiusM, power, z_score);
-                                amount++;
-                                i++;
-                            }
+                                    //#TODO: FIX FILTERING SIGNIFICANCE IN GOWRAPPER
+                                    int FILTERING_SIGNIFICANCE = 4;
 
-                            if (amount > 0) {
+                                    attractorLocations[i] = new AttractorLocation(new LatLng(x, y), GID, TID, LID, x_, y_, distance, initialBearing, finalBearing, side, distanceErr, radiusM, n, mean, rarity, power_old, probability_single, integral_score, significance, probability, FILTERING_SIGNIFICANCE, type, radiusM, power, z_score);
+                                    amount++;
+                                    i++;
+                                }
 
-                                if (selected == "Attractor") {
-                                    int position = getMaxAttractor(attractorLocations);
-                                    if (position == -1) {
-                                        //Nothhing was found
-                                        createDialogEmptyResults(context, selected, currentLocation.getLatitude(), currentLocation.getLongitude(), distance, randonautDialogsListener, mapboxMap);
+                                if (amount > 0) {
 
-                                    } else {
-                                        //Make databaseHelper
-                                        mDatabaseHelper = new DatabaseHelper(context, attractorTable);
+                                    if (selected == "Attractor") {
+                                        int position = getMaxAttractor(attractorLocations);
+                                        if (position == -1) {
+                                            //Nothhing was found
+                                            createDialogEmptyResults(context, selected, currentLocation.getLatitude(), currentLocation.getLongitude(), distance, randonautDialogsListener, mapboxMap);
+
+                                        } else {
+                                            //Make databaseHelper
+                                            mDatabaseHelper = new DatabaseHelper(context, attractorTable);
 //
-                                        Marker marker = mapboxMap.addMarker(new MarkerOptions()
-                                                .position(new LatLng(attractorLocations[position].getCoordinate().latitude, attractorLocations[position].getCoordinate().longitude))
-                                                .title("Attractor"));
+                                            Marker marker = mapboxMap.addMarker(new MarkerOptions()
+                                                    .position(new LatLng(attractorLocations[position].getCoordinate().latitude, attractorLocations[position].getCoordinate().longitude))
+                                                    .title("Attractor"));
 
-                                        marker.showInfoWindow();
+                                            marker.showInfoWindow();
 
-                                        addPulsatingEffect(new LatLng(attractorLocations[position].getCoordinate().latitude, attractorLocations[position].getCoordinate().longitude), mapboxMap, (int) attractorLocations[position].getRadiusM());
+                                            addPulsatingEffect(new LatLng(attractorLocations[position].getCoordinate().latitude, attractorLocations[position].getCoordinate().longitude), mapboxMap, (int) attractorLocations[position].getRadiusM());
 
-                                        RandonautFragment.atts++;
+                                            RandonautFragment.atts++;
 
-                                        SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
-                                        singleLocation.setType((attractorLocations[position].getType()));
-                                        singleLocation.setRadiusm((attractorLocations[position].getRadiusM()));
-                                        singleLocation.setPower((attractorLocations[position].getPower()));
-                                        singleLocation.setZ_score((attractorLocations[position].getZ_score()));
-                                        singleLocation.setLocationCoordinates(attractorLocations[position].getCoordinate());
-                                        singleLocation.setPsuedo(false);
-                                        //getRoutesToAllPoints(attractorLocations[i].getCoordinate());
+                                            SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
+                                            singleLocation.setType((attractorLocations[position].getType()));
+                                            singleLocation.setRadiusm((attractorLocations[position].getRadiusM()));
+                                            singleLocation.setPower((attractorLocations[position].getPower()));
+                                            singleLocation.setZ_score((attractorLocations[position].getZ_score()));
+                                            singleLocation.setLocationCoordinates(attractorLocations[position].getCoordinate());
+                                            singleLocation.setPsuedo(false);
+                                            //getRoutesToAllPoints(attractorLocations[i].getCoordinate());
 
-                                        AddData(attractorTable,
-                                                attractorLocations[position].getCoordinate().latitude,
-                                                attractorLocations[position].getCoordinate().longitude,
-                                                attractorLocations[position].getGID(),
-                                                attractorLocations[position].getTID(),
-                                                attractorLocations[position].getLID(),
+                                            AddData(attractorTable,
+                                                    attractorLocations[position].getCoordinate().latitude,
+                                                    attractorLocations[position].getCoordinate().longitude,
+                                                    attractorLocations[position].getGID(),
+                                                    attractorLocations[position].getTID(),
+                                                    attractorLocations[position].getLID(),
 
-                                                attractorLocations[position].getX(),
-                                                attractorLocations[position].getY(),
-                                                attractorLocations[position].getDistance(),
-                                                attractorLocations[position].getInitialBearing(),
-                                                attractorLocations[position].getFinalBearing(),
-                                                attractorLocations[position].getSide(),
-                                                attractorLocations[position].getDistanceErr(),
-                                                attractorLocations[position].getRadiusM(),
-                                                attractorLocations[position].getN(),
-                                                attractorLocations[position].getMean(),
-                                                attractorLocations[position].getRarity(),
-                                                attractorLocations[position].getPower_old(),
-                                                attractorLocations[position].getProbability_single(),
-                                                attractorLocations[position].getIntegral_score(),
-                                                attractorLocations[position].getSignificance(),
-                                                attractorLocations[position].getProbability(),
-                                                attractorLocations[position].getFILTERING_SIGNIFICANCE(),
-                                                attractorLocations[position].getType(),
-                                                attractorLocations[position].getRadiusM(),
-                                                attractorLocations[position].getPower(),
-                                                attractorLocations[position].getZ_score(),
-                                                0, 0);
+                                                    attractorLocations[position].getX(),
+                                                    attractorLocations[position].getY(),
+                                                    attractorLocations[position].getDistance(),
+                                                    attractorLocations[position].getInitialBearing(),
+                                                    attractorLocations[position].getFinalBearing(),
+                                                    attractorLocations[position].getSide(),
+                                                    attractorLocations[position].getDistanceErr(),
+                                                    attractorLocations[position].getRadiusM(),
+                                                    attractorLocations[position].getN(),
+                                                    attractorLocations[position].getMean(),
+                                                    attractorLocations[position].getRarity(),
+                                                    attractorLocations[position].getPower_old(),
+                                                    attractorLocations[position].getProbability_single(),
+                                                    attractorLocations[position].getIntegral_score(),
+                                                    attractorLocations[position].getSignificance(),
+                                                    attractorLocations[position].getProbability(),
+                                                    attractorLocations[position].getFILTERING_SIGNIFICANCE(),
+                                                    attractorLocations[position].getType(),
+                                                    attractorLocations[position].getRadiusM(),
+                                                    attractorLocations[position].getPower(),
+                                                    attractorLocations[position].getZ_score(),
+                                                    0, 0);
 
-                                        locationList.add(singleLocation);
+                                            locationList.add(singleLocation);
+
+                                        }
+
 
                                     }
-
-
-                                }
-                                if (selected == "Void") {
-                                    int position = getMaxVoid(attractorLocations);
-                                    if (position == -1) {
-                                        //Nothhing was found
-                                        createDialogEmptyResults(context, selected, currentLocation.getLatitude(), currentLocation.getLongitude(), distance, randonautDialogsListener, mapboxMap);
-                                    } else {
-                                        //Make databaseHelper
-                                        mDatabaseHelper = new DatabaseHelper(context, attractorTable);
+                                    if (selected == "Void") {
+                                        int position = getMaxVoid(attractorLocations);
+                                        if (position == -1) {
+                                            //Nothhing was found
+                                            createDialogEmptyResults(context, selected, currentLocation.getLatitude(), currentLocation.getLongitude(), distance, randonautDialogsListener, mapboxMap);
+                                        } else {
+                                            //Make databaseHelper
+                                            mDatabaseHelper = new DatabaseHelper(context, attractorTable);
 //
-                                        Marker marker = mapboxMap.addMarker(new MarkerOptions()
-                                                .position(new LatLng(attractorLocations[position].getCoordinate().latitude, attractorLocations[position].getCoordinate().longitude))
-                                                .title("Void"));
+                                            Marker marker = mapboxMap.addMarker(new MarkerOptions()
+                                                    .position(new LatLng(attractorLocations[position].getCoordinate().latitude, attractorLocations[position].getCoordinate().longitude))
+                                                    .title("Void"));
 
-                                        marker.showInfoWindow();
+                                            marker.showInfoWindow();
 
-                                        addPulsatingEffect(new LatLng(attractorLocations[position].getCoordinate().latitude, attractorLocations[position].getCoordinate().longitude), mapboxMap, (int) attractorLocations[position].getRadiusM());
+                                            addPulsatingEffect(new LatLng(attractorLocations[position].getCoordinate().latitude, attractorLocations[position].getCoordinate().longitude), mapboxMap, (int) attractorLocations[position].getRadiusM());
 
-                                        RandonautFragment.atts++;
+                                            RandonautFragment.atts++;
 
-                                        SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
-                                        singleLocation.setType((attractorLocations[position].getType()));
-                                        singleLocation.setRadiusm((attractorLocations[position].getRadiusM()));
-                                        singleLocation.setPower((attractorLocations[position].getPower()));
-                                        singleLocation.setZ_score((attractorLocations[position].getZ_score()));
-                                        singleLocation.setLocationCoordinates(attractorLocations[position].getCoordinate());
-                                        singleLocation.setPsuedo(false);
-                                        //getRoutesToAllPoints(attractorLocations[i].getCoordinate());
+                                            SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
+                                            singleLocation.setType((attractorLocations[position].getType()));
+                                            singleLocation.setRadiusm((attractorLocations[position].getRadiusM()));
+                                            singleLocation.setPower((attractorLocations[position].getPower()));
+                                            singleLocation.setZ_score((attractorLocations[position].getZ_score()));
+                                            singleLocation.setLocationCoordinates(attractorLocations[position].getCoordinate());
+                                            singleLocation.setPsuedo(false);
+                                            //getRoutesToAllPoints(attractorLocations[i].getCoordinate());
 
-                                        AddData(attractorTable,
-                                                attractorLocations[position].getCoordinate().latitude,
-                                                attractorLocations[position].getCoordinate().longitude,
-                                                attractorLocations[position].getGID(),
-                                                attractorLocations[position].getTID(),
-                                                attractorLocations[position].getLID(),
+                                            AddData(attractorTable,
+                                                    attractorLocations[position].getCoordinate().latitude,
+                                                    attractorLocations[position].getCoordinate().longitude,
+                                                    attractorLocations[position].getGID(),
+                                                    attractorLocations[position].getTID(),
+                                                    attractorLocations[position].getLID(),
 
-                                                attractorLocations[position].getX(),
-                                                attractorLocations[position].getY(),
-                                                attractorLocations[position].getDistance(),
-                                                attractorLocations[position].getInitialBearing(),
-                                                attractorLocations[position].getFinalBearing(),
-                                                attractorLocations[position].getSide(),
-                                                attractorLocations[position].getDistanceErr(),
-                                                attractorLocations[position].getRadiusM(),
-                                                attractorLocations[position].getN(),
-                                                attractorLocations[position].getMean(),
-                                                attractorLocations[position].getRarity(),
-                                                attractorLocations[position].getPower_old(),
-                                                attractorLocations[position].getProbability_single(),
-                                                attractorLocations[position].getIntegral_score(),
-                                                attractorLocations[position].getSignificance(),
-                                                attractorLocations[position].getProbability(),
-                                                attractorLocations[position].getFILTERING_SIGNIFICANCE(),
-                                                attractorLocations[position].getType(),
-                                                attractorLocations[position].getRadiusM(),
-                                                attractorLocations[position].getPower(),
-                                                attractorLocations[position].getZ_score(),
-                                                0, 0);
+                                                    attractorLocations[position].getX(),
+                                                    attractorLocations[position].getY(),
+                                                    attractorLocations[position].getDistance(),
+                                                    attractorLocations[position].getInitialBearing(),
+                                                    attractorLocations[position].getFinalBearing(),
+                                                    attractorLocations[position].getSide(),
+                                                    attractorLocations[position].getDistanceErr(),
+                                                    attractorLocations[position].getRadiusM(),
+                                                    attractorLocations[position].getN(),
+                                                    attractorLocations[position].getMean(),
+                                                    attractorLocations[position].getRarity(),
+                                                    attractorLocations[position].getPower_old(),
+                                                    attractorLocations[position].getProbability_single(),
+                                                    attractorLocations[position].getIntegral_score(),
+                                                    attractorLocations[position].getSignificance(),
+                                                    attractorLocations[position].getProbability(),
+                                                    attractorLocations[position].getFILTERING_SIGNIFICANCE(),
+                                                    attractorLocations[position].getType(),
+                                                    attractorLocations[position].getRadiusM(),
+                                                    attractorLocations[position].getPower(),
+                                                    attractorLocations[position].getZ_score(),
+                                                    0, 0);
 
-                                        locationList.add(singleLocation);
+                                            locationList.add(singleLocation);
+
+                                        }
+
 
                                     }
-
-
-                                }
 //                                if (selected == "Void" && type == 2) {
 //                                    mDatabaseHelper = new DatabaseHelper(context, voidTable);
 //
@@ -353,102 +355,102 @@ public class GenerateAttractors extends Activity {
 //                                    locationList.add(singleLocation);
 //
 //                                }
-                                //Check for anomaly
-                                if (selected == "Anomalie") {
-                                    for (int c = count - 1; c > 0; c--) { //Start bubblesort
-                                        for (int j = 0; j < c; j++) {
-                                            if (attractorLocations[j + 1] == null) {
-                                                continue;
+                                    //Check for anomaly
+                                    if (selected == "Anomalie") {
+                                        for (int c = count - 1; c > 0; c--) { //Start bubblesort
+                                            for (int j = 0; j < c; j++) {
+                                                if (attractorLocations[j + 1] == null) {
+                                                    continue;
+                                                }
+                                                if (attractorLocations[j] == null || attractorLocations[j + 1].compareTo(attractorLocations[j]) < 0) {
+                                                    AttractorLocation temp = attractorLocations[j + 1];
+                                                    attractorLocations[j + 1] = attractorLocations[j];
+                                                    attractorLocations[j] = temp;
+                                                }
                                             }
-                                            if (attractorLocations[j] == null || attractorLocations[j + 1].compareTo(attractorLocations[j]) < 0) {
-                                                AttractorLocation temp = attractorLocations[j + 1];
-                                                attractorLocations[j + 1] = attractorLocations[j];
-                                                attractorLocations[j] = temp;
-                                            }
+                                        } //End bubblesort
+
+                                        //Make databaseHelper
+                                        mDatabaseHelper = new DatabaseHelper(context, anomalyTable);
+
+                                        if (attractorLocations[0].getType() == 1) {
+                                            Marker marker = mapboxMap.addMarker(new MarkerOptions()
+                                                    .position(new LatLng(attractorLocations[0].getCoordinate().latitude, attractorLocations[0].getCoordinate().longitude))
+                                                    .title("Attractor"));
+
+                                            marker.showInfoWindow();
+
+                                        } else {
+                                            Marker marker = mapboxMap.addMarker(new MarkerOptions()
+                                                    .position(new LatLng(attractorLocations[0].getCoordinate().latitude, attractorLocations[0].getCoordinate().longitude))
+                                                    .title("Void"));
+
+                                            marker.showInfoWindow();
+
                                         }
-                                    } //End bubblesort
-
-                                    //Make databaseHelper
-                                    mDatabaseHelper = new DatabaseHelper(context, anomalyTable);
-
-                                    if (attractorLocations[0].getType() == 1) {
-                                        Marker marker = mapboxMap.addMarker(new MarkerOptions()
-                                                .position(new LatLng(attractorLocations[0].getCoordinate().latitude, attractorLocations[0].getCoordinate().longitude))
-                                                .title("Attractor"));
-
-                                        marker.showInfoWindow();
-
-                                    } else {
-                                        Marker marker = mapboxMap.addMarker(new MarkerOptions()
-                                                .position(new LatLng(attractorLocations[0].getCoordinate().latitude, attractorLocations[0].getCoordinate().longitude))
-                                                .title("Void"));
-
-                                        marker.showInfoWindow();
-
-                                    }
 
 
-                                    addPulsatingEffect(new LatLng(attractorLocations[0].getCoordinate().latitude, attractorLocations[0].getCoordinate().longitude), mapboxMap, (int) attractorLocations[0].getRadiusM());
+                                        addPulsatingEffect(new LatLng(attractorLocations[0].getCoordinate().latitude, attractorLocations[0].getCoordinate().longitude), mapboxMap, (int) attractorLocations[0].getRadiusM());
 
-                                    //  amount++;
-                                    RandonautFragment.anomalies++;
-                                    SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
-                                    singleLocation.setType((attractorLocations[0].getType()));
-                                    singleLocation.setRadiusm((attractorLocations[0].getRadiusM()));
-                                    singleLocation.setPower((attractorLocations[0].getPower()));
-                                    singleLocation.setZ_score((attractorLocations[0].getZ_score()));
-                                    singleLocation.setLocationCoordinates(attractorLocations[0].getCoordinate());
-                                    singleLocation.setPsuedo(false);
+                                        //  amount++;
+                                        RandonautFragment.anomalies++;
+                                        SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
+                                        singleLocation.setType((attractorLocations[0].getType()));
+                                        singleLocation.setRadiusm((attractorLocations[0].getRadiusM()));
+                                        singleLocation.setPower((attractorLocations[0].getPower()));
+                                        singleLocation.setZ_score((attractorLocations[0].getZ_score()));
+                                        singleLocation.setLocationCoordinates(attractorLocations[0].getCoordinate());
+                                        singleLocation.setPsuedo(false);
 
-                                    AddData(anomalyTable,
-                                            attractorLocations[0].getCoordinate().latitude,
-                                            attractorLocations[0].getCoordinate().longitude,
-                                            attractorLocations[0].getGID(),
-                                            attractorLocations[0].getTID(),
-                                            attractorLocations[0].getLID(),
+                                        AddData(anomalyTable,
+                                                attractorLocations[0].getCoordinate().latitude,
+                                                attractorLocations[0].getCoordinate().longitude,
+                                                attractorLocations[0].getGID(),
+                                                attractorLocations[0].getTID(),
+                                                attractorLocations[0].getLID(),
 
-                                            attractorLocations[0].getX(),
-                                            attractorLocations[0].getY(),
-                                            attractorLocations[0].getDistance(),
-                                            attractorLocations[0].getInitialBearing(),
-                                            attractorLocations[0].getFinalBearing(),
-                                            attractorLocations[0].getSide(),
-                                            attractorLocations[0].getDistanceErr(),
-                                            attractorLocations[0].getRadiusM(),
-                                            attractorLocations[0].getN(),
-                                            attractorLocations[0].getMean(),
-                                            attractorLocations[0].getRarity(),
-                                            attractorLocations[0].getPower_old(),
-                                            attractorLocations[0].getProbability_single(),
-                                            attractorLocations[0].getIntegral_score(),
-                                            attractorLocations[0].getSignificance(),
-                                            attractorLocations[0].getProbability(),
-                                            attractorLocations[0].getFILTERING_SIGNIFICANCE(),
-                                            attractorLocations[0].getType(),
-                                            attractorLocations[0].getRadiusM(),
-                                            attractorLocations[0].getPower(),
-                                            attractorLocations[0].getZ_score(),
-                                            0, 0);
+                                                attractorLocations[0].getX(),
+                                                attractorLocations[0].getY(),
+                                                attractorLocations[0].getDistance(),
+                                                attractorLocations[0].getInitialBearing(),
+                                                attractorLocations[0].getFinalBearing(),
+                                                attractorLocations[0].getSide(),
+                                                attractorLocations[0].getDistanceErr(),
+                                                attractorLocations[0].getRadiusM(),
+                                                attractorLocations[0].getN(),
+                                                attractorLocations[0].getMean(),
+                                                attractorLocations[0].getRarity(),
+                                                attractorLocations[0].getPower_old(),
+                                                attractorLocations[0].getProbability_single(),
+                                                attractorLocations[0].getIntegral_score(),
+                                                attractorLocations[0].getSignificance(),
+                                                attractorLocations[0].getProbability(),
+                                                attractorLocations[0].getFILTERING_SIGNIFICANCE(),
+                                                attractorLocations[0].getType(),
+                                                attractorLocations[0].getRadiusM(),
+                                                attractorLocations[0].getPower(),
+                                                attractorLocations[0].getZ_score(),
+                                                0, 0);
 
-                                    locationList.add(singleLocation);
+                                        locationList.add(singleLocation);
 
 
-                                } //End anomaly
+                                    } //End anomaly
 
-                                randonautDialogsListener.onData(locationList);
-                                RandonautFragment.startButton.setVisibility(View.GONE);
-                                // navigateButton.setVisibility(View.VISIBLE);
-                                RandonautFragment.resetButton.setVisibility(View.VISIBLE);
-                            } else {
-                                //Nothhing was found
-                                createDialogEmptyResults(context, selected, currentLocation.getLatitude(), currentLocation.getLongitude(), distance, randonautDialogsListener, mapboxMap);
-                            }
+                                    randonautDialogsListener.onData(locationList);
+                                    RandonautFragment.startButton.setVisibility(View.GONE);
+                                    // navigateButton.setVisibility(View.VISIBLE);
+                                    RandonautFragment.resetButton.setVisibility(View.VISIBLE);
+                                } else {
+                                    //Nothhing was found
+                                    createDialogEmptyResults(context, selected, currentLocation.getLatitude(), currentLocation.getLongitude(), distance, randonautDialogsListener, mapboxMap);
+                                }
 
-                            //saveData();
-                            progressdialog.dismiss();
+                                //saveData();
+                                progressdialog.dismiss();
 
-                        }catch (Exception e) {
-                            // This will catch any exception, because they are all descended from Exception
+                            }catch (Exception e) {
+                                // This will catch any exception, because they are all descended from Exception
                                 createDialogEmptyResults(context, selected, currentLocation.getLatitude(), currentLocation.getLongitude(), distance, randonautDialogsListener, mapboxMap);
 
                             }
@@ -796,202 +798,188 @@ public class GenerateAttractors extends Activity {
                                 @Override
                                 public void onResponse(Call<List<PseudoAttractor>> call, Response<List<PseudoAttractor>> response) {
                                     try{
-                                    int i = 0;
-                                    int count = 0;
-                                    int amount = 0;
+                                        int i = 0;
+                                        int count = 0;
+                                        int amount = 0;
 
-                                    for (PseudoAttractor psuedos : response.body()) {
-                                        count++;
-                                    }
-
-                                    PseudoAttractorLocation attractorLocations[] = new PseudoAttractorLocation[count];
-
-
-                                    for (PseudoAttractor psuedos : response.body()) {
-
-                                        //First Part
-                                        String GID = psuedos.getGID();
-                                        String TID = psuedos.getTID();
-                                        String LID = psuedos.getLID();
-                                        double type = psuedos.getType();
-                                        double x_ = psuedos.getX();
-                                        double y_ = psuedos.getY();
-
-                                        //Second part
-                                        double x = psuedos.getLatitude(); //Used in map
-                                        double y = psuedos.getLongitude(); //Used in map
-
-                                        double distance = psuedos.getDistance();
-                                        double initialBearing = psuedos.getInitialBearing();
-                                        double finalBearing = psuedos.getFinalBearing();
-
-                                        //Third part
-                                        double side = psuedos.getSide();
-                                        double distanceErr = psuedos.getDistanceErr();
-                                        double radiusM = psuedos.getRadiusM();
-                                        double n = psuedos.getN();
-                                        double mean = psuedos.getMean();
-                                        double rarity = psuedos.getRarity();
-                                        double power_old = psuedos.getPower_old();
-                                        double power = psuedos.getPower();
-                                        double z_score = psuedos.getZ_score();
-                                        double probability_single = psuedos.getProbability_single();
-                                        double integral_score = psuedos.getIntegral_score();
-                                        double significance = psuedos.getSignificance();
-                                        double probability = psuedos.getProbability();
-                                        double FILTERING_SIGNIFICANCE = psuedos.getFILTERING_SIGNIFICANCE();
-
-                                        //##TODO: FIX THE GID/TID/UID FOR PSEUDO AND ATTRACTORS
-                                        attractorLocations[i] = new PseudoAttractorLocation(new LatLng(x, y), 3333, 3333, 3333, x_, y_, distance, initialBearing, finalBearing, side, distanceErr, radiusM, n, mean, rarity, power_old, probability_single, integral_score, significance, probability, FILTERING_SIGNIFICANCE, type, radiusM, power, z_score);
-
-                                        if (type == 1) {
-                                            mDatabaseHelper = new DatabaseHelper(context, attractorTable);
-
-                                            Marker marker = mapboxMap.addMarker(new MarkerOptions()
-                                                    .position(new LatLng(x, y))
-                                                    .title("Pseudo Attractor"));
-
-                                            marker.showInfoWindow();
-
-                                            addPulsatingEffect(new LatLng(x, y), mapboxMap, (int) radiusM);
-
-                                            amount++;
-                                            RandonautFragment.psuedo++;
-                                            SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
-                                            singleLocation.setType((attractorLocations[i].getType()));
-                                            singleLocation.setRadiusm((attractorLocations[i].getRadiusm()));
-                                            singleLocation.setPower((attractorLocations[i].getPower()));
-                                            singleLocation.setZ_score((attractorLocations[i].getZ_score()));
-                                            singleLocation.setLocationCoordinates(new LatLng(attractorLocations[i].getCoordinate().latitude, attractorLocations[i].getCoordinate().longitude));
-                                            singleLocation.setPsuedo(true);
-
-                                            locationList.add(singleLocation);
-
-                                            AddData(voidTable,
-                                                    attractorLocations[i].getCoordinate().latitude,
-                                                    attractorLocations[i].getCoordinate().longitude,
-                                                    attractorLocations[i].getGID(),
-                                                    attractorLocations[i].getTID(),
-                                                    attractorLocations[i].getLID(),
-
-                                                    attractorLocations[i].getX(),
-                                                    attractorLocations[i].getY(),
-                                                    attractorLocations[i].getDistance(),
-                                                    attractorLocations[i].getInitialBearing(),
-                                                    attractorLocations[i].getFinalBearing(),
-                                                    attractorLocations[i].getSide(),
-                                                    attractorLocations[i].getDistanceErr(),
-                                                    attractorLocations[i].getRadiusM(),
-                                                    attractorLocations[i].getN(),
-                                                    attractorLocations[i].getMean(),
-                                                    attractorLocations[i].getRarity(),
-                                                    attractorLocations[i].getPower_old(),
-                                                    attractorLocations[i].getProbability_single(),
-                                                    attractorLocations[i].getdoubleegral_score(),
-                                                    attractorLocations[i].getSignificance(),
-                                                    attractorLocations[i].getProbability(),
-                                                    attractorLocations[i].getFILTERING_SIGNIFICANCE(),
-                                                    attractorLocations[i].getType(),
-                                                    attractorLocations[i].getRadiusM(),
-                                                    attractorLocations[i].getPower(),
-                                                    attractorLocations[i].getZ_score(),
-                                                    1, 0);
+                                        for (PseudoAttractor psuedos : response.body()) {
+                                            count++;
                                         }
 
-                                        if (type == 2) {
-                                            mDatabaseHelper = new DatabaseHelper(context, voidTable);
-
-                                            Marker marker = mapboxMap.addMarker(new MarkerOptions()
-                                                    .position(new LatLng(x, y))
-                                                    .title("Pseudo Void"));
-
-//                                            // Instantiates a new CircleOptions object and defines the center and radius
-//                                            CircleOptions circleOptions = new CircleOptions()
-//                                                    .center(new LatLng(x, y))
-//                                                    .radius(attractorLocations[i].getRadiusM()); // In meters
+                                        PseudoAttractorLocation attractorLocations[] = new PseudoAttractorLocation[count];
 
 
-                                            marker.showInfoWindow();
+                                        for (PseudoAttractor psuedos : response.body()) {
 
-                                            addPulsatingEffect(new LatLng(x, y), mapboxMap, (int) radiusM);
+                                            //First Part
+                                            String GID = psuedos.getGID();
+                                            String TID = psuedos.getTID();
+                                            String LID = psuedos.getLID();
+                                            double type = psuedos.getType();
+                                            double x_ = psuedos.getX();
+                                            double y_ = psuedos.getY();
 
-                                            // Get back the mutable Circle
-                                            //      mapboxMap.addCircle(circleOptions);
-//                                            //Generate Circle
-//                                            mapboxMap.addPolygon(generatePerimeter(
-//                                                    new LatLng(x, y),
-//                                                    (attractorLocations[i].getRadiusM() / 1000),
-//                                                    64));
+                                            //Second part
+                                            double x = psuedos.getLatitude(); //Used in map
+                                            double y = psuedos.getLongitude(); //Used in map
 
-                                            amount++;
-                                            RandonautFragment.psuedo++;
-                                            SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
-                                            singleLocation.setType((attractorLocations[i].getType()));
-                                            singleLocation.setRadiusm((attractorLocations[i].getRadiusm()));
-                                            singleLocation.setPower((attractorLocations[i].getPower()));
-                                            singleLocation.setZ_score((attractorLocations[i].getZ_score()));
-                                            singleLocation.setLocationCoordinates(attractorLocations[i].getCoordinate());
-                                            singleLocation.setPsuedo(true);
+                                            double distance = psuedos.getDistance();
+                                            double initialBearing = psuedos.getInitialBearing();
+                                            double finalBearing = psuedos.getFinalBearing();
 
-                                            locationList.add(singleLocation);
+                                            //Third part
+                                            double side = psuedos.getSide();
+                                            double distanceErr = psuedos.getDistanceErr();
+                                            double radiusM = psuedos.getRadiusM();
+                                            double n = psuedos.getN();
+                                            double mean = psuedos.getMean();
+                                            double rarity = psuedos.getRarity();
+                                            double power_old = psuedos.getPower_old();
+                                            double power = psuedos.getPower();
+                                            double z_score = psuedos.getZ_score();
+                                            double probability_single = psuedos.getProbability_single();
+                                            double integral_score = psuedos.getIntegral_score();
+                                            double significance = psuedos.getSignificance();
+                                            double probability = psuedos.getProbability();
+                                            double FILTERING_SIGNIFICANCE = psuedos.getFILTERING_SIGNIFICANCE();
 
-                                            AddData(voidTable,
-                                                    attractorLocations[i].getCoordinate().latitude,
-                                                    attractorLocations[i].getCoordinate().longitude,
-                                                    attractorLocations[i].getGID(),
-                                                    attractorLocations[i].getTID(),
-                                                    attractorLocations[i].getLID(),
+                                            //##TODO: FIX THE GID/TID/UID FOR PSEUDO AND ATTRACTORS
+                                            attractorLocations[i] = new PseudoAttractorLocation(new LatLng(x, y), 3333, 3333, 3333, x_, y_, distance, initialBearing, finalBearing, side, distanceErr, radiusM, n, mean, rarity, power_old, probability_single, integral_score, significance, probability, FILTERING_SIGNIFICANCE, type, radiusM, power, z_score);
 
-                                                    attractorLocations[i].getX(),
-                                                    attractorLocations[i].getY(),
-                                                    attractorLocations[i].getDistance(),
-                                                    attractorLocations[i].getInitialBearing(),
-                                                    attractorLocations[i].getFinalBearing(),
-                                                    attractorLocations[i].getSide(),
-                                                    attractorLocations[i].getDistanceErr(),
-                                                    attractorLocations[i].getRadiusM(),
-                                                    attractorLocations[i].getN(),
-                                                    attractorLocations[i].getMean(),
-                                                    attractorLocations[i].getRarity(),
-                                                    attractorLocations[i].getPower_old(),
-                                                    attractorLocations[i].getProbability_single(),
-                                                    attractorLocations[i].getdoubleegral_score(),
-                                                    attractorLocations[i].getSignificance(),
-                                                    attractorLocations[i].getProbability(),
-                                                    attractorLocations[i].getFILTERING_SIGNIFICANCE(),
-                                                    attractorLocations[i].getType(),
-                                                    attractorLocations[i].getRadiusM(),
-                                                    attractorLocations[i].getPower(),
-                                                    attractorLocations[i].getZ_score(),
-                                                    1, 0);
+                                            if (type == 1) {
+                                                mDatabaseHelper = new DatabaseHelper(context, attractorTable);
+
+                                                Marker marker = mapboxMap.addMarker(new MarkerOptions()
+                                                        .position(new LatLng(x, y))
+                                                        .title("Pseudo Attractor"));
+
+                                                marker.showInfoWindow();
+
+                                                addPulsatingEffect(new LatLng(x, y), mapboxMap, (int) radiusM);
+
+                                                amount++;
+                                                RandonautFragment.psuedo++;
+                                                SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
+                                                singleLocation.setType((attractorLocations[i].getType()));
+                                                singleLocation.setRadiusm((attractorLocations[i].getRadiusm()));
+                                                singleLocation.setPower((attractorLocations[i].getPower()));
+                                                singleLocation.setZ_score((attractorLocations[i].getZ_score()));
+                                                singleLocation.setLocationCoordinates(new LatLng(attractorLocations[i].getCoordinate().latitude, attractorLocations[i].getCoordinate().longitude));
+                                                singleLocation.setPsuedo(true);
+
+                                                locationList.add(singleLocation);
+
+                                                AddData(voidTable,
+                                                        attractorLocations[i].getCoordinate().latitude,
+                                                        attractorLocations[i].getCoordinate().longitude,
+                                                        attractorLocations[i].getGID(),
+                                                        attractorLocations[i].getTID(),
+                                                        attractorLocations[i].getLID(),
+
+                                                        attractorLocations[i].getX(),
+                                                        attractorLocations[i].getY(),
+                                                        attractorLocations[i].getDistance(),
+                                                        attractorLocations[i].getInitialBearing(),
+                                                        attractorLocations[i].getFinalBearing(),
+                                                        attractorLocations[i].getSide(),
+                                                        attractorLocations[i].getDistanceErr(),
+                                                        attractorLocations[i].getRadiusM(),
+                                                        attractorLocations[i].getN(),
+                                                        attractorLocations[i].getMean(),
+                                                        attractorLocations[i].getRarity(),
+                                                        attractorLocations[i].getPower_old(),
+                                                        attractorLocations[i].getProbability_single(),
+                                                        attractorLocations[i].getdoubleegral_score(),
+                                                        attractorLocations[i].getSignificance(),
+                                                        attractorLocations[i].getProbability(),
+                                                        attractorLocations[i].getFILTERING_SIGNIFICANCE(),
+                                                        attractorLocations[i].getType(),
+                                                        attractorLocations[i].getRadiusM(),
+                                                        attractorLocations[i].getPower(),
+                                                        attractorLocations[i].getZ_score(),
+                                                        1, 0);
+                                            }
+
+                                            if (type == 2) {
+                                                mDatabaseHelper = new DatabaseHelper(context, voidTable);
+
+                                                Marker marker = mapboxMap.addMarker(new MarkerOptions()
+                                                        .position(new LatLng(x, y))
+                                                        .title("Pseudo Void"));
+
+                                                marker.showInfoWindow();
+
+                                                addPulsatingEffect(new LatLng(x, y), mapboxMap, (int) radiusM);
+
+                                                amount++;
+                                                RandonautFragment.psuedo++;
+                                                SingleRecyclerViewLocation singleLocation = new SingleRecyclerViewLocation();
+                                                singleLocation.setType((attractorLocations[i].getType()));
+                                                singleLocation.setRadiusm((attractorLocations[i].getRadiusm()));
+                                                singleLocation.setPower((attractorLocations[i].getPower()));
+                                                singleLocation.setZ_score((attractorLocations[i].getZ_score()));
+                                                singleLocation.setLocationCoordinates(attractorLocations[i].getCoordinate());
+                                                singleLocation.setPsuedo(true);
+
+                                                locationList.add(singleLocation);
+
+                                                AddData(voidTable,
+                                                        attractorLocations[i].getCoordinate().latitude,
+                                                        attractorLocations[i].getCoordinate().longitude,
+                                                        attractorLocations[i].getGID(),
+                                                        attractorLocations[i].getTID(),
+                                                        attractorLocations[i].getLID(),
+
+                                                        attractorLocations[i].getX(),
+                                                        attractorLocations[i].getY(),
+                                                        attractorLocations[i].getDistance(),
+                                                        attractorLocations[i].getInitialBearing(),
+                                                        attractorLocations[i].getFinalBearing(),
+                                                        attractorLocations[i].getSide(),
+                                                        attractorLocations[i].getDistanceErr(),
+                                                        attractorLocations[i].getRadiusM(),
+                                                        attractorLocations[i].getN(),
+                                                        attractorLocations[i].getMean(),
+                                                        attractorLocations[i].getRarity(),
+                                                        attractorLocations[i].getPower_old(),
+                                                        attractorLocations[i].getProbability_single(),
+                                                        attractorLocations[i].getdoubleegral_score(),
+                                                        attractorLocations[i].getSignificance(),
+                                                        attractorLocations[i].getProbability(),
+                                                        attractorLocations[i].getFILTERING_SIGNIFICANCE(),
+                                                        attractorLocations[i].getType(),
+                                                        attractorLocations[i].getRadiusM(),
+                                                        attractorLocations[i].getPower(),
+                                                        attractorLocations[i].getZ_score(),
+                                                        1, 0);
+
+                                            }
+
+
+                                            i++;
 
                                         }
 
+                                        if (amount > 0) {
+                                            //initRecyclerView(context, view, mapboxMap);
+                                            randonautDialogsListener.onData(locationList);
+                                            RandonautFragment.startButton.setVisibility(View.GONE);
+                                            //   navigateButton.setVisibility(View.VISIBLE);
+                                            RandonautFragment.resetButton.setVisibility(View.VISIBLE);
+                                        } else {
 
-                                        i++;
+                                            createDialogEmptyResults(context, selected, currentLocation.getLatitude(), currentLocation.getLongitude(), distance, randonautDialogsListener, mapboxMap);
+                                        }
+                                        //   saveData(); -> REMOVE later
 
-                                    }
 
-                                    if (amount > 0) {
-                                        //initRecyclerView(context, view, mapboxMap);
-                                        randonautDialogsListener.onData(locationList);
-                                        RandonautFragment.startButton.setVisibility(View.GONE);
-                                        //   navigateButton.setVisibility(View.VISIBLE);
-                                        RandonautFragment.resetButton.setVisibility(View.VISIBLE);
-                                    } else {
+                                        progressdialog.dismiss();
 
+                                    }catch (Exception e) {
+                                        // This will catch any exception, because they are all descended from Exception
                                         createDialogEmptyResults(context, selected, currentLocation.getLatitude(), currentLocation.getLongitude(), distance, randonautDialogsListener, mapboxMap);
+
                                     }
-                                    //   saveData(); -> REMOVE later
-
-
-                                    progressdialog.dismiss();
-
-                                }catch (Exception e) {
-                                    // This will catch any exception, because they are all descended from Exception
-                                    createDialogEmptyResults(context, selected, currentLocation.getLatitude(), currentLocation.getLongitude(), distance, randonautDialogsListener, mapboxMap);
-
-                                }
 
                                 }
 
@@ -1023,6 +1011,9 @@ public class GenerateAttractors extends Activity {
 
     private void addPulsatingEffect(final LatLng userLatlng, final GoogleMap map, int radius) {
 
+        int colorOutline = Color.RED;
+        int colorInner = 0x22FF0000;
+
         if (RandonautFragment.lastPulseAnimator != null) {
             RandonautFragment.lastPulseAnimator.cancel();
         }
@@ -1031,6 +1022,8 @@ public class GenerateAttractors extends Activity {
             RandonautFragment.lastUserCircle.setCenter(userLatlng);
         }
 
+        final int finalColorOutline = colorOutline;
+        final int finalColorInner = colorInner;
         RandonautFragment.lastPulseAnimator = valueAnimate(getDisplayPulseRadius(radius, map), RandonautFragment.pulseDuration, new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -1040,9 +1033,9 @@ public class GenerateAttractors extends Activity {
                     RandonautFragment.lastUserCircle = map.addCircle(new CircleOptions()
                             .center(userLatlng)
                             .radius(getDisplayPulseRadius((Float) animation.getAnimatedValue(), map))
-                            .strokeColor(Color.RED));
+                            .strokeColor(finalColorOutline));
                     //.fillColor(Color.BLUE));
-                    RandonautFragment.lastUserCircle.setFillColor(adjustAlpha(0x220000FF, 1 - animation.getAnimatedFraction()));
+                    RandonautFragment.lastUserCircle.setFillColor(adjustAlpha(finalColorInner, 1 - animation.getAnimatedFraction()));
 
 
                 }
@@ -1202,7 +1195,7 @@ public class GenerateAttractors extends Activity {
                         singleLocation.setLocationCoordinates(new LatLng(testresutlt[0], testresutlt[1]));
 
                         locationList.add(singleLocation);
-                        randonautDialogsListener.onData(locationList);
+                        randonautDialogsListener.onFailed(locationList);
                         RandonautFragment.startButton.setVisibility(View.GONE);
                         //   navigateButton.setVisibility(View.VISIBLE);
                         RandonautFragment.resetButton.setVisibility(View.VISIBLE);

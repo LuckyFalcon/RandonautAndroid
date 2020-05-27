@@ -1,9 +1,12 @@
 package com.randonautica.app;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -29,11 +32,13 @@ import com.onesignal.OneSignal;
 import com.randonautica.app.Interfaces.MainActivityMessage;
 
 import java.io.InputStream;
+import java.util.Calendar;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity implements MainActivityMessage, MyAttractorsListFragment.SendMessage, MyCamRngFragment.SendMessage, NavigationView.OnNavigationItemSelectedListener {
     public static NavigationView navigationView;
     Dialog privacyPolicyDialog;
+    private static int limitanomalies;
 
     public static final String SHARED_PREFS = "sharedPrefs";
     public static final String STATS = "stats";
@@ -42,7 +47,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
     private String tag;
 
     private androidx.fragment.app.FragmentManager fragmentManager;
-    private DrawerLayout drawer;
+    public static  DrawerLayout drawer;
+
+    public static ActionBarDrawerToggle toggle;
 
     private boolean darkModeSwitch;
     private Boolean privacyPolicyAccepted;
@@ -74,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
 
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
+        toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
 
         drawer.addDrawerListener(toggle);
@@ -103,13 +110,42 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
         //Check if Privacy and Policy was accepted
         if (privacyPolicyAccepted == false) {
             showPrivacyPolicyAlertDialog(navigationView);
+
         } else {
-            //Continue loading the app
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                    new RandonautFragment(), "randonaut")
-                    .addToBackStack("randonaut")
-                    .commit();
-            navigationView.setCheckedItem(R.id.nav_randonaut);
+
+            if(limitanomalies != Integer.MAX_VALUE) {
+                //define your intent
+                AlarmManager alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+                Intent intent = new Intent(this, AlarmReceiver.class);
+                PendingIntent alarmIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+
+                // Set the alarm to start at approximately 00:00 h(24h format).
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(System.currentTimeMillis());
+                calendar.set(Calendar.HOUR_OF_DAY, 23);
+                calendar.set(Calendar.MINUTE, 59);
+                calendar.set(Calendar.SECOND, 59);
+                calendar.set(Calendar.MILLISECOND, 0);
+                //repeteat alarm every 24hours
+                alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                        AlarmManager.INTERVAL_DAY, alarmIntent);
+
+                //Continue loading the app
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new RandonautFragment(), "randonaut")
+                        .addToBackStack("randonaut")
+                        .commit();
+                navigationView.setCheckedItem(R.id.nav_randonaut);
+            } else {
+                //Continue loading the app
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new RandonautFragment(), "randonaut")
+                        .addToBackStack("randonaut")
+                        .commit();
+                navigationView.setCheckedItem(R.id.nav_randonaut);
+            }
+
+
         }
     }
 
@@ -151,6 +187,10 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
                         .replace(R.id.fragment_container, botfragment, tag)
                         .addToBackStack(tag)
                         .commit();
+                break;
+            case R.id.nav_upgrade:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new MyUpgradeFragment()).commit();
                 break;
             case R.id.nav_slideshow:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
@@ -316,7 +356,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("userId", userId);
         editor.putBoolean("PRIVACY", privacyPolicyAccepted);
-
+        editor.putInt("LIMITVOID", 5);
+        editor.putInt("LIMITANOMALY", 5);
+        editor.putInt("LIMITATTRACTORS", 5);
         editor.apply();
     }
 
@@ -329,7 +371,10 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
         //Check for dark mode in SHARED_PREFS
         sharedPreferences = this.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
         darkModeSwitch = sharedPreferences.getBoolean(SWTICHEnableDarkMode, false);
+        limitanomalies = sharedPreferences.getInt("LIMITATTRACTORS", 0);
 
     }
+
+
 
 }

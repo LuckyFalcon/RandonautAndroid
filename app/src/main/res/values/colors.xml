@@ -7,8 +7,6 @@
     <color name="colorBackground">#ffffff</color>
     <color name="colorText">#000000</color>
 
-    <color name="centerColor">#008996</color>
-    <color name="endColor">#005969</color>
     <color name="startColor">#1AAAE2</color>
 
     <color name="buttonColor">#3CB8EB</color>
@@ -26,4 +24,8 @@
     <color name="cameraViewColor">#000000</color>
     <color name="cameraRNGTextColor">#FFFFFF</color>
 
+    <color name="upgrade_button">#FF18FFFF</color>
+
+    <color name="gradientStart">#4BD0DE</color>
+    <color name="gradientEnd">#5888E2</color>
 </resources>

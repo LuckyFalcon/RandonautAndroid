@@ -1,17 +1,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Randonautica</string>
-    <string name="mapbox_access_token">MAPBOX_ACCESS_TOKEN</string>
-    <string name="mapbox_style">MAPBOX_STREETS</string>
-    <string name="title_activity_main2">Main2Activity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
 
     <string name="cancel_button">Cancel</string>
-    <string name="next_button">Next</string>
 
     <!-- this is a comment -->
     <string name="menu_randonaut">Randonaut</string>
@@ -19,8 +12,8 @@
     <string name="menu_myAttractors">My Attractors</string>
     <string name="menu_profile">Profile</string>
     <string name="menu_settings">Settings</string>
+    <string name="menu_upgrade">Upgrade</string>
     <string name="menu_share">Share</string>
-    <string name="menu_support">Support</string>
 
     <!--dialog_privacy-->
     <string name="privacy_policy_title">PRIVACY POLICY AND TERMS OF USE</string>
@@ -46,19 +39,8 @@
     <!-- fragment_profile-->
 
     <!-- dialog_preferences -->
-    <string name="attractor">Attractor</string>
-    <string name="attractor_void">Void</string>
-    <string name="anomaly">Anomaly</string>
-    <string name="pseudo">Pseudo</string>
 
     <!-- this is a comment -->
-    <string name="entropy_information">Sources of Randomness</string>
-    <string name="entropy_information_contents">
-        ANU: Australia National University\'s quantum random number generator, <br></br>
-        ANU Leftovers: Mixed intentions from unused ANU entropy, <br></br>
-        Camera: Generates entropy from your camera (best try keeping the camera on a still surface - although the jury is still out on that!)<br></br>
-    </string>
-    <string name="entropy_information_button">Ok</string>
 
     <!-- dialog_camrng -->
     <string name="generating_entropy">Generating Entropy...</string>

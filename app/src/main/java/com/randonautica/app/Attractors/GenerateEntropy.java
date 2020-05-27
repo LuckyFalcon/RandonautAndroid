@@ -8,8 +8,8 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.location.Location;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -21,17 +21,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.randonautica.app.Classes.DatabaseHelper;
-import com.randonautica.app.Classes.PseudoAttractorLocation;
 import com.randonautica.app.Classes.SingleRecyclerViewLocation;
 import com.randonautica.app.Interfaces.API_Classes.Entropy;
 import com.randonautica.app.Interfaces.API_Classes.Pools;
-import com.randonautica.app.Interfaces.API_Classes.PseudoAttractor;
 import com.randonautica.app.Interfaces.API_Classes.Sizes;
 import com.randonautica.app.Interfaces.RandoWrapperApi;
-import com.randonautica.app.Interfaces.RandonautAttractorListener;
 import com.randonautica.app.Interfaces.RandonautEntropyListener;
-import com.randonautica.app.RandonautFragment;
 import com.randonautica.app.RandonautFragment;
 
 import org.jetbrains.annotations.NotNull;
@@ -398,16 +393,15 @@ public class GenerateEntropy {
             @Override
             public void onResponse(Call<Sizes> call, Response<Sizes> response) {
                 try {
-                hexsize = response.body().getHexsize();
-
-                Call<Entropy> callGetEntropy = randoWrapperApi.getEntropy(hexsize, false, false, true);
+                 hexsize = response.body().getHexsize() / 2;
+                 Call<Entropy> callGetEntropy = randoWrapperApi.getEntropy(hexsize, false, false, true);
 
                 callGetEntropy.enqueue(new Callback<Entropy>() {
                     @Override
                     public void onResponse(Call<Entropy> call, Response<Entropy> response) {
                         try{
                         GID = response.body().getGid();
-                        RandonautFragment.entropy = RandonautFragment.entropy + hexsize;
+                        RandonautFragment.entropy = (RandonautFragment.entropy + hexsize);
                         progressdialog.dismiss();
                         randonautDialogsListener.onData(GID);
 

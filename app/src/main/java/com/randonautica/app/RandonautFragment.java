@@ -57,8 +57,9 @@ import com.randonautica.app.Interfaces.RandoWrapperApi;
 import com.randonautica.app.Interfaces.RandonautAttractorListener;
 import com.randonautica.app.Interfaces.RandonautEntropyListener;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -74,6 +75,13 @@ import static com.randonautica.app.MyCamRngFragment.REQUEST_PERMISSIONS;
 public class RandonautFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMyLocationClickListener {
 
     private GoogleMap mMap;
+
+    //Premium
+    private static int limitpsuedo;
+    private static int limitanomalies;
+    private static int limitattractors;
+    private static int limitvoids;
+    Dialog upgradeDialog;
 
     //Load keys
     static {
@@ -115,6 +123,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
     public static long psuedo;
     public static long anomalies;
     public static long entropy;
+    private static int extendradius;
 
     //Message to mainactivity
     MainActivityMessage SM;
@@ -246,12 +255,6 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                     }
                 }
 
-
-//                if(mapboxMap.getLocationComponent().isLocationComponentActivated() == false){
-//                    //enableLocationComponent(mapboxMap.getStyle());
-//                } else {
-//                    setPreferencesAlertDialog();
-//                }
             }
         });
 
@@ -439,6 +442,41 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         AnomalyToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.AnomalyToggleButton);
         PsuedoToggleButton = (ToggleButton) preferencesDialog.findViewById(R.id.PsuedoToggleButton);
 
+        if(limitattractors == Integer.MAX_VALUE){
+
+            //Toggle Button text
+            AttractorToggleButton.setText("Attractor " + "(∞)");
+            VoidToggleButton.setText("Void " + "(∞)");
+            AnomalyToggleButton.setText("Anomaly " + "(∞)");
+
+            AttractorToggleButton.setTextOn("Attractor " + "(∞)");
+            VoidToggleButton.setTextOn("Void " + "(∞)");
+            AnomalyToggleButton.setTextOn("Anomaly " + "(∞)");
+
+            AttractorToggleButton.setTextOff("Attractor " + "(∞)");
+            VoidToggleButton.setTextOff("Void " + "(∞)");
+            AnomalyToggleButton.setTextOff("Anomaly " + "(∞)");
+
+        } else {
+
+            //Toggle Button text
+            AttractorToggleButton.setText("Attractor " + "(" + limitattractors + ")");
+            VoidToggleButton.setText("Void " + "(" + limitvoids + ")");
+            AnomalyToggleButton.setText("Anomaly " + "(" + limitanomalies+ ")" );
+
+            AttractorToggleButton.setTextOn("Attractor " + "(" + limitattractors + ")");
+            VoidToggleButton.setTextOn("Void " + "(" + limitvoids + ")");
+            AnomalyToggleButton.setTextOn("Anomaly " + "(" + limitanomalies+ ")" );
+
+            AttractorToggleButton.setTextOff("Attractor " + "(" + limitattractors + ")");
+            VoidToggleButton.setTextOff("Void " + "(" + limitvoids + ")");
+            AnomalyToggleButton.setTextOff("Anomaly " + "(" + limitanomalies+ ")" );
+
+
+        }
+
+
+
         //Set Attractor as default button
         AnomalyToggleButton.setChecked(true);
         selected = "Anomalie";
@@ -449,6 +487,11 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         AnomalyToggleButton.setOnCheckedChangeListener(changeChecker);
         PsuedoToggleButton.setOnCheckedChangeListener(changeChecker);
 
+        int needUpgrade = 0;
+
+
+
+        final int finalNeedUpgrade = needUpgrade;
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -461,14 +504,32 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                             generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mMap);
                         }
 
-                        @Override
-                        public void onFailed() {
 
+                        @Override
+                        public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
+                            generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
                         }
                     });
                 } else {
                     preferencesDialog.cancel();
-                    setRngPreferencesDialog();
+
+                    if (AttractorToggleButton.isChecked() && limitattractors == 0) {
+                        showUpgradeDialog();
+                    }
+                    if (VoidToggleButton.isChecked() && limitvoids == 0) {
+                        showUpgradeDialog();
+                    }
+
+                    if (AnomalyToggleButton.isChecked() && limitanomalies == 0) {
+                        showUpgradeDialog();
+                    }
+
+                    if (PsuedoToggleButton.isChecked() && limitpsuedo == 0) {
+                        showUpgradeDialog();
+                    }
+                    else if (PsuedoToggleButton.isChecked() && limitpsuedo > 0 || (AnomalyToggleButton.isChecked() && limitanomalies > 0 || VoidToggleButton.isChecked() && limitvoids > 0 || AttractorToggleButton.isChecked() && limitattractors > 0)){
+                        setRngPreferencesDialog();
+                    }
                 }
             }
         });
@@ -492,8 +553,13 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         seekBarProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                distance = (1000 + (progress * 100));
-                textViewProgress.setText("" + distance);
+                if(extendradius == 1){
+                    distance = (2000 + (progress * 200));
+                    textViewProgress.setText("" + distance);
+                } else {
+                    distance = (1000 + (progress * 100));
+                    textViewProgress.setText("" + distance);
+                }
                 if (progress == 0) {
                     distance = 1000;
                     textViewProgress.setText("" + 1000);
@@ -510,7 +576,6 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
             }
         });
-
 
         preferencesDialog.show();
 
@@ -614,18 +679,16 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                             new RandonautEntropyListener() {
                                 @Override
                                 public void onData(String GID) {
-                                    saveData();
                                     generateAttractors.getAttractors(rootview, mMap, getContext(), GID, false, false, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
                                         @Override
                                         public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
-                                            saveData();
                                             generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mMap);
-
+                                            checkLimitMinus(selected);
                                         }
 
                                         @Override
-                                        public void onFailed() {
-
+                                        public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
+                                            generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
                                         }
                                     });
 
@@ -645,17 +708,16 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                             new RandonautEntropyListener() {
                                 @Override
                                 public void onData(String GID) {
-                                    saveData();
                                     generateAttractors.getAttractors(rootview, mMap, getContext(), GID, true, false, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
                                         @Override
                                         public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
-                                            saveData();
                                             generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mMap);
-
+                                            checkLimitMinus(selected);
                                         }
 
                                         @Override
-                                        public void onFailed() {
+                                        public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
+                                            generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
                                         }
                                     });
 
@@ -695,14 +757,14 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                                         generateAttractors.getAttractors(rootview, mMap, getContext(), GID, false, true, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
                                             @Override
                                             public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
-                                                saveData();
                                                 generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mMap);
+                                                checkLimitMinus(selected);
 
                                             }
 
                                             @Override
-                                            public void onFailed() {
-
+                                            public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
+                                                generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
                                             }
                                         });
 
@@ -751,6 +813,36 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
     }
 
+    public void checkLimitMinus(String selected){
+
+        switch(selected)
+        {
+            case "Attractor":
+                System.out.println("one");
+                if(limitattractors != Integer.MAX_VALUE){
+                    limitattractors = limitattractors-1;
+                }
+                saveData();
+                break;
+            case "Void":
+                if(limitvoids != Integer.MAX_VALUE){
+                    limitvoids = limitvoids-1;
+                }
+                saveData();
+                break;
+            case "Anomalie":
+                if(limitanomalies != Integer.MAX_VALUE){
+                    limitanomalies = limitanomalies-1;
+                }
+                saveData();
+                break;
+            default:
+                saveData();
+        }
+    }
+
+
+
     public void onRequestPermissionsResultCamera(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == REQUEST_PERMISSIONS) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -773,6 +865,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
+
 
     public void setExplanationDialog() {
         explanationDialog = new Dialog(getActivity());
@@ -1027,16 +1120,16 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
             @Override
             public void onResponse(Call<SendEntropy.Response> call, Response<SendEntropy.Response> response) {
                 progressdialog.dismiss();
+
                 generateAttractors.getAttractors(rootview, mMap, getContext(), response.body().getGid(), false, false, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
                     @Override
                     public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
-                        saveData();
                         generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mMap);
 
                     }
 
                     @Override
-                    public void onFailed() {
+                    public void onFailed(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
                         generateEntropy.onCreateDialogErrorGettingEntropy(getContext());
                         progressdialog.dismiss();
                     }
@@ -1087,9 +1180,9 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         Location loc = new Location("dummy");
         loc.setLatitude(x);
         loc.setLongitude(y);
-        addPulsatingEffect(new LatLng(x, y), mMap, loc);
+        addPulsatingEffect(new LatLng(x, y), mMap, (int) radiusm);
 
-        RandonautFragment.startButton.setVisibility(View.GONE);
+        startButton.setVisibility(View.GONE);
         if (startButton.getVisibility() == View.VISIBLE) {
             RandonautFragment.startButton.setVisibility(View.GONE);
         }
@@ -1099,24 +1192,33 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         }
     }
 
-    private void addPulsatingEffect(final LatLng userLatlng, final GoogleMap map, Location currentLocation) {
-        if (lastPulseAnimator != null) {
-            lastPulseAnimator.cancel();
+    private void addPulsatingEffect(final LatLng userLatlng, final GoogleMap map, int radius) {
+
+        int colorOutline = Color.RED;
+        int colorInner = 0x22FF0000;
+
+        if (RandonautFragment.lastPulseAnimator != null) {
+            RandonautFragment.lastPulseAnimator.cancel();
         }
-        if (lastUserCircle != null)
-            lastUserCircle.setCenter(userLatlng);
-        lastPulseAnimator = valueAnimate(getDisplayPulseRadius(20, map), pulseDuration, new ValueAnimator.AnimatorUpdateListener() {
+        if (RandonautFragment.lastUserCircle != null) {
+            RandonautFragment.lastUserCircle.remove();
+            RandonautFragment.lastUserCircle.setCenter(userLatlng);
+        }
+
+        final int finalColorOutline = colorOutline;
+        final int finalColorInner = colorInner;
+        RandonautFragment.lastPulseAnimator = valueAnimate(getDisplayPulseRadius(radius, map), RandonautFragment.pulseDuration, new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                if (lastUserCircle != null)
-                    lastUserCircle.setRadius((Float) animation.getAnimatedValue());
+                if (RandonautFragment.lastUserCircle != null)
+                    RandonautFragment.lastUserCircle.setRadius((Float) animation.getAnimatedValue());
                 else {
-                    lastUserCircle = map.addCircle(new CircleOptions()
+                    RandonautFragment.lastUserCircle = map.addCircle(new CircleOptions()
                             .center(userLatlng)
                             .radius(getDisplayPulseRadius((Float) animation.getAnimatedValue(), map))
-                            .strokeColor(Color.RED));
+                            .strokeColor(finalColorOutline));
                     //.fillColor(Color.BLUE));
-                    lastUserCircle.setFillColor(adjustAlpha(0x220000FF, 1 - animation.getAnimatedFraction()));
+                    RandonautFragment.lastUserCircle.setFillColor(adjustAlpha(finalColorInner, 1 - animation.getAnimatedFraction()));
 
 
                 }
@@ -1144,8 +1246,8 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         return va;
     }
 
-    protected float getDisplayPulseRadius(float radius, GoogleMap map) {
-        float diff = (map.getMaxZoomLevel() - map.getCameraPosition().zoom);
+    protected float getDisplayPulseRadius(float radius, @NotNull GoogleMap map) {
+        float diff = 1;
         if (diff < 3)
             return radius;
         if (diff < 3.7)
@@ -1184,6 +1286,10 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         editor.putLong("ANOMALIES", anomalies);
         editor.putLong("PSEUDO", psuedo);
         editor.putLong("ENTROPY", entropy);
+        editor.putInt("LIMITVOID", limitvoids);
+        editor.putInt("LIMITANOMALY", limitanomalies);
+        editor.putInt("LIMITATTRACTORS", limitattractors);
+        editor.putInt("EXTENDRADIUS", extendradius);
 
         editor.apply();
     }
@@ -1195,6 +1301,11 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         voids = sharedPreferences.getLong("VOID", 0);
         entropy = sharedPreferences.getLong("ENTROPY", 0);
         psuedo = sharedPreferences.getLong("PSEUDO", 0);
+        limitattractors = sharedPreferences.getInt("LIMITATTRACTORS", 0);
+        limitanomalies = sharedPreferences.getInt("LIMITANOMALY", 0);
+        limitvoids = sharedPreferences.getInt("LIMITVOID", 0);
+        extendradius = sharedPreferences.getInt("EXTENDRADIUS", 0);
+
     }
 
     @Override
@@ -1290,6 +1401,42 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         mapFragment.onResume();
 
     }
+
+    public Dialog showUpgradeDialog() {
+        upgradeDialog = new Dialog(getContext());
+        upgradeDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        upgradeDialog.setContentView(R.layout.dialog_crowdfunding);
+
+        //Buttons
+        Button upgrade = (Button) upgradeDialog.findViewById(R.id.upgradeAccept);
+        Button cancel = (Button) upgradeDialog.findViewById(R.id.upgradeCancel);
+
+        upgradeDialog.show();
+
+        upgrade.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // test();
+                upgradeDialog.cancel();
+
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new MyUpgradeFragment()).commit();
+            }
+
+        });
+
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                upgradeDialog.cancel();
+
+            }
+
+        });
+
+        return upgradeDialog;
+    }
+
 
 
 }

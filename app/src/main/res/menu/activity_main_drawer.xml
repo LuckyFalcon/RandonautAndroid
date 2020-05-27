@@ -24,6 +24,11 @@
             android:title="@string/menu_profile" />
 
         <item
+            android:id="@+id/nav_upgrade"
+            android:icon="@drawable/baseline_arrow_upward_black_48dp"
+            android:title="@string/menu_upgrade" />
+
+        <item
             android:id="@+id/nav_tools"
             android:icon="@drawable/ic_menu_manage"
             android:title="@string/menu_settings" />

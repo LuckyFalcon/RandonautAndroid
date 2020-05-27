@@ -7,6 +7,6 @@ import java.util.ArrayList;
 public interface RandonautAttractorListener{
 
     public void onData(ArrayList<SingleRecyclerViewLocation> GID);
-    public void onFailed();
+    public void onFailed(ArrayList<SingleRecyclerViewLocation> GID);
 
 }
