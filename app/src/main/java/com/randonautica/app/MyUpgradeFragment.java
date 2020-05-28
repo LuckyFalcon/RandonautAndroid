@@ -703,8 +703,8 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                 limitanomalies = Integer.MAX_VALUE;
                 limitattractors = Integer.MAX_VALUE;
                 saveDataPremium();
-                Revenue revenue = new Revenue().setProductId("com.randonautica.app.infinte_points").setPrice(9.99).setQuantity(1);
-                Amplitude.getInstance().logRevenueV2(revenue);
+//                Revenue revenue = new Revenue().setProductId("com.randonautica.app.infinte_points").setPrice(9.99).setQuantity(1);
+//                Amplitude.getInstance().logRevenueV2(revenue);
             }
             else if ("get_more_points".equals(currentSKU)) {
                 limitattractors = limitattractors+60;
@@ -712,8 +712,8 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                 limitvoids = limitattractors+60;
                 Button60.setEnabled(false);
                 AddData(purchase.getPurchaseToken(), 60,60,60, purchase);
-                Revenue revenue = new Revenue().setProductId("com.randonautica.app.get_more_points").setPrice(1.99).setQuantity(1);
-                Amplitude.getInstance().logRevenueV2(revenue);
+//                Revenue revenue = new Revenue().setProductId("com.randonautica.app.get_more_points").setPrice(1.99).setQuantity(1);
+//                Amplitude.getInstance().logRevenueV2(revenue);
             }
             else if ("get_points".equals(currentSKU)) {
                 limitattractors = limitattractors+20;
@@ -721,20 +721,20 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                 limitvoids = limitattractors+20;
                 Button20.setEnabled(false);
                 AddData(purchase.getPurchaseToken(), 20, 20,20, purchase);
-                Revenue revenue = new Revenue().setProductId("com.randonautica.app.get_points").setPrice(0.99).setQuantity(1);
-                Amplitude.getInstance().logRevenueV2(revenue);
+//                Revenue revenue = new Revenue().setProductId("com.randonautica.app.get_points").setPrice(0.99).setQuantity(1);
+//                Amplitude.getInstance().logRevenueV2(revenue);
             }
             else if ("skip_water_points".equals(currentSKU)) {
                 waterpoints = 1;
                 saveDataPremium();
-                Revenue revenue = new Revenue().setProductId("com.randonautica.app.skip_water_points").setPrice(1.99).setQuantity(1).setReceipt(purchase.toString(), purchase.getSignature());;
-                Amplitude.getInstance().logRevenueV2(revenue);
+//                Revenue revenue = new Revenue().setProductId("com.randonautica.app.skip_water_points").setPrice(1.99).setQuantity(1).setReceipt(purchase.toString(), purchase.getSignature());;
+//                Amplitude.getInstance().logRevenueV2(revenue);
             }
             else if ("extend_radius".equals(currentSKU)) {
                 extendradius = 1;
                 saveDataPremium();
-                Revenue revenue = new Revenue().setProductId("com.randonautica.app.extend_radius").setPrice(1.99).setQuantity(1);
-                Amplitude.getInstance().logRevenueV2(revenue);
+//                Revenue revenue = new Revenue().setProductId("com.randonautica.app.extend_radius").setPrice(1.99).setQuantity(1);
+//                Amplitude.getInstance().logRevenueV2(revenue);
             }
 
             ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
