@@ -70,7 +70,7 @@
             android:id="@+id/buttonGet20Points"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="10dp"
             android:background="@color/upgrade_button"
             android:text="Buy"
             android:textColor="#FFFFFF"
@@ -118,7 +118,7 @@
                 android:id="@+id/buttonGet60Points"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="10dp"
                 android:background="@color/upgrade_button"
                 android:text="Buy"
                 android:textColor="#FFFFFF"
@@ -165,7 +165,7 @@
                 android:id="@+id/buttongetUnlimitedPoints"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="10dp"
                 android:background="@color/upgrade_button"
                 android:text="Buy"
                 android:textColor="#FFFFFF"
@@ -178,14 +178,12 @@
         android:id="@+id/syncButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="5dp"
         android:background="@color/upgrade_button"
         android:visibility="gone"
         android:text="Sync Previous Quantum Points"
         android:textColor="#FFFFFF"
         app:layout_constraintTop_toBottomOf="@+id/textView8" />
-
-
 
     <LinearLayout
         android:layout_height="10dp"
@@ -239,7 +237,7 @@
         android:id="@+id/buttonExtendRadius"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="5dp"
         android:text="Buy"
         android:textColor="#FFFFFF"
         android:background="@color/upgrade_button"
@@ -250,7 +248,7 @@
         android:layout_height="10dp"
         android:showDividers="middle"
         android:divider="@drawable/empty_tail_divider"
-        android:layout_width="10dp">
+        android:layout_width="5dp">
     </LinearLayout>
 
     <View android:id="@+id/tile_divider2"
@@ -299,7 +297,7 @@
         android:id="@+id/buttonWaterPoints"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="5dp"
         android:text="Buy"
         android:textColor="#FFFFFF"
         android:background="@color/upgrade_button"

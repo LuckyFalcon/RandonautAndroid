@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -28,6 +29,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.amplitude.api.Amplitude;
 import com.google.android.material.navigation.NavigationView;
 import com.onesignal.OneSignal;
 import com.randonautica.app.Interfaces.MainActivityMessage;
@@ -73,6 +75,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
                 .unsubscribeWhenNotificationsAreDisabled(true)
                 .init();
 
+        Amplitude.getInstance().initialize(this, "0bd7e7711d1c3a30578d365260d2d166").enableForegroundTracking(getApplication());
+
         setContentView(R.layout.activity_main);
 
         //Set the toolbar
@@ -98,6 +102,18 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
             //userId
             userId = UUID.randomUUID().toString();
             saveData();
+            Intent receiverIntent = new Intent(this, AlarmReceiver.class);
+            PendingIntent sender = PendingIntent.getBroadcast(this, 123456789, receiverIntent, 0);
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY, 23);
+            calendar.set(Calendar.MINUTE, 58);
+
+            AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                    AlarmManager.INTERVAL_DAY, sender);
+
+
+            Log.d("test", "alarmset");
         }
 
         //Set Navigation header username equal to userId
@@ -116,22 +132,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
 
         } else {
 
-            if(limitanomalies != Integer.MAX_VALUE) {
-                //define your intent
-                AlarmManager alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-                Intent intent = new Intent(this, AlarmReceiver.class);
-                PendingIntent alarmIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
-
-                // Set the alarm to start at approximately 00:00 h(24h format).
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(System.currentTimeMillis());
-                calendar.set(Calendar.HOUR_OF_DAY, 23);
-                calendar.set(Calendar.MINUTE, 59);
-                calendar.set(Calendar.SECOND, 59);
-                calendar.set(Calendar.MILLISECOND, 0);
-                //repeteat alarm every 24hours
-                alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                        AlarmManager.INTERVAL_DAY, alarmIntent);
+          //  if(limitanomalies != Integer.MAX_VALUE) {
 
                 //Continue loading the app
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
@@ -139,14 +140,14 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
                         .addToBackStack("randonaut")
                         .commit();
                 navigationView.setCheckedItem(R.id.nav_randonaut);
-            } else {
+//            } else {
                 //Continue loading the app
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                        new RandonautFragment(), "randonaut")
-                        .addToBackStack("randonaut")
-                        .commit();
-                navigationView.setCheckedItem(R.id.nav_randonaut);
-            }
+//                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+//                        new RandonautFragment(), "randonaut")
+//                        .addToBackStack("randonaut")
+//                        .commit();
+//                navigationView.setCheckedItem(R.id.nav_randonaut);
+           // }
 
 
         }

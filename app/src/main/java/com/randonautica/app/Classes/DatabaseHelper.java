@@ -271,5 +271,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return data;
     }
 
+    public Cursor getDataPointsToken(String table, String purchaseToken){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT * FROM " + table + " WHERE purchaseToken = "+"'"+purchaseToken+"'";
+        Cursor data = db.rawQuery(query, null);
+        return data;
+    }
+
 
 }

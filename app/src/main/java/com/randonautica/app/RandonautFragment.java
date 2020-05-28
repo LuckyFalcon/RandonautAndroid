@@ -512,6 +512,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                         public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
                             saveData();
                             generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mMap);
+
                         }
 
 

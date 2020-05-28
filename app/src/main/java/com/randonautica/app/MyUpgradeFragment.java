@@ -1,5 +1,6 @@
 package com.randonautica.app;
 
+import com.amplitude.api.Amplitude;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -7,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Base64;
@@ -24,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.amplitude.api.Revenue;
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingClientStateListener;
 import com.android.billingclient.api.BillingFlowParams;
@@ -66,6 +69,7 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
     private BillingClient billingClient;
     DatabaseHelper mDatabaseHelper;
 
+
     private static int limitanomalies;
     private static int limitattractors;
     private static int limitvoids;
@@ -78,7 +82,6 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
     PurchaseHistoryRecord purchase20 = null;
     PurchaseHistoryRecord purchaseExtendradius = null;
     PurchaseHistoryRecord purchasewaterPoints = null;
-
 
     SkuDetails skuDetailsInfinte = null;
     SkuDetails skuDetails60 = null;
@@ -115,49 +118,21 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
         getActivity().setTitle("Upgrade");
 
         loadData();
+        Amplitude.getInstance().logEvent("OpenShop_test");
 
-        return inflater.inflate(R.layout.fragment_upgrade, container, false);
+        final View view = inflater.inflate(R.layout.fragment_upgrade, container, false);
+
+        return view;
     }
-
 
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        toolbar = (androidx.appcompat.widget.Toolbar) getActivity().findViewById(R.id.toolbar);
-
-        //Buttons
-        Buttoninfinte = (Button) view.findViewById(R.id.buttongetUnlimitedPoints);
-        Button20 = (Button) view.findViewById(R.id.buttonGet20Points);
-        Button60 = (Button) view.findViewById(R.id.buttonGet60Points);
-        ButtonWaterPoints = (Button) view.findViewById(R.id.buttonWaterPoints);
-        buttonExtendRadius = (Button) view.findViewById(R.id.buttonExtendRadius);
-        syncButton = (Button) view.findViewById(R.id.syncButton);
-
-        //Infinite points
-        final TextView textViewgetUnlimitedPointsPrice = view.findViewById(R.id.getUnlimitedPointsPrice);
-
-        //60 points
-        final TextView textViewget60PointsPrice = view.findViewById(R.id.get60PointsPrice);
-
-        //20 points
-        final TextView textViewget20PointsPrice = view.findViewById(R.id.get20PointsPrice);
-
-        //Water points
-        final TextView textViewWaterPoints = view.findViewById(R.id.textViewWaterPoints);
-        final TextView textViewWaterPointsDesc = view.findViewById(R.id.textViewWaterPointsDesc);
-        final TextView textViewWaterPointsPrice = view.findViewById(R.id.textViewWaterPointsPrice);
-
-        //Extend radius
-        final TextView textViewExtendRadius = view.findViewById(R.id.textViewExtendRadius);
-        final TextView textViewExtendRadiusDesc = view.findViewById(R.id.textViewExtendRadiusDesc);
-        final TextView textViewExtendRadiusPrice = view.findViewById(R.id.textViewExtendRadiusPrice);
-
         billingClient = BillingClient.newBuilder(getContext())
                 .enablePendingPurchases()
                 .setListener(this).build();
 
-        Log.d("test", ""+showSyncbutton);
         billingClient.startConnection(new BillingClientStateListener() {
             @Override
             public void onBillingSetupFinished(BillingResult billingResult) {
@@ -181,13 +156,42 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                                                 listHistory = list;
                                                 if(showSyncbutton != 1 && limitanomalies != Integer.MAX_VALUE){
                                                     syncButton.setVisibility(view.VISIBLE);
+                                                    Button20.setEnabled(false);
+                                                    Button60.setEnabled(false);
+                                                }
+                                                mDatabaseHelper = new DatabaseHelper(getContext(), "Points");
+                                                Cursor data = mDatabaseHelper.getDataPointsToken("Points", purchase.getPurchaseToken()); //here it gives up
+                                                Boolean rowExists = false;
+                                                if (data.moveToFirst()) {
+                                                    rowExists = true;
+                                                } else {
+                                                    rowExists = false;
+                                                }
+                                                if (rowExists) {
+                                                    Button20.setEnabled(false);
+                                                    Button60.setEnabled(false);
                                                 }
                                             }
                                             else if ("get_points".equals(purchase.getSku())) {
                                                 listHistory = list;
                                                 if(showSyncbutton != 1 && limitanomalies != Integer.MAX_VALUE){
                                                     syncButton.setVisibility(view.VISIBLE);
+                                                    Button20.setEnabled(false);
+                                                    Button60.setEnabled(false);
                                                 }
+                                                mDatabaseHelper = new DatabaseHelper(getContext(), "Points");
+                                                Cursor data = mDatabaseHelper.getDataPointsToken("Points", purchase.getPurchaseToken()); //here it gives up
+                                                Boolean rowExists = false;
+                                                if (data.moveToFirst()) {
+                                                    rowExists = true;
+                                                } else {
+                                                    rowExists = false;
+                                                }
+                                                if (rowExists) {
+                                                    Button20.setEnabled(false);
+                                                    Button60.setEnabled(false);
+                                                }
+
                                             }
                                             else if ("skip_water_points".equals(purchase.getSku())) {
                                                 ButtonWaterPoints.setText("Enable");
@@ -220,9 +224,13 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                                             buttonExtendRadius.setEnabled(false);
                                         }
                                     }
+
+
+
                                 }
                             });
                 }
+
             }
 
             @Override
@@ -231,6 +239,38 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
             }
         });
 
+        toolbar = (androidx.appcompat.widget.Toolbar) getActivity().findViewById(R.id.toolbar);
+
+        mDatabaseHelper = new DatabaseHelper(getContext(), "Points");
+
+        //Buttons
+        Buttoninfinte = (Button) view.findViewById(R.id.buttongetUnlimitedPoints);
+        Button20 = (Button) view.findViewById(R.id.buttonGet20Points);
+        Button60 = (Button) view.findViewById(R.id.buttonGet60Points);
+        ButtonWaterPoints = (Button) view.findViewById(R.id.buttonWaterPoints);
+        buttonExtendRadius = (Button) view.findViewById(R.id.buttonExtendRadius);
+        syncButton = (Button) view.findViewById(R.id.syncButton);
+
+        //Infinite points
+        final TextView textViewgetUnlimitedPointsPrice = view.findViewById(R.id.getUnlimitedPointsPrice);
+
+        //60 points
+        final TextView textViewget60PointsPrice = view.findViewById(R.id.get60PointsPrice);
+
+        //20 points
+        final TextView textViewget20PointsPrice = view.findViewById(R.id.get20PointsPrice);
+
+        //Water points
+        final TextView textViewWaterPoints = view.findViewById(R.id.textViewWaterPoints);
+        final TextView textViewWaterPointsDesc = view.findViewById(R.id.textViewWaterPointsDesc);
+        final TextView textViewWaterPointsPrice = view.findViewById(R.id.textViewWaterPointsPrice);
+
+        //Extend radius
+        final TextView textViewExtendRadius = view.findViewById(R.id.textViewExtendRadius);
+        final TextView textViewExtendRadiusDesc = view.findViewById(R.id.textViewExtendRadiusDesc);
+        final TextView textViewExtendRadiusPrice = view.findViewById(R.id.textViewExtendRadiusPrice);
+
+        Log.d("test", ""+showSyncbutton);
 
         billingClient = BillingClient.newBuilder(getContext())
                 .enablePendingPurchases()
@@ -304,6 +344,7 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                     validateItem(purchaseInfinte);
                 } else {
                     purchaseItem(skuDetailsInfinte);
+
                 }
             }
         });
@@ -328,11 +369,11 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
             @SuppressLint("CheckResult")
             @Override
             public void onClick(View v) {
-//                if(enableInfinte == true){
-//                    dialogOnEnableInfinte();
-//                } else {
+                if(enableInfinte == true){
+                    dialogOnEnableInfinte();
+                } else {
                     validatePoints();
-           //     }
+                }
             }
         });
 
@@ -437,6 +478,7 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
             public void onFailure(Call<Verify> call, Throwable t) {
                 Log.d("test", ""+t);
 
+
             }
         });
 
@@ -454,6 +496,7 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
         if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK
                 && purchases != null) {
             for (Purchase purchase : purchases) {
+
                 handlePurchase(purchase);
             }
         } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.USER_CANCELED) {
@@ -660,29 +703,38 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                 limitanomalies = Integer.MAX_VALUE;
                 limitattractors = Integer.MAX_VALUE;
                 saveDataPremium();
-
+                Revenue revenue = new Revenue().setProductId("com.randonautica.app.infinte_points").setPrice(9.99).setQuantity(1);
+                Amplitude.getInstance().logRevenueV2(revenue);
             }
             else if ("get_more_points".equals(currentSKU)) {
                 limitattractors = limitattractors+60;
                 limitanomalies = limitattractors+60;
                 limitvoids = limitattractors+60;
+                Button60.setEnabled(false);
                 AddData(purchase.getPurchaseToken(), 60,60,60, purchase);
-
+                Revenue revenue = new Revenue().setProductId("com.randonautica.app.get_more_points").setPrice(1.99).setQuantity(1);
+                Amplitude.getInstance().logRevenueV2(revenue);
             }
             else if ("get_points".equals(currentSKU)) {
                 limitattractors = limitattractors+20;
                 limitanomalies = limitattractors+20;
                 limitvoids = limitattractors+20;
+                Button20.setEnabled(false);
                 AddData(purchase.getPurchaseToken(), 20, 20,20, purchase);
-
+                Revenue revenue = new Revenue().setProductId("com.randonautica.app.get_points").setPrice(0.99).setQuantity(1);
+                Amplitude.getInstance().logRevenueV2(revenue);
             }
             else if ("skip_water_points".equals(currentSKU)) {
                 waterpoints = 1;
                 saveDataPremium();
+                Revenue revenue = new Revenue().setProductId("com.randonautica.app.skip_water_points").setPrice(1.99).setQuantity(1).setReceipt(purchase.toString(), purchase.getSignature());;
+                Amplitude.getInstance().logRevenueV2(revenue);
             }
             else if ("extend_radius".equals(currentSKU)) {
                 extendradius = 1;
                 saveDataPremium();
+                Revenue revenue = new Revenue().setProductId("com.randonautica.app.extend_radius").setPrice(1.99).setQuantity(1);
+                Amplitude.getInstance().logRevenueV2(revenue);
             }
 
             ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
@@ -724,9 +776,9 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
     public void saveData(Purchase purchase){
 
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
-                .connectTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
-                .writeTimeout(60, TimeUnit.SECONDS)
+                .connectTimeout(120, TimeUnit.SECONDS)
+                .readTimeout(120, TimeUnit.SECONDS)
+                .writeTimeout(120, TimeUnit.SECONDS)
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
