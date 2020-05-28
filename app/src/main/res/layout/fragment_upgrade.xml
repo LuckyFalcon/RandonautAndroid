@@ -126,6 +126,8 @@
 
         </LinearLayout>
 
+
+
         <LinearLayout
             android:layout_height="10dp"
             android:showDividers="middle"
@@ -172,10 +174,16 @@
         </LinearLayout>
     </LinearLayout>
 
-
-
-
-
+    <Button
+        android:id="@+id/syncButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:background="@color/upgrade_button"
+        android:visibility="gone"
+        android:text="Sync Previous Quantum Points"
+        android:textColor="#FFFFFF"
+        app:layout_constraintTop_toBottomOf="@+id/textView8" />
 
 
 

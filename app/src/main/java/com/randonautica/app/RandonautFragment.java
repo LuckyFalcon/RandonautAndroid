@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
@@ -17,6 +18,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,7 +52,10 @@ import com.google.android.gms.tasks.Task;
 import com.randonautica.app.Attractors.GenerateAttractors;
 import com.randonautica.app.Attractors.GenerateEntropy;
 import com.randonautica.app.Attractors.GenerateRecyclerView;
+import com.randonautica.app.Classes.DatabaseHelper;
+import com.randonautica.app.Classes.Points;
 import com.randonautica.app.Classes.SingleRecyclerViewLocation;
+import com.randonautica.app.Classes.Verify;
 import com.randonautica.app.Interfaces.API_Classes.SendEntropy;
 import com.randonautica.app.Interfaces.MainActivityMessage;
 import com.randonautica.app.Interfaces.RandoWrapperApi;
@@ -58,11 +63,14 @@ import com.randonautica.app.Interfaces.RandonautAttractorListener;
 import com.randonautica.app.Interfaces.RandonautEntropyListener;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -75,6 +83,7 @@ import static com.randonautica.app.MyCamRngFragment.REQUEST_PERMISSIONS;
 public class RandonautFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMyLocationClickListener {
 
     private GoogleMap mMap;
+    DatabaseHelper mDatabaseHelper;
 
     //Premium
     private static int limitpsuedo;
@@ -839,7 +848,80 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
             default:
                 saveData();
         }
-    }
+
+        //Check max int
+        if(limitattractors != Integer.MAX_VALUE){
+
+
+        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(new String(Base64.decode(RandonautFragment.getBaseApi(), Base64.DEFAULT))+"/api/")
+                .client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        RandoWrapperApi randoWrapperApi = retrofit.create(RandoWrapperApi.class);
+            Log.d("test", "rea");
+        mDatabaseHelper = new DatabaseHelper(getContext(), "Points");
+            Log.d("test", "re");
+            Cursor data = mDatabaseHelper.getData("Points"); //here it gives up
+        Log.d("test", ""+data.isNull(0));
+        ArrayList<Points> pointsArray = new ArrayList<Points>();
+        while(data.moveToNext()) {
+            Points resultRow = new Points();
+            resultRow.id = data.getString(0);
+            resultRow.purchaseToken = data.getString(1);
+            resultRow.points = data.getString(2);
+            pointsArray.add(resultRow);
+        }
+
+
+            final JSONObject obj = new JSONObject();
+
+            try {
+                obj.put("purchaseToken", pointsArray.get(0).purchaseToken);
+                obj.put("points", 1);
+                int currentPoints = Integer.parseInt(pointsArray.get(0).points) - 1;
+                Log.d("test","te"+pointsArray.get(0).points + pointsArray.get(0).purchaseToken);
+                mDatabaseHelper.upData("Points", pointsArray.get(0).purchaseToken, (Integer.parseInt(pointsArray.get(0).points) - 1));
+                if(currentPoints == 0){
+                    //Working
+                    mDatabaseHelper.delData("Points", pointsArray.get(0).purchaseToken);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), obj.toString());
+            final Call<Verify> response = randoWrapperApi.postupdatePointsJson(body);
+
+            response.enqueue(new Callback<Verify>() {
+                @Override
+                public void onResponse(Call<Verify> call, Response<Verify> response) {
+                    try {
+
+                        Log.d("test", ""+response);
+
+                    }catch (Exception e) {
+                        Log.d("test", ""+e);
+
+                    }
+                }
+                @Override
+                public void onFailure(Call<Verify> call, Throwable t) {
+                    Log.d("test", ""+t);
+
+                }
+            });
+
+        } //If not max int
+
+        }
+
 
 
 

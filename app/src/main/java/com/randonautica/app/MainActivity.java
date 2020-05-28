@@ -22,6 +22,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -54,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
     private boolean darkModeSwitch;
     private Boolean privacyPolicyAccepted;
 
+    Toolbar toolbar;
+
     public static final String SWTICHEnableDarkMode = "enableDarkMode";
 
     static {
@@ -73,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
         setContentView(R.layout.activity_main);
 
         //Set the toolbar
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         //Enable drawer menu within the toolbar
@@ -154,6 +157,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
         switch (menuItem.getItemId()) {
             case R.id.nav_randonaut:
                 fragmentManager = getSupportFragmentManager();
+                toolbar.setTitleTextColor(getResources().getColor(R.color.colorText));
+                toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
 
                 tag = "randonaut";
 
@@ -173,6 +178,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
                 break;
             case R.id.nav_attractors:
                 fragmentManager = getSupportFragmentManager();
+                toolbar.setTitleTextColor(getResources().getColor(R.color.colorText));
+                toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
 
                 tag = "bot";
 
@@ -193,18 +200,26 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
                         new MyUpgradeFragment()).commit();
                 break;
             case R.id.nav_slideshow:
+                toolbar.setTitleTextColor(getResources().getColor(R.color.colorText));
+                toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                         new MyListFragment()).commit();
                 break;
             case R.id.nav_tools:
+                toolbar.setTitleTextColor(getResources().getColor(R.color.colorText));
+                toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                         new MySettingsFragment()).commit();
                 break;
             case R.id.nav_profile:
+                toolbar.setTitleTextColor(getResources().getColor(R.color.colorText));
+                toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                         new MyProfileFragment()).commit();
                 break;
             case R.id.nav_share:
+                toolbar.setTitleTextColor(getResources().getColor(R.color.colorText));
+                toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                 onCreateDialog();
                 break;
         }

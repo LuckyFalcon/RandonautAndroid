@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -13,6 +14,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     String attractorTable = "Attractors";
     String voidTable = "Voids";
     String anomalyTable = "Anomalies";
+    String pointsTable = "Points";
 
     private static final String COL0 =   "id";
     private static final String COL1 =   "GID";
@@ -141,9 +143,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COL27 +  " BIT,   " +
                 COL28 + " BIT)";
 
+        String createTable4 = "CREATE TABLE " + pointsTable  + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "purchaseToken" + " TEXT, " +
+                "points" + " TEXT)";
+
         db.execSQL(createTable);
         db.execSQL(createTable2);
         db.execSQL(createTable3);
+        db.execSQL(createTable4);
     }
 
     @Override
@@ -151,6 +158,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + attractorTable);
         db.execSQL("DROP TABLE IF EXISTS " + voidTable);
         db.execSQL("DROP TABLE IF EXISTS " + anomalyTable);
+        db.execSQL("DROP TABLE IF EXISTS " + pointsTable);
 
         onCreate(db);
     }
@@ -214,6 +222,43 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Cursor getData(String table){
         SQLiteDatabase db = this.getWritableDatabase();
         String query = "SELECT * FROM " + table + " ORDER BY " + COL0 + " DESC" + " LIMIT 50";
+        Cursor data = db.rawQuery(query, null);
+        return data;
+    }
+
+    public void delData(String table, String purchaseToken){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String strSQL = "DELETE FROM " + table + " WHERE purchaseToken = "+"'"+purchaseToken+"'";
+        db.execSQL(strSQL);
+    }
+
+    public void upData(String table, String purchaseToken, int amount){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String strSQL = "UPDATE Points SET points = " + amount + " WHERE purchaseToken = "+"'"+purchaseToken+"'";
+
+        db.execSQL(strSQL);
+
+    }
+
+    public boolean addDataPoints(String table, String purchaseToken, int points) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("purchaseToken",  purchaseToken);
+        contentValues.put("points",  points);
+
+        long result = db.insert(table, null, contentValues);
+
+        if (result == -1){
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public Cursor getDataPoints(String table){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT * FROM " + table + " ORDER BY " + COL0 + " DESC" + " LIMIT 1000";
         Cursor data = db.rawQuery(query, null);
         return data;
     }

@@ -1,5 +1,6 @@
 package com.randonautica.app.Interfaces;
 
+import com.randonautica.app.Classes.Verify;
 import com.randonautica.app.Interfaces.API_Classes.Attractors;
 import com.randonautica.app.Interfaces.API_Classes.Entropy;
 import com.randonautica.app.Interfaces.API_Classes.GoAttractors;
@@ -32,10 +33,22 @@ public interface RandoWrapperApi {
                              @Query("gcp") boolean gcp,
                              @Query("temporal") boolean temporal);
 
-    @FormUrlEncoded
     @POST("setentropy")
     Call<SendEntropy.Response> postEntropyJson(@Field("size") String size,
                                                @Field("entropy") String entropy);
+
+    @POST("checkreceipt")
+    Call<Verify> postReceiptJson(@Body RequestBody params);
+
+    @POST("savePoints")
+    Call<Verify> postSavePointsJson(@Body RequestBody params);
+
+    @POST("checkPoints")
+    Call<Verify> postcheckPointsJson(@Body RequestBody params);
+
+    @POST("updatepoints")
+    Call<Verify> postupdatePointsJson(@Body RequestBody params);
+
 
     @POST("reports/save")
     Call<SendReport.Response> postJson(@Body RequestBody params);
