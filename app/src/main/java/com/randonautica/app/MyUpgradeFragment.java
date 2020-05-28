@@ -552,18 +552,16 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                     @Override
                     public void onResponse(Call<Verify> call, Response<Verify> response) {
                         try {
-                            if(response.body().getValidated().booleanValue() == true){
-                                if(response.body().getPoints() > 0){
-                                    Log.d("test","test");
-                                    showSyncbutton = 1;
-                                    AddDataValidate(purchaseItem.getPurchaseToken(), response.body().getPoints());
-                                    limitattractors = limitattractors + response.body().getPoints();
-                                    limitanomalies = limitanomalies + response.body().getPoints();
-                                    limitvoids = limitvoids + response.body().getPoints();
-                                    saveDataPremium();
-                                    syncButton.setVisibility(View.GONE);
-                                    progressdialog.dismiss();
-                                }
+                            if(response.body().getAttractorpoints() > 0 || response.body().getAnomalypoints() > 0 || response.body().getVoidpoints() > 0){
+                                Log.d("test","fin1");
+                                showSyncbutton = 1;
+                                AddDataValidate(purchaseItem.getPurchaseToken(), response.body().getAnomalypoints(), response.body().getAttractorpoints(), response.body().getVoidpoints());
+                                limitattractors = limitattractors + response.body().getAttractorpoints();
+                                limitanomalies = limitanomalies + response.body().getAnomalypoints();
+                                limitvoids = limitvoids + response.body().getVoidpoints();
+                                saveDataPremium();
+                                syncButton.setVisibility(View.GONE);
+                                progressdialog.dismiss();
                             }
 
                         }catch (Exception e) {
@@ -585,18 +583,17 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                     @Override
                     public void onResponse(Call<Verify> call, Response<Verify> response) {
                         try {
-                            if(response.body().getPoints() > 0){
-                                Log.d("test","fin");
+                            if(response.body().getAttractorpoints() > 0 || response.body().getAnomalypoints() > 0 || response.body().getVoidpoints() > 0){
+                                Log.d("test","fin2");
                                 showSyncbutton = 1;
 
-                                AddDataValidate(purchaseItem.getPurchaseToken(), response.body().getPoints());
-                                limitattractors = limitattractors + response.body().getPoints();
-                                limitanomalies = limitanomalies + response.body().getPoints();
-                                limitvoids = limitvoids + response.body().getPoints();
+                                AddDataValidate(purchaseItem.getPurchaseToken(), response.body().getAnomalypoints(), response.body().getAttractorpoints(), response.body().getVoidpoints());
+                                limitattractors = limitattractors + response.body().getAttractorpoints();
+                                limitanomalies = limitanomalies + response.body().getAnomalypoints();
+                                limitvoids = limitvoids + response.body().getVoidpoints();
                                 saveDataPremium();
                                 syncButton.setVisibility(View.GONE);
                                 progressdialog.dismiss();
-
                             }
 
                         }catch (Exception e) {
@@ -618,7 +615,7 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
     void dialogOnEnabled(){
         new AlertDialog.Builder(getContext())
                 .setTitle("Enabled")
-                .setMessage("Quantum points reloaded!")
+                .setMessage("Quantum points reloaded! It might be necessary to restart the app.")
 
                 // Specifying a listener allows you to take an action before dismissing the dialog.
                 // The dialog is automatically dismissed when a dialog button is clicked.
@@ -669,14 +666,14 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                 limitattractors = limitattractors+60;
                 limitanomalies = limitattractors+60;
                 limitvoids = limitattractors+60;
-                AddData(purchase.getPurchaseToken(), 60, purchase);
+                AddData(purchase.getPurchaseToken(), 60,60,60, purchase);
 
             }
             else if ("get_points".equals(currentSKU)) {
                 limitattractors = limitattractors+20;
                 limitanomalies = limitattractors+20;
                 limitvoids = limitattractors+20;
-                AddData(purchase.getPurchaseToken(), 20, purchase);
+                AddData(purchase.getPurchaseToken(), 20, 20,20, purchase);
 
             }
             else if ("skip_water_points".equals(currentSKU)) {
@@ -806,15 +803,15 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
 
     //Write to Database
     //#TODO: FIX THE GID/TID/LID
-    public void AddData(String purchaseToken, int points, Purchase purchase) {
-        boolean insertData = mDatabaseHelper.addDataPoints("Points", purchaseToken, points);
+    public void AddData(String purchaseToken, int anomalypoints, int attractorpoints, int voidpoints, Purchase purchase) {
+        boolean insertData = mDatabaseHelper.addDataPoints("Points", purchaseToken, anomalypoints, attractorpoints, voidpoints);
         saveData(purchase);
     }
 
     //Write to Database
     //#TODO: FIX THE GID/TID/LID
-    public void AddDataValidate(String purchaseToken, int points) {
-        boolean insertData = mDatabaseHelper.addDataPoints("Points", purchaseToken, points);
+    public void AddDataValidate(String purchaseToken, int anomalypoints, int attractorpoints, int voidpoints) {
+        boolean insertData = mDatabaseHelper.addDataPoints("Points", purchaseToken, anomalypoints, attractorpoints, voidpoints);
     }
 
 }

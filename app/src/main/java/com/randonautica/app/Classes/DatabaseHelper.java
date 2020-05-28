@@ -145,7 +145,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         String createTable4 = "CREATE TABLE " + pointsTable  + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "purchaseToken" + " TEXT, " +
-                "points" + " TEXT)";
+                "anomalypoints" + " TEXT, " +
+                "attractorpoints" + " TEXT, " +
+                "voidpoints" + " TEXT)";
 
         db.execSQL(createTable);
         db.execSQL(createTable2);
@@ -234,18 +236,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void upData(String table, String purchaseToken, int amount){
         SQLiteDatabase db = this.getWritableDatabase();
-        String strSQL = "UPDATE Points SET points = " + amount + " WHERE purchaseToken = "+"'"+purchaseToken+"'";
+        String strSQL = "UPDATE Points SET anomalypoints = " + amount + " WHERE purchaseToken = "+"'"+purchaseToken+"'";
+        String strSQL2 = "UPDATE Points SET attractorpoints = " + amount + " WHERE purchaseToken = "+"'"+purchaseToken+"'";
+        String strSQL3 = "UPDATE Points SET voidpoints = " + amount + " WHERE purchaseToken = "+"'"+purchaseToken+"'";
 
         db.execSQL(strSQL);
-
+        db.execSQL(strSQL2);
+        db.execSQL(strSQL3);
     }
 
-    public boolean addDataPoints(String table, String purchaseToken, int points) {
+    public boolean addDataPoints(String table, String purchaseToken, int anomalypoints, int attractorpoints, int voidpoints) {
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("purchaseToken",  purchaseToken);
-        contentValues.put("points",  points);
+        contentValues.put("anomalypoints",  anomalypoints);
+        contentValues.put("attractorpoints",  attractorpoints);
+        contentValues.put("voidpoints",  voidpoints);
+
 
         long result = db.insert(table, null, contentValues);
 

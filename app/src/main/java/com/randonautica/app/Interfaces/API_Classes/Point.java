@@ -65,6 +65,17 @@ public class Point {
     @SerializedName("Probability")
     @Expose
     private Double probability;
+    @SerializedName("water")
+    @Expose
+    private boolean water;
+
+    public boolean isWater() {
+        return water;
+    }
+
+    public void setWater(boolean water) {
+        this.water = water;
+    }
 
     public Double getGID() {
         return gID;

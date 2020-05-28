@@ -7,7 +7,10 @@ public class Verify {
 
     private long timestamp;
     private Boolean validated;
-    private Integer points;
+    private Integer anomalypoints;
+    private Integer attractorpoints;
+    private Integer voidpoints;
+
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     public long getTimestamp() {
@@ -18,8 +21,16 @@ public class Verify {
         return validated;
     }
 
-    public Integer getPoints() {
-        return points;
+    public Integer getAnomalypoints() {
+        return anomalypoints;
+    }
+
+    public Integer getAttractorpoints() {
+        return attractorpoints;
+    }
+
+    public Integer getVoidpoints() {
+        return voidpoints;
     }
 
     public Map<String, Object> getAdditionalProperties() {

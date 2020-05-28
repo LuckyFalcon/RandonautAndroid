@@ -61,6 +61,15 @@ public interface RandoWrapperApi {
                                      @Query("pool") boolean pool,
                                      @Query("temporal") boolean temporal,
                                      @Query("gcp") boolean gcp);
+    @GET("serversideattractors")
+    Call<GoAttractors> getAttractorsUpgrade(@Query("gid") String gid,
+                                            @Query("x") double  center0,
+                                            @Query("y") double center1,
+                                            @Query("radius") int radius,
+                                            @Query("pool") boolean pool,
+                                            @Query("temporal") boolean temporal,
+                                            @Query("gcp") boolean gcp,
+                                            @Query("selected") String selected);
 
     @GET("pseudo")
     Call<List<PseudoAttractor>> getPsuedo(@Query("n") int n,

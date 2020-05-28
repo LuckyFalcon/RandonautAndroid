@@ -133,6 +133,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
     public static long anomalies;
     public static long entropy;
     private static int extendradius;
+    private static int waterpoints;
 
     //Message to mainactivity
     MainActivityMessage SM;
@@ -682,93 +683,47 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-                if (QuantumToggleButton.isChecked()) {
-                    setIntentionDialog.cancel();
-                    generateEntropy.getANUQuantumEntropy(getContext(), distance, mFusedLocationProviderClient, mMap, selected,
-                            new RandonautEntropyListener() {
-                                @Override
-                                public void onData(String GID) {
-                                    generateAttractors.getAttractors(rootview, mMap, getContext(), GID, false, false, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
-                                        @Override
-                                        public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
-                                            generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mMap);
-                                            checkLimitMinus(selected);
-                                        }
-
-                                        @Override
-                                        public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
-                                            generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
-                                        }
-                                    });
-
-                                }
-
-                                @Override
-                                public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
-
-                                    generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
-
-                                }
-                            });
-
-                } else if (GCPToggleButton.isChecked()) {
-                    setIntentionDialog.cancel();
-                    generateEntropy.getGCPEntropy(getContext(), distance, mFusedLocationProviderClient, mMap, selected,
-                            new RandonautEntropyListener() {
-                                @Override
-                                public void onData(String GID) {
-                                    generateAttractors.getAttractors(rootview, mMap, getContext(), GID, true, false, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
-                                        @Override
-                                        public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
-                                            generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mMap);
-                                            checkLimitMinus(selected);
-                                        }
-
-                                        @Override
-                                        public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
-                                            generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
-                                        }
-                                    });
-
-                                }
-
-                                @Override
-                                public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
-                                    generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
-                                }
-                            });
-                } else if (CameraToggleButton.isChecked()) {
-                    setIntentionDialog.cancel();
-                    if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                        generateEntropy.getNeededEntropySize(getContext(), distance,
+                if (waterpoints == 1) {
+                    if (QuantumToggleButton.isChecked()) {
+                        setIntentionDialog.cancel();
+                        generateEntropy.getANUQuantumEntropy(getContext(), distance, mFusedLocationProviderClient, mMap, selected,
                                 new RandonautEntropyListener() {
                                     @Override
-                                    public void onData(String entropySizeNeeded) {
-                                        SM.rng(Integer.parseInt(entropySizeNeeded));
+                                    public void onData(String GID) {
+                                        generateAttractors.getAttractorsTwo(rootview, mMap, getContext(), GID, false, false, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
+                                            @Override
+                                            public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
+                                                generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mMap);
+                                                checkLimitMinus(selected);
+                                            }
+
+                                            @Override
+                                            public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
+                                                generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
+                                            }
+                                        });
+
                                     }
 
                                     @Override
                                     public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
 
-                                    }
-                                });//---> This will run the MyCamRngFragment on success
-                    } else {
-                        ActivityCompat.requestPermissions(requireActivity(), new String[] {Manifest.permission.CAMERA}, REQUEST_PERMISSIONS);
-                    }
+                                        generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
 
-                } else if (TemporalToggleButton.isChecked()) {
-                    setIntentionDialog.cancel();
-                    if (temporalInternetToggleButton.isChecked()) {
-                        generateEntropy.getTemporalEntropy(getContext(), distance, mFusedLocationProviderClient, mMap, selected,
+                                    }
+                                });
+
+                    } else if (GCPToggleButton.isChecked()) {
+                        setIntentionDialog.cancel();
+                        generateEntropy.getGCPEntropy(getContext(), distance, mFusedLocationProviderClient, mMap, selected,
                                 new RandonautEntropyListener() {
                                     @Override
                                     public void onData(String GID) {
-                                        generateAttractors.getAttractors(rootview, mMap, getContext(), GID, false, true, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
+                                        generateAttractors.getAttractors(rootview, mMap, getContext(), GID, true, false, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
                                             @Override
                                             public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
                                                 generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mMap);
                                                 checkLimitMinus(selected);
-
                                             }
 
                                             @Override
@@ -784,25 +739,162 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                                         generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
                                     }
                                 });
-                    } //Temporal from Internet
-//                    if (temporalLocalToggleButton.isChecked()) {
-//                        generateEntropy.getNeededEntropySize(getContext(), distance,
-//                                new RandonautEntropyListener() {
-//                                    @Override
-//                                    public void onData(String entropySizeNeeded) {
-//                                        //Upload Entropy and Generate Attractors in Background Task
-//                                        RandonautFragment.generatingTemporalEntropyAsync asyncTask = new RandonautFragment.generatingTemporalEntropyAsync();
-//                                        asyncTask.execute(entropySizeNeeded);
-//
-//                                    }
-//                                    @Override
-//                                    public void onFailed() {
-//
-//                                    }
-//                                });
-//                    } //Temporal from Local generation
+                    } else if (CameraToggleButton.isChecked()) {
+                        setIntentionDialog.cancel();
+                        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                            generateEntropy.getNeededEntropySize(getContext(), distance,
+                                    new RandonautEntropyListener() {
+                                        @Override
+                                        public void onData(String entropySizeNeeded) {
+                                            SM.rng(Integer.parseInt(entropySizeNeeded));
+                                        }
+
+                                        @Override
+                                        public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
+
+                                        }
+                                    });//---> This will run the MyCamRngFragment on success
+                        } else {
+                            ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.CAMERA}, REQUEST_PERMISSIONS);
+                        }
+
+                    } else if (TemporalToggleButton.isChecked()) {
+                        setIntentionDialog.cancel();
+                        if (temporalInternetToggleButton.isChecked()) {
+                            generateEntropy.getTemporalEntropy(getContext(), distance, mFusedLocationProviderClient, mMap, selected,
+                                    new RandonautEntropyListener() {
+                                        @Override
+                                        public void onData(String GID) {
+                                            generateAttractors.getAttractorsTwo(rootview, mMap, getContext(), GID, false, true, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
+                                                @Override
+                                                public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
+                                                    generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mMap);
+                                                    checkLimitMinus(selected);
+
+                                                }
+
+                                                @Override
+                                                public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
+                                                    generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
+                                                }
+                                            });
+
+                                        }
+
+                                        @Override
+                                        public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
+                                            generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
+                                        }
+                                    });
+                        } //Temporal from Internet
+                    }
+                } else {
+                    if (QuantumToggleButton.isChecked()) {
+                        setIntentionDialog.cancel();
+                        generateEntropy.getANUQuantumEntropy(getContext(), distance, mFusedLocationProviderClient, mMap, selected,
+                                new RandonautEntropyListener() {
+                                    @Override
+                                    public void onData(String GID) {
+                                        generateAttractors.getAttractors(rootview, mMap, getContext(), GID, false, false, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
+                                            @Override
+                                            public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
+                                                generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mMap);
+                                                checkLimitMinus(selected);
+                                            }
+
+                                            @Override
+                                            public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
+                                                generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
+                                            }
+                                        });
+
+                                    }
+
+                                    @Override
+                                    public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
+
+                                        generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
+
+                                    }
+                                });
+
+                    } else if (GCPToggleButton.isChecked()) {
+                        setIntentionDialog.cancel();
+                        generateEntropy.getGCPEntropy(getContext(), distance, mFusedLocationProviderClient, mMap, selected,
+                                new RandonautEntropyListener() {
+                                    @Override
+                                    public void onData(String GID) {
+                                        generateAttractors.getAttractors(rootview, mMap, getContext(), GID, true, false, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
+                                            @Override
+                                            public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
+                                                generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mMap);
+                                                checkLimitMinus(selected);
+                                            }
+
+                                            @Override
+                                            public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
+                                                generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
+                                            }
+                                        });
+
+                                    }
+
+                                    @Override
+                                    public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
+                                        generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
+                                    }
+                                });
+                    } else if (CameraToggleButton.isChecked()) {
+                        setIntentionDialog.cancel();
+                        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                            generateEntropy.getNeededEntropySize(getContext(), distance,
+                                    new RandonautEntropyListener() {
+                                        @Override
+                                        public void onData(String entropySizeNeeded) {
+                                            SM.rng(Integer.parseInt(entropySizeNeeded));
+                                        }
+
+                                        @Override
+                                        public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
+
+                                        }
+                                    });//---> This will run the MyCamRngFragment on success
+                        } else {
+                            ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.CAMERA}, REQUEST_PERMISSIONS);
+                        }
+
+                    } else if (TemporalToggleButton.isChecked()) {
+                        setIntentionDialog.cancel();
+                        if (temporalInternetToggleButton.isChecked()) {
+                            generateEntropy.getTemporalEntropy(getContext(), distance, mFusedLocationProviderClient, mMap, selected,
+                                    new RandonautEntropyListener() {
+                                        @Override
+                                        public void onData(String GID) {
+                                            generateAttractors.getAttractors(rootview, mMap, getContext(), GID, false, true, false, selected, distance, mFusedLocationProviderClient, new RandonautAttractorListener() {
+                                                @Override
+                                                public void onData(ArrayList<SingleRecyclerViewLocation> attractorLocationList) {
+                                                    generateRecyclerView.initRecyclerView(attractorLocationList, rootview, mMap);
+                                                    checkLimitMinus(selected);
+
+                                                }
+
+                                                @Override
+                                                public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
+                                                    generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
+                                                }
+                                            });
+
+                                        }
+
+                                        @Override
+                                        public void onFailed(ArrayList<SingleRecyclerViewLocation> locationList) {
+                                            generateRecyclerView.initRecyclerView(locationList, rootview, mMap);
+                                        }
+                                    });
+                        } //Temporal from Internet
+                    }
                 }
-            }
+            } //End Water points
         });
 
 
@@ -822,7 +914,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
     }
 
-    public void checkLimitMinus(String selected){
+    public void checkLimitMinus(final String selected){
 
         switch(selected)
         {
@@ -866,57 +958,139 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                 .build();
 
         RandoWrapperApi randoWrapperApi = retrofit.create(RandoWrapperApi.class);
-            Log.d("test", "rea");
         mDatabaseHelper = new DatabaseHelper(getContext(), "Points");
-            Log.d("test", "re");
-            Cursor data = mDatabaseHelper.getData("Points"); //here it gives up
-        Log.d("test", ""+data.isNull(0));
-        ArrayList<Points> pointsArray = new ArrayList<Points>();
-        while(data.moveToNext()) {
-            Points resultRow = new Points();
-            resultRow.id = data.getString(0);
-            resultRow.purchaseToken = data.getString(1);
-            resultRow.points = data.getString(2);
-            pointsArray.add(resultRow);
-        }
+        Cursor data = mDatabaseHelper.getData("Points"); //here it gives up
+        Boolean rowExists = false;
+        if (data.moveToFirst())
+            {
+                // DO SOMETHING WITH CURSOR
+                rowExists = true;
 
-
-            final JSONObject obj = new JSONObject();
-
-            try {
-                obj.put("purchaseToken", pointsArray.get(0).purchaseToken);
-                obj.put("points", 1);
-                int currentPoints = Integer.parseInt(pointsArray.get(0).points) - 1;
-                Log.d("test","te"+pointsArray.get(0).points + pointsArray.get(0).purchaseToken);
-                mDatabaseHelper.upData("Points", pointsArray.get(0).purchaseToken, (Integer.parseInt(pointsArray.get(0).points) - 1));
-                if(currentPoints == 0){
-                    //Working
-                    mDatabaseHelper.delData("Points", pointsArray.get(0).purchaseToken);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
+            } else
+            {
+                // I AM EMPTY
+                rowExists = false;
             }
-            RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), obj.toString());
-            final Call<Verify> response = randoWrapperApi.postupdatePointsJson(body);
+            if(rowExists){
 
-            response.enqueue(new Callback<Verify>() {
-                @Override
-                public void onResponse(Call<Verify> call, Response<Verify> response) {
-                    try {
+                final ArrayList<Points> pointsArray = new ArrayList<Points>();
+                while(data.moveToNext()) {
+                    Points resultRow = new Points();
+                    resultRow.id = data.getString(0);
+                    resultRow.purchaseToken = data.getString(1);
+                    resultRow.anomalypoints = data.getString(2);
+                    resultRow.attractorpoints = data.getString(3);
+                    resultRow.voidpoints = data.getString(4);
 
-                        Log.d("test", ""+response);
+                    pointsArray.add(resultRow);
+                }
 
-                    }catch (Exception e) {
-                        Log.d("test", ""+e);
+
+                final JSONObject obj = new JSONObject();
+
+                switch(selected)
+                {
+                    case "Attractor":
+                        try {
+                            obj.put("purchaseToken", pointsArray.get(0).purchaseToken);
+                            obj.put("anomalypoints", 0);
+                            obj.put("attractorpoints", 1);
+                            obj.put("voidpoints", 0);
+                            int currentPoints = Integer.parseInt(pointsArray.get(0).attractorpoints) - 1;
+                            if(currentPoints == 0){
+                                //Working
+                                mDatabaseHelper.delData("Points", pointsArray.get(0).purchaseToken);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    case "Void":
+                        try {
+                            obj.put("purchaseToken", pointsArray.get(0).purchaseToken);
+                            obj.put("anomalypoints", 0);
+                            obj.put("attractorpoints", 0);
+                            obj.put("voidpoints", 1);
+                            int currentPoints = Integer.parseInt(pointsArray.get(0).voidpoints) - 1;
+                            if(currentPoints == 0){
+                                //Working
+                                mDatabaseHelper.delData("Points", pointsArray.get(0).purchaseToken);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    case "Anomalie":
+                        try {
+                            obj.put("purchaseToken", pointsArray.get(0).purchaseToken);
+                            obj.put("anomalypoints", 1);
+                            obj.put("attractorpoints", 0);
+                            obj.put("voidpoints", 0);
+                            int currentPoints = Integer.parseInt(pointsArray.get(0).anomalypoints) - 1;
+                            if(currentPoints == 0){
+                                //Working
+                                mDatabaseHelper.delData("Points", pointsArray.get(0).purchaseToken);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    default:
+                        try {
+                            obj.put("purchaseToken", pointsArray.get(0).purchaseToken);
+                            obj.put("anomalypoints", 0);
+                            obj.put("attractorpoints", 0);
+                            obj.put("voidpoints", 0);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                }
+
+                RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), obj.toString());
+                final Call<Verify> response = randoWrapperApi.postupdatePointsJson(body);
+
+                response.enqueue(new Callback<Verify>() {
+                    @Override
+                    public void onResponse(Call<Verify> call, Response<Verify> response) {
+                        try {
+                            switch(selected)
+                            {
+                                case "Attractor":
+                                    System.out.println("Thisisreached");
+                                    mDatabaseHelper.upData("Points", pointsArray.get(0).purchaseToken, (Integer.parseInt(pointsArray.get(0).getattractorpoints()) - 1));
+
+                                    break;
+                                case "Void":
+                                    mDatabaseHelper.upData("Points", pointsArray.get(0).purchaseToken, (Integer.parseInt(pointsArray.get(0).getvoidpoints()) - 1));
+
+                                    break;
+                                case "Anomalie":
+                                    mDatabaseHelper.upData("Points", pointsArray.get(0).purchaseToken, (Integer.parseInt(pointsArray.get(0).getanomalypoints()) - 1));
+
+                                    break;
+                                default:
+                            }
+
+                            Log.d("test", ""+response);
+
+                        }catch (Exception e) {
+                            Log.d("test", ""+e);
+
+                        }
+                    }
+                    @Override
+                    public void onFailure(Call<Verify> call, Throwable t) {
+                        Log.d("test", ""+t);
 
                     }
-                }
-                @Override
-                public void onFailure(Call<Verify> call, Throwable t) {
-                    Log.d("test", ""+t);
+                });
 
-                }
-            });
+
+
+
+            }
+
 
         } //If not max int
 
@@ -1371,7 +1545,6 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         editor.putInt("LIMITVOID", limitvoids);
         editor.putInt("LIMITANOMALY", limitanomalies);
         editor.putInt("LIMITATTRACTORS", limitattractors);
-        editor.putInt("EXTENDRADIUS", extendradius);
 
         editor.apply();
     }
@@ -1387,7 +1560,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         limitanomalies = sharedPreferences.getInt("LIMITANOMALY", 0);
         limitvoids = sharedPreferences.getInt("LIMITVOID", 0);
         extendradius = sharedPreferences.getInt("EXTENDRADIUS", 0);
-
+        waterpoints = sharedPreferences.getInt("WATERPOINTS", 0);
     }
 
     @Override
