@@ -960,9 +960,11 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
         RandoWrapperApi randoWrapperApi = retrofit.create(RandoWrapperApi.class);
         mDatabaseHelper = new DatabaseHelper(getContext(), "Points");
-        Cursor data = mDatabaseHelper.getData("Points"); //here it gives up
-        Boolean rowExists = false;
-        if (data.moveToFirst())
+            Cursor data = mDatabaseHelper.getDataRows("Points"); //here it gives up
+            Boolean rowExists;
+            Log.d("test", ""+data.getCount());
+
+            if (data.moveToFirst())
             {
                 // DO SOMETHING WITH CURSOR
                 rowExists = true;
@@ -973,32 +975,51 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                 rowExists = false;
             }
             if(rowExists){
+                Log.d("test", ""+rowExists);
 
                 final ArrayList<Points> pointsArray = new ArrayList<Points>();
-                while(data.moveToNext()) {
+                if(data.moveToFirst()) {
+                    Log.d("test", "test");
+
                     Points resultRow = new Points();
                     resultRow.id = data.getString(0);
+                    Log.d("test", "test"+resultRow.id);
+
                     resultRow.purchaseToken = data.getString(1);
                     resultRow.anomalypoints = data.getString(2);
                     resultRow.attractorpoints = data.getString(3);
                     resultRow.voidpoints = data.getString(4);
-
+                    Log.d("test", ""+resultRow.purchaseToken);
                     pointsArray.add(resultRow);
                 }
 
 
                 final JSONObject obj = new JSONObject();
-
                 switch(selected)
                 {
                     case "Attractor":
                         try {
-                            obj.put("purchaseToken", pointsArray.get(0).purchaseToken);
-                            obj.put("anomalypoints", 0);
-                            obj.put("attractorpoints", 1);
-                            obj.put("voidpoints", 0);
+                            if((Integer.parseInt(pointsArray.get(0).getattractorpoints()) <= 0 && (Integer.parseInt(pointsArray.get(0).getvoidpoints()) != 0 ))){
+                                obj.put("purchaseToken", pointsArray.get(0).purchaseToken);
+                                obj.put("anomalypoints", 0);
+                                obj.put("attractorpoints", 0);
+                                obj.put("voidpoints", 1);
+                            } else if((Integer.parseInt(pointsArray.get(0).getattractorpoints()) <= 0 && (Integer.parseInt(pointsArray.get(0).getanomalypoints()) != 0 ))) {
+                                obj.put("purchaseToken", pointsArray.get(0).purchaseToken);
+                                obj.put("anomalypoints", 1);
+                                obj.put("attractorpoints", 0);
+                                obj.put("voidpoints", 0);
+                            }else {
+                                obj.put("purchaseToken", pointsArray.get(0).purchaseToken);
+                                obj.put("anomalypoints", 0);
+                                obj.put("attractorpoints", 1);
+                                obj.put("voidpoints", 0);
+                            }
+
                             int currentPoints = Integer.parseInt(pointsArray.get(0).attractorpoints) - 1;
-                            if(currentPoints == 0){
+                            Log.d("test", ""+currentPoints);
+
+                            if(currentPoints <= 0 && Integer.parseInt(pointsArray.get(0).anomalypoints) <= 0 && Integer.parseInt(pointsArray.get(0).voidpoints) <= 0){
                                 //Working
                                 mDatabaseHelper.delData("Points", pointsArray.get(0).purchaseToken);
                             }
@@ -1008,12 +1029,25 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                         break;
                     case "Void":
                         try {
-                            obj.put("purchaseToken", pointsArray.get(0).purchaseToken);
-                            obj.put("anomalypoints", 0);
-                            obj.put("attractorpoints", 0);
-                            obj.put("voidpoints", 1);
+                            if ((Integer.parseInt(pointsArray.get(0).getvoidpoints()) <= 0 && (Integer.parseInt(pointsArray.get(0).getattractorpoints()) != 0))) {
+                                obj.put("purchaseToken", pointsArray.get(0).purchaseToken);
+                                obj.put("anomalypoints", 0);
+                                obj.put("attractorpoints", 1);
+                                obj.put("voidpoints", 0);
+                            } else if ((Integer.parseInt(pointsArray.get(0).getvoidpoints()) <= 0 && (Integer.parseInt(pointsArray.get(0).getanomalypoints()) != 0))) {
+                                obj.put("purchaseToken", pointsArray.get(0).purchaseToken);
+                                obj.put("anomalypoints", 1);
+                                obj.put("attractorpoints", 0);
+                                obj.put("voidpoints", 0);
+                            } else {
+                                obj.put("purchaseToken", pointsArray.get(0).purchaseToken);
+                                obj.put("anomalypoints", 0);
+                                obj.put("attractorpoints", 0);
+                                obj.put("voidpoints", 1);
+                            }
                             int currentPoints = Integer.parseInt(pointsArray.get(0).voidpoints) - 1;
-                            if(currentPoints == 0){
+                            Log.d("test", ""+currentPoints);
+                            if(currentPoints <= 0 && Integer.parseInt(pointsArray.get(0).attractorpoints) <= 0 && Integer.parseInt(pointsArray.get(0).anomalypoints) <= 0){
                                 //Working
                                 mDatabaseHelper.delData("Points", pointsArray.get(0).purchaseToken);
                             }
@@ -1023,12 +1057,26 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                         break;
                     case "Anomalie":
                         try {
-                            obj.put("purchaseToken", pointsArray.get(0).purchaseToken);
-                            obj.put("anomalypoints", 1);
-                            obj.put("attractorpoints", 0);
-                            obj.put("voidpoints", 0);
+                            if((Integer.parseInt(pointsArray.get(0).getanomalypoints()) <= 0 && (Integer.parseInt(pointsArray.get(0).getattractorpoints()) != 0 ))){
+                                obj.put("anomalypoints", 0);
+                                obj.put("attractorpoints", 1);
+                                obj.put("voidpoints", 0);
+                            } else if((Integer.parseInt(pointsArray.get(0).getanomalypoints()) <= 0 && (Integer.parseInt(pointsArray.get(0).getvoidpoints()) != 0 ))) {
+                                obj.put("purchaseToken", pointsArray.get(0).purchaseToken);
+                                obj.put("anomalypoints", 0);
+                                obj.put("attractorpoints", 0);
+                                obj.put("voidpoints", 1);
+                            }else {
+                                obj.put("purchaseToken", pointsArray.get(0).purchaseToken);
+                                obj.put("anomalypoints", 1);
+                                obj.put("attractorpoints", 0);
+                                obj.put("voidpoints", 0);
+
+                            }
+                            Log.d("test", "rea"+pointsArray.get(0).purchaseToken);
                             int currentPoints = Integer.parseInt(pointsArray.get(0).anomalypoints) - 1;
-                            if(currentPoints == 0){
+                            Log.d("test", ""+currentPoints);
+                            if(currentPoints <= 0 && Integer.parseInt(pointsArray.get(0).attractorpoints) <= 0 && Integer.parseInt(pointsArray.get(0).voidpoints) <= 0){
                                 //Working
                                 mDatabaseHelper.delData("Points", pointsArray.get(0).purchaseToken);
                             }
@@ -1059,16 +1107,36 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                             {
                                 case "Attractor":
                                     System.out.println("Thisisreached");
-                                    mDatabaseHelper.upData("Points", pointsArray.get(0).purchaseToken, (Integer.parseInt(pointsArray.get(0).getattractorpoints()) - 1));
+                                    if((Integer.parseInt(pointsArray.get(0).getattractorpoints()) == 0 && (Integer.parseInt(pointsArray.get(0).getvoidpoints()) != 0 ))){
 
+                                        mDatabaseHelper.upData("Points", pointsArray.get(0).purchaseToken, (Integer.parseInt(pointsArray.get(0).getanomalypoints())), (Integer.parseInt(pointsArray.get(0).getattractorpoints())), (Integer.parseInt(pointsArray.get(0).getvoidpoints()) - 1));
+                                    } else if((Integer.parseInt(pointsArray.get(0).getattractorpoints()) == 0 && (Integer.parseInt(pointsArray.get(0).getanomalypoints()) != 0 ))) {
+                                        mDatabaseHelper.upData("Points", pointsArray.get(0).purchaseToken, (Integer.parseInt(pointsArray.get(0).getanomalypoints()) - 1), (Integer.parseInt(pointsArray.get(0).getattractorpoints())), (Integer.parseInt(pointsArray.get(0).getvoidpoints())));
+
+
+                                    }else {
+                                        mDatabaseHelper.upData("Points", pointsArray.get(0).purchaseToken, (Integer.parseInt(pointsArray.get(0).getanomalypoints())), (Integer.parseInt(pointsArray.get(0).getattractorpoints()) - 1), (Integer.parseInt(pointsArray.get(0).getvoidpoints())));
+
+
+                                    }
                                     break;
                                 case "Void":
-                                    mDatabaseHelper.upData("Points", pointsArray.get(0).purchaseToken, (Integer.parseInt(pointsArray.get(0).getvoidpoints()) - 1));
-
+                                    if((Integer.parseInt(pointsArray.get(0).getvoidpoints()) == 0 && (Integer.parseInt(pointsArray.get(0).getattractorpoints()) != 0 ))){
+                                        mDatabaseHelper.upData("Points", pointsArray.get(0).purchaseToken, (Integer.parseInt(pointsArray.get(0).getanomalypoints())), (Integer.parseInt(pointsArray.get(0).getattractorpoints()) - 1), (Integer.parseInt(pointsArray.get(0).getvoidpoints())));
+                                    } else if((Integer.parseInt(pointsArray.get(0).getvoidpoints()) == 0 && (Integer.parseInt(pointsArray.get(0).getanomalypoints()) != 0 ))) {
+                                        mDatabaseHelper.upData("Points", pointsArray.get(0).purchaseToken, (Integer.parseInt(pointsArray.get(0).getanomalypoints()) - 1), (Integer.parseInt(pointsArray.get(0).getattractorpoints())), (Integer.parseInt(pointsArray.get(0).getvoidpoints())));
+                                    }else {
+                                        mDatabaseHelper.upData("Points", pointsArray.get(0).purchaseToken, (Integer.parseInt(pointsArray.get(0).getanomalypoints())), (Integer.parseInt(pointsArray.get(0).getattractorpoints())), (Integer.parseInt(pointsArray.get(0).getvoidpoints()) - 1));
+                                    }
                                     break;
                                 case "Anomalie":
-                                    mDatabaseHelper.upData("Points", pointsArray.get(0).purchaseToken, (Integer.parseInt(pointsArray.get(0).getanomalypoints()) - 1));
-
+                                    if((Integer.parseInt(pointsArray.get(0).getanomalypoints()) == 0 && (Integer.parseInt(pointsArray.get(0).getattractorpoints()) != 0 ))){
+                                        mDatabaseHelper.upData("Points", pointsArray.get(0).purchaseToken, (Integer.parseInt(pointsArray.get(0).getanomalypoints())), (Integer.parseInt(pointsArray.get(0).getattractorpoints()) - 1), (Integer.parseInt(pointsArray.get(0).getvoidpoints())));
+                                    } else if((Integer.parseInt(pointsArray.get(0).getanomalypoints()) == 0 && (Integer.parseInt(pointsArray.get(0).getvoidpoints()) != 0 ))) {
+                                        mDatabaseHelper.upData("Points", pointsArray.get(0).purchaseToken, (Integer.parseInt(pointsArray.get(0).getanomalypoints())), (Integer.parseInt(pointsArray.get(0).getattractorpoints())), (Integer.parseInt(pointsArray.get(0).getvoidpoints()) - 1));
+                                    }else {
+                                        mDatabaseHelper.upData("Points", pointsArray.get(0).purchaseToken, (Integer.parseInt(pointsArray.get(0).getanomalypoints()) - 1), (Integer.parseInt(pointsArray.get(0).getattractorpoints())), (Integer.parseInt(pointsArray.get(0).getvoidpoints())));
+                                    }
                                     break;
                                 default:
                             }

@@ -228,17 +228,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return data;
     }
 
+    public Cursor getDataRows(String table){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT * FROM " + table + " ORDER BY ROWID ASC LIMIT 1";
+        Cursor data = db.rawQuery(query, null);
+        return data;
+    }
+
     public void delData(String table, String purchaseToken){
         SQLiteDatabase db = this.getWritableDatabase();
         String strSQL = "DELETE FROM " + table + " WHERE purchaseToken = "+"'"+purchaseToken+"'";
         db.execSQL(strSQL);
     }
 
-    public void upData(String table, String purchaseToken, int amount){
+    public void upData(String table, String purchaseToken, int anomalypoints, int attractorpoints, int voidpoints) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String strSQL = "UPDATE Points SET anomalypoints = " + amount + " WHERE purchaseToken = "+"'"+purchaseToken+"'";
-        String strSQL2 = "UPDATE Points SET attractorpoints = " + amount + " WHERE purchaseToken = "+"'"+purchaseToken+"'";
-        String strSQL3 = "UPDATE Points SET voidpoints = " + amount + " WHERE purchaseToken = "+"'"+purchaseToken+"'";
+        String strSQL = "UPDATE Points SET anomalypoints = " + anomalypoints + " WHERE purchaseToken = "+"'"+purchaseToken+"'";
+        String strSQL2 = "UPDATE Points SET attractorpoints = " + attractorpoints + " WHERE purchaseToken = "+"'"+purchaseToken+"'";
+        String strSQL3 = "UPDATE Points SET voidpoints = " + voidpoints + " WHERE purchaseToken = "+"'"+purchaseToken+"'";
 
         db.execSQL(strSQL);
         db.execSQL(strSQL2);
