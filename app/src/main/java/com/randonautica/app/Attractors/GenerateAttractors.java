@@ -761,16 +761,26 @@ public class GenerateAttractors extends Activity {
                                             //##TODO: FIX THE GID/TID/UID FOR PSEUDO AND ATTRACTORS
                                             attractorLocations[i] = new PseudoAttractorLocation(new LatLng(x, y), 3333, 3333, 3333, x_, y_, distance, initialBearing, finalBearing, side, distanceErr, radiusM, n, mean, rarity, power_old, probability_single, integral_score, significance, probability, FILTERING_SIGNIFICANCE, type, radiusM, power, z_score);
 
-                                            if (type == 1) {
+
+                                            amount++;
+
+                                            i++;
+
+                                        }
+
+                                        if (amount > 0) {
+                                            i = 0;
+                                            if (attractorLocations[i].getType() == 1) {
+
                                                 mDatabaseHelper = new DatabaseHelper(context, attractorTable);
 
                                                 Marker marker = mapboxMap.addMarker(new MarkerOptions()
-                                                        .position(new LatLng(x, y))
+                                                        .position(new LatLng(attractorLocations[i].getX(), attractorLocations[i].getY()))
                                                         .title("Pseudo Attractor"));
 
                                                 marker.showInfoWindow();
 
-                                                addPulsatingEffect(new LatLng(x, y), mapboxMap, (int) radiusM);
+                                                addPulsatingEffect(new LatLng(attractorLocations[i].getX(), attractorLocations[i].getY()), mapboxMap, (int) attractorLocations[i].getRadiusM());
 
                                                 amount++;
                                                 RandonautFragment.psuedo++;
@@ -813,18 +823,27 @@ public class GenerateAttractors extends Activity {
                                                         attractorLocations[i].getPower(),
                                                         attractorLocations[i].getZ_score(),
                                                         1, 0);
+
+                                                //initRecyclerView(context, view, mapboxMap);
+                                                randonautDialogsListener.onData(locationList);
+                                                RandonautFragment.startButton.setVisibility(View.GONE);
+                                                //   navigateButton.setVisibility(View.VISIBLE);
+                                                RandonautFragment.resetButton.setVisibility(View.VISIBLE);
+
                                             }
 
-                                            if (type == 2) {
+                                            if (attractorLocations[i].getType() == 2) {
+                                                i = 0;
+
                                                 mDatabaseHelper = new DatabaseHelper(context, voidTable);
 
                                                 Marker marker = mapboxMap.addMarker(new MarkerOptions()
-                                                        .position(new LatLng(x, y))
+                                                        .position(new LatLng(attractorLocations[i].getX(), attractorLocations[i].getY()))
                                                         .title("Pseudo Void"));
 
                                                 marker.showInfoWindow();
 
-                                                addPulsatingEffect(new LatLng(x, y), mapboxMap, (int) radiusM);
+                                                addPulsatingEffect(new LatLng(attractorLocations[i].getX(), attractorLocations[i].getY()), mapboxMap, (int) attractorLocations[i].getRadiusM());
 
                                                 amount++;
                                                 RandonautFragment.psuedo++;
@@ -868,19 +887,15 @@ public class GenerateAttractors extends Activity {
                                                         attractorLocations[i].getZ_score(),
                                                         1, 0);
 
+                                                //initRecyclerView(context, view, mapboxMap);
+                                                randonautDialogsListener.onData(locationList);
+                                                RandonautFragment.startButton.setVisibility(View.GONE);
+                                                //   navigateButton.setVisibility(View.VISIBLE);
+                                                RandonautFragment.resetButton.setVisibility(View.VISIBLE);
+
                                             }
 
 
-                                            i++;
-
-                                        }
-
-                                        if (amount > 0) {
-                                            //initRecyclerView(context, view, mapboxMap);
-                                            randonautDialogsListener.onData(locationList);
-                                            RandonautFragment.startButton.setVisibility(View.GONE);
-                                            //   navigateButton.setVisibility(View.VISIBLE);
-                                            RandonautFragment.resetButton.setVisibility(View.VISIBLE);
                                         } else {
 
                                             createDialogEmptyResults(context, selected, currentLocation.getLatitude(), currentLocation.getLongitude(), distance, randonautDialogsListener, mapboxMap);

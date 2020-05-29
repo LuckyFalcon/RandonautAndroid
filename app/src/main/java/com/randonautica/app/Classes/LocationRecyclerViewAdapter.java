@@ -74,31 +74,33 @@ public class LocationRecyclerViewAdapter extends
         holder.power.setText(power);
         holder.z_score.setText(z_score);
 
+        Button newbutton = (Button) RandonautFragment.reportButton;
+        newbutton.setVisibility(View.VISIBLE);
+
+        newbutton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = null;
+                try {
+                    // Google maps app
+                    context.getApplicationContext().getPackageManager().getPackageInfo("com.google.android.apps.maps", 0);
+                    intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/place/" + latitude + "+" + longitude + "/@" + latitude + "+" + longitude + ",14z"));
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                } catch (Exception e) {
+                    // Maps in Browser
+                    intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/place/" + latitude + "+" + longitude + "/@" + latitude + "+" + longitude + ",14z"));
+                }
+                context.getApplicationContext().startActivity(intent);
+
+            }
+        });
+        
         holder.setClickListener(new ItemClickListener() {
             @Override
             public void onClick(View view, int position) {
 
                 map.moveCamera(com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom(new com.google.android.gms.maps.model.LatLng(latitude, longitude), DEFAULT_ZOOM));
 
-                Button newbutton = (Button) RandonautFragment.reportButton;
-                newbutton.setVisibility(View.VISIBLE);
 
-                newbutton.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        Intent intent = null;
-                        try {
-                            // Google maps app
-                            context.getApplicationContext().getPackageManager().getPackageInfo("com.google.android.apps.maps", 0);
-                            intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/place/" + latitude + "+" + longitude + "/@" + latitude + "+" + longitude + ",14z"));
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        } catch (Exception e) {
-                            // Maps in Browser
-                            intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/place/" + latitude + "+" + longitude + "/@" + latitude + "+" + longitude + ",14z"));
-                        }
-                        context.getApplicationContext().startActivity(intent);
-
-                    }
-                });
             }
 
 
