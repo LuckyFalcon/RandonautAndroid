@@ -220,9 +220,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:text="Extends radius from 10000 meters to 20000 meters"
+        android:text="Double the radius to 20000 meters (12.4 miles)"
         android:textColor="#FFFFFF"
-        tools:text="Extends radius from 10000 meters to 20000 meters" />
+        tools:text="Double the radius to 20000 meters (12.4 miles)" />
 
     <TextView
         android:id="@+id/textViewExtendRadiusPrice"
@@ -268,20 +268,20 @@
         android:id="@+id/textViewWaterPoints"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Skip water points"
+        android:text="Skip Water Points"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
         android:textStyle="bold"
-        tools:text="Skip water points" />
+        tools:text="Skip Water Points" />
 
     <TextView
         android:id="@+id/textViewWaterPointsDesc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:text="Skips Points generated in water"
+        android:text="Skips points generated in water"
         android:textColor="#FFFFFF"
-        tools:text="Skips Points generated in water" />
+        tools:text="Skips points generated in water" />
 
     <TextView
         android:id="@+id/textViewWaterPointsPrice"
