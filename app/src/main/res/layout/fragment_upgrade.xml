@@ -27,8 +27,8 @@
         android:id="@+id/textViewInfintePointsDesc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="11dp"
-        android:text="Reload Anomalies, Attractors and Void points"
+        android:layout_marginTop="5dp"
+        android:text="Get 20/60/Unlimited Anomalies, Attractors and Void points"
         android:textColor="#FFFFFF"
         tools:text="Reload Anomalies, Attractors and Void points" />
 
@@ -48,21 +48,21 @@
                 android:id="@+id/get20Points"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="11dp"
+                android:layout_marginTop="5dp"
                 android:gravity="center"
                 android:text="20 points"
                 android:textColor="#FFFFFF"
-                android:textSize="20sp" />
+                android:textSize="17sp" />
 
             <TextView
                 android:id="@+id/get20PointsPrice"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="11dp"
+                android:layout_marginTop="5dp"
                 android:gravity="center"
                 android:text="$ 0.99"
                 android:textColor="#FFFFFF"
-                android:textSize="20sp" />
+                android:textSize="17sp" />
 
 
 
@@ -70,7 +70,7 @@
             android:id="@+id/buttonGet20Points"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
             android:background="@color/upgrade_button"
             android:text="Buy"
             android:textColor="#FFFFFF"
@@ -95,22 +95,22 @@
                 android:id="@+id/get60Points"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="11dp"
+                android:layout_marginTop="5dp"
                 android:gravity="center"
                 android:text="60 points"
                 android:textColor="#FFFFFF"
-                android:textSize="20sp" />
+                android:textSize="17sp" />
 
 
             <TextView
                 android:id="@+id/get60PointsPrice"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="11dp"
+                android:layout_marginTop="5dp"
                 android:text="$ 15.00"
                 android:gravity="center"
                 android:textColor="#FFFFFF"
-                android:textSize="20sp" />
+                android:textSize="17sp" />
 
 
 
@@ -118,7 +118,7 @@
                 android:id="@+id/buttonGet60Points"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
                 android:background="@color/upgrade_button"
                 android:text="Buy"
                 android:textColor="#FFFFFF"
@@ -145,27 +145,27 @@
                 android:id="@+id/getUnlimitedPoints"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="11dp"
+                android:layout_marginTop="5dp"
                 android:gravity="center"
                 android:text="Unlimited"
                 android:textColor="#FFFFFF"
-                android:textSize="20sp" />
+                android:textSize="17sp" />
 
             <TextView
                 android:id="@+id/getUnlimitedPointsPrice"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="11dp"
+                android:layout_marginTop="5dp"
                 android:text="$ 15.00"
                 android:gravity="center"
                 android:textColor="#FFFFFF"
-                android:textSize="20sp" />
+                android:textSize="17sp" />
 
             <Button
                 android:id="@+id/buttongetUnlimitedPoints"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
                 android:background="@color/upgrade_button"
                 android:text="Buy"
                 android:textColor="#FFFFFF"
@@ -219,7 +219,7 @@
         android:id="@+id/textViewExtendRadiusDesc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:text="Extends radius from 10000 meters to 20000 meters"
         android:textColor="#FFFFFF"
         tools:text="Extends radius from 10000 meters to 20000 meters" />
@@ -228,9 +228,9 @@
         android:id="@+id/textViewExtendRadiusPrice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="11dp"
+        android:layout_marginTop="5dp"
         android:text="$ 3.99"
-        android:textSize="20sp"
+        android:textSize="17sp"
         android:textColor="#FFFFFF" />
 
     <Button
@@ -278,7 +278,7 @@
         android:id="@+id/textViewWaterPointsDesc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="11dp"
+        android:layout_marginTop="5dp"
         android:text="Skips Points generated in water"
         android:textColor="#FFFFFF"
         tools:text="Skips Points generated in water" />
@@ -287,9 +287,9 @@
         android:id="@+id/textViewWaterPointsPrice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="11dp"
+        android:layout_marginTop="5dp"
         android:text="$ 5.00"
-        android:textSize="20sp"
+        android:textSize="17sp"
         android:textColor="#FFFFFF" />
 
 

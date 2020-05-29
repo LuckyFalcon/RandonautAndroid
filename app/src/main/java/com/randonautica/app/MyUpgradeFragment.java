@@ -407,11 +407,11 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
             @SuppressLint("CheckResult")
             @Override
             public void onClick(View v) {
-//                if(enableInfinte == true){
-//                    dialogOnEnableInfinte();
-//                } else {
+                if(enableInfinte == true){
+                    dialogOnEnableInfinte();
+                } else {
                     validatePoints();
-                //}
+                }
             }
         });
 
@@ -766,8 +766,8 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
     }
     void dialogOnEnableInfinte(){
         new AlertDialog.Builder(getContext())
-                .setTitle("Enable Infinte")
-                .setMessage("You have bought the infinte package before, please enable that instead!")
+                .setTitle("Enable Unlimited")
+                .setMessage("You have bought the Unlimited package before, please enable that instead!")
 
                 // Specifying a listener allows you to take an action before dismissing the dialog.
                 // The dialog is automatically dismissed when a dialog button is clicked.

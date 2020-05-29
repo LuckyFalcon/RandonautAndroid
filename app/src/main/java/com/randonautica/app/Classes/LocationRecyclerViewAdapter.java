@@ -93,7 +93,7 @@ public class LocationRecyclerViewAdapter extends
 
             }
         });
-        
+
         holder.setClickListener(new ItemClickListener() {
             @Override
             public void onClick(View view, int position) {
