@@ -503,7 +503,6 @@ public class GenerateAttractors extends Activity {
                                     double significance = response.body().getPoints().get(attractorcount).getSignificance();
                                     double probability = response.body().getPoints().get(attractorcount).getProbability();
                                     water = response.body().getPoints().get(attractorcount).isWater();
-                                    Log.d("test", ""+water);
                                     //#TODO: FIX FILTERING SIGNIFICANCE IN GOWRAPPER
                                     int FILTERING_SIGNIFICANCE = 4;
 

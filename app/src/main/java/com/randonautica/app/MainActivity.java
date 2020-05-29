@@ -111,9 +111,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
             AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
             alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                     AlarmManager.INTERVAL_DAY, sender);
-
-
-            Log.d("test", "alarmset");
         }
 
         //Set Navigation header username equal to userId

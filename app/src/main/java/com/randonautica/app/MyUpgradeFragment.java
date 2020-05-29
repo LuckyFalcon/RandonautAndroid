@@ -146,9 +146,7 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                                             && list != null) {
                                         for (PurchaseHistoryRecord purchase : list) {
                                             // Process the result.
-                                           // Log.d("test", ""+purchase);
                                             if ("infinte_points".equals(purchase.getSku())) {
-                                                Log.d("test", ""+purchase);
                                                 Buttoninfinte.setText("Enable");
                                                 enableInfinte = true;
                                                 purchaseInfinte = purchase;
@@ -175,7 +173,6 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                                                         Points resultRow = new Points();
                                                         resultRow.purchaseToken = data.getString(1);
                                                         pointsArray.add(resultRow);
-                                                        Log.d("test", ""+resultRow.purchaseToken +" token"  + purchase.getPurchaseToken());
                                                         if (resultRow.purchaseToken.equals(purchase.getPurchaseToken())) {
                                                             Button60.setEnabled(false);
 
@@ -184,7 +181,6 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                                                         Points resultRow = new Points();
                                                         resultRow.purchaseToken = data.getString(1);
                                                         pointsArray.add(resultRow);
-                                                        Log.d("test", ""+resultRow.purchaseToken +" token"  + purchase.getPurchaseToken());
 
                                                         if (resultRow.purchaseToken.equals(purchase.getPurchaseToken())) {
                                                             Button60.setEnabled(false);
@@ -215,7 +211,6 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                                                         Points resultRow = new Points();
                                                         resultRow.purchaseToken = data.getString(1);
                                                         pointsArray.add(resultRow);
-                                                        Log.d("test", ""+resultRow.purchaseToken);
 
                                                         if (resultRow.purchaseToken.equals(purchase.getPurchaseToken())) {
                                                             Button20.setEnabled(false);
@@ -224,7 +219,6 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                                                         Points resultRow = new Points();
                                                         resultRow.purchaseToken = data.getString(1);
                                                         pointsArray.add(resultRow);
-                                                        Log.d("test", ""+resultRow.purchaseToken);
 
                                                         if (resultRow.purchaseToken.equals(purchase.getPurchaseToken())) {
                                                             Button20.setEnabled(false);
@@ -508,13 +502,11 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                     }
 
                 }catch (Exception e) {
-                    Log.d("test", ""+e);
 
                 }
             }
             @Override
             public void onFailure(Call<Verify> call, Throwable t) {
-                Log.d("test", ""+t);
 
 
             }
@@ -624,17 +616,14 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
 
             RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), obj.toString());
             final Call<Verify> response = randoWrapperApi.postcheckPointsJson(body);
-            Log.d("test","start");
 
             if(purchaseItem.getSku().equals("get_points")) {
-                Log.d("test","start1");
 
                 response.enqueue(new Callback<Verify>() {
                     @Override
                     public void onResponse(Call<Verify> call, Response<Verify> response) {
                         try {
                             if(response.body().getAttractorpoints() > 0 || response.body().getAnomalypoints() > 0 || response.body().getVoidpoints() > 0){
-                                Log.d("test","fin1");
                                 showSyncbutton = 1;
                                 AddDataValidate(purchaseItem.getPurchaseToken(), response.body().getAnomalypoints(), response.body().getAttractorpoints(), response.body().getVoidpoints());
                                 limitattractors = limitattractors + response.body().getAttractorpoints();
@@ -652,13 +641,11 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                             }
 
                         }catch (Exception e) {
-                            Log.d("test", ""+e);
 
                         }
                     }
                     @Override
                     public void onFailure(Call<Verify> call, Throwable t) {
-                        Log.d("test", ""+t);
 
                     }
                 });
@@ -671,7 +658,6 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                     public void onResponse(Call<Verify> call, Response<Verify> response) {
                         try {
                             if(response.body().getAttractorpoints() > 0 || response.body().getAnomalypoints() > 0 || response.body().getVoidpoints() > 0){
-                                Log.d("test","fin2");
                                 showSyncbutton = 1;
 
                                 AddDataValidate(purchaseItem.getPurchaseToken(), response.body().getAnomalypoints(), response.body().getAttractorpoints(), response.body().getVoidpoints());
@@ -691,13 +677,11 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                             }
 
                         }catch (Exception e) {
-                            Log.d("test", ""+e);
 
                         }
                     }
                     @Override
                     public void onFailure(Call<Verify> call, Throwable t) {
-                        Log.d("test", ""+t);
 
                     }
                 });
@@ -896,18 +880,15 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
             public void onResponse(Call<Verify> call, Response<Verify> response) {
                 try {
 
-                    Log.d("test", ""+response);
                     saveDataPremium();
 
                 }catch (Exception e) {
-                    Log.d("test", ""+e);
                     saveDataPremium();
 
                 }
             }
             @Override
             public void onFailure(Call<Verify> call, Throwable t) {
-                Log.d("test", ""+t);
                 saveDataPremium();
 
             }

@@ -962,7 +962,6 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         mDatabaseHelper = new DatabaseHelper(getContext(), "Points");
             Cursor data = mDatabaseHelper.getDataRows("Points"); //here it gives up
             Boolean rowExists;
-            Log.d("test", ""+data.getCount());
 
             if (data.moveToFirst())
             {
@@ -975,21 +974,17 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                 rowExists = false;
             }
             if(rowExists){
-                Log.d("test", ""+rowExists);
 
                 final ArrayList<Points> pointsArray = new ArrayList<Points>();
                 if(data.moveToFirst()) {
-                    Log.d("test", "test");
 
                     Points resultRow = new Points();
                     resultRow.id = data.getString(0);
-                    Log.d("test", "test"+resultRow.id);
 
                     resultRow.purchaseToken = data.getString(1);
                     resultRow.anomalypoints = data.getString(2);
                     resultRow.attractorpoints = data.getString(3);
                     resultRow.voidpoints = data.getString(4);
-                    Log.d("test", ""+resultRow.purchaseToken);
                     pointsArray.add(resultRow);
                 }
 
@@ -1017,7 +1012,6 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                             }
 
                             int currentPoints = Integer.parseInt(pointsArray.get(0).attractorpoints) - 1;
-                            Log.d("test", ""+currentPoints);
 
                             if(currentPoints <= 0 && Integer.parseInt(pointsArray.get(0).anomalypoints) <= 0 && Integer.parseInt(pointsArray.get(0).voidpoints) <= 0){
                                 //Working
@@ -1046,7 +1040,6 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                                 obj.put("voidpoints", 1);
                             }
                             int currentPoints = Integer.parseInt(pointsArray.get(0).voidpoints) - 1;
-                            Log.d("test", ""+currentPoints);
                             if(currentPoints <= 0 && Integer.parseInt(pointsArray.get(0).attractorpoints) <= 0 && Integer.parseInt(pointsArray.get(0).anomalypoints) <= 0){
                                 //Working
                                 mDatabaseHelper.delData("Points", pointsArray.get(0).purchaseToken);
@@ -1073,9 +1066,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                                 obj.put("voidpoints", 0);
 
                             }
-                            Log.d("test", "rea"+pointsArray.get(0).purchaseToken);
                             int currentPoints = Integer.parseInt(pointsArray.get(0).anomalypoints) - 1;
-                            Log.d("test", ""+currentPoints);
                             if(currentPoints <= 0 && Integer.parseInt(pointsArray.get(0).attractorpoints) <= 0 && Integer.parseInt(pointsArray.get(0).voidpoints) <= 0){
                                 //Working
                                 mDatabaseHelper.delData("Points", pointsArray.get(0).purchaseToken);
@@ -1141,16 +1132,13 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                                 default:
                             }
 
-                            Log.d("test", ""+response);
 
                         }catch (Exception e) {
-                            Log.d("test", ""+e);
 
                         }
                     }
                     @Override
                     public void onFailure(Call<Verify> call, Throwable t) {
-                        Log.d("test", ""+t);
 
                     }
                 });
