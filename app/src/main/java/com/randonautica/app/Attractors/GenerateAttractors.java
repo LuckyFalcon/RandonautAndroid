@@ -774,7 +774,7 @@ public class GenerateAttractors extends Activity {
                                                 mDatabaseHelper = new DatabaseHelper(context, attractorTable);
 
                                                 Marker marker = mapboxMap.addMarker(new MarkerOptions()
-                                                        .position(new LatLng(attractorLocations[i].getX(), attractorLocations[i].getY()))
+                                                        .position(new LatLng(attractorLocations[i].getCoordinate().latitude, attractorLocations[i].getCoordinate().longitude))
                                                         .title("Pseudo Attractor"));
 
                                                 marker.showInfoWindow();
@@ -837,7 +837,7 @@ public class GenerateAttractors extends Activity {
                                                 mDatabaseHelper = new DatabaseHelper(context, voidTable);
 
                                                 Marker marker = mapboxMap.addMarker(new MarkerOptions()
-                                                        .position(new LatLng(attractorLocations[i].getX(), attractorLocations[i].getY()))
+                                                        .position(new LatLng(attractorLocations[i].getCoordinate().latitude, attractorLocations[i].getCoordinate().longitude))
                                                         .title("Pseudo Void"));
 
                                                 marker.showInfoWindow();

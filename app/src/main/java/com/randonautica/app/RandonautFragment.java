@@ -196,6 +196,7 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
                              Bundle savedInstanceState) {
         if (rootview == null) {
             rootview = inflater.inflate(R.layout.fragment_randonautica, container, false);
+            loadData();
             mapFragment =
                     (SupportMapFragment)
                             getChildFragmentManager().findFragmentById(R.id.map);

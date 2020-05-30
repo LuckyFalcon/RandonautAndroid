@@ -108,6 +108,8 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
     Button buttonExtendRadius;
     Button syncButton;
 
+    View view;
+
     List<PurchaseHistoryRecord> listHistory;
 
     //Storing information globally
@@ -121,7 +123,7 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
         loadData();
         Amplitude.getInstance().logEvent("OpenShop_test");
 
-        final View view = inflater.inflate(R.layout.fragment_upgrade, container, false);
+        view = inflater.inflate(R.layout.fragment_upgrade, container, false);
 
         return view;
     }
@@ -129,6 +131,19 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        toolbar = (androidx.appcompat.widget.Toolbar) getActivity().findViewById(R.id.toolbar);
+
+        mDatabaseHelper = new DatabaseHelper(getContext(), "Points");
+
+        //Buttons
+        Buttoninfinte = (Button) view.findViewById(R.id.buttongetUnlimitedPoints);
+        Button20 = (Button) view.findViewById(R.id.buttonGet20Points);
+        Button60 = (Button) view.findViewById(R.id.buttonGet60Points);
+        ButtonWaterPoints = (Button) view.findViewById(R.id.buttonWaterPoints);
+        buttonExtendRadius = (Button) view.findViewById(R.id.buttonExtendRadius);
+        syncButton = (Button) view.findViewById(R.id.syncButton);
+
 
         billingClient = BillingClient.newBuilder(getContext())
                 .enablePendingPurchases()
@@ -153,11 +168,7 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                                             }
                                             else if ("get_more_points".equals(purchase.getSku())) {
                                                 listHistory = list;
-                                                if(showSyncbutton != 1 && limitanomalies != Integer.MAX_VALUE){
-                                                    syncButton.setVisibility(view.VISIBLE);
-                                                    Button20.setEnabled(false);
-                                                    Button60.setEnabled(false);
-                                                }
+
                                                 mDatabaseHelper = new DatabaseHelper(getContext(), "Points");
                                                 Cursor data = mDatabaseHelper.getDataPointsToken("Points", purchase.getPurchaseToken()); //here it gives up
                                                 Boolean rowExists = false;
@@ -167,7 +178,9 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                                                     rowExists = false;
                                                 }
                                                 if (rowExists) {
-
+                                                    if(showSyncbutton != 1 && limitanomalies != Integer.MAX_VALUE){
+                                                        syncButton.setVisibility(view.GONE);
+                                                    }
                                                     final ArrayList<Points> pointsArray = new ArrayList<Points>();
                                                     if(data.moveToFirst()) {
                                                         Points resultRow = new Points();
@@ -186,16 +199,16 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                                                             Button60.setEnabled(false);
                                                         }
                                                     }
-
+                                                } else {
+                                                    if(showSyncbutton != 1 && limitanomalies != Integer.MAX_VALUE){
+                                                        syncButton.setVisibility(view.VISIBLE);
+                                                        Button20.setEnabled(false);
+                                                        Button60.setEnabled(false);
+                                                    }
                                                 }
                                             }
                                             else if ("get_points".equals(purchase.getSku())) {
                                                 listHistory = list;
-                                                if (showSyncbutton != 1 && limitanomalies != Integer.MAX_VALUE) {
-                                                    syncButton.setVisibility(view.VISIBLE);
-                                                    Button20.setEnabled(false);
-                                                    Button60.setEnabled(false);
-                                                }
                                                 mDatabaseHelper = new DatabaseHelper(getContext(), "Points");
                                                 Cursor data = mDatabaseHelper.getDataPointsToken("Points", purchase.getPurchaseToken()); //here it gives up
                                                 Boolean rowExists = false;
@@ -205,7 +218,9 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                                                     rowExists = false;
                                                 }
                                                 if (rowExists) {
-
+                                                    if(showSyncbutton != 1 && limitanomalies != Integer.MAX_VALUE){
+                                                        syncButton.setVisibility(view.GONE);
+                                                    }
                                                     final ArrayList<Points> pointsArray = new ArrayList<Points>();
                                                     if (data.moveToFirst()) {
                                                         Points resultRow = new Points();
@@ -222,9 +237,17 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
 
                                                         if (resultRow.purchaseToken.equals(purchase.getPurchaseToken())) {
                                                             Button20.setEnabled(false);
+                                                            Button60.setEnabled(false);
+
                                                         }
                                                     }
 
+                                                } else {
+                                                    if(showSyncbutton != 1 && limitanomalies != Integer.MAX_VALUE){
+                                                        syncButton.setVisibility(view.VISIBLE);
+                                                        Button20.setEnabled(false);
+                                                        Button60.setEnabled(false);
+                                                    }
                                                 }
                                             }
                                             else if ("skip_water_points".equals(purchase.getSku())) {
@@ -257,6 +280,9 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                                             buttonExtendRadius.setText("Enabled");
                                             buttonExtendRadius.setEnabled(false);
                                         }
+                                        startPurchasing();
+                                    } else {
+                                        startPurchasing();
                                     }
 
 
@@ -273,18 +299,11 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
             }
         });
 
-        toolbar = (androidx.appcompat.widget.Toolbar) getActivity().findViewById(R.id.toolbar);
 
-        mDatabaseHelper = new DatabaseHelper(getContext(), "Points");
 
-        //Buttons
-        Buttoninfinte = (Button) view.findViewById(R.id.buttongetUnlimitedPoints);
-        Button20 = (Button) view.findViewById(R.id.buttonGet20Points);
-        Button60 = (Button) view.findViewById(R.id.buttonGet60Points);
-        ButtonWaterPoints = (Button) view.findViewById(R.id.buttonWaterPoints);
-        buttonExtendRadius = (Button) view.findViewById(R.id.buttonExtendRadius);
-        syncButton = (Button) view.findViewById(R.id.syncButton);
+    }
 
+    public void startPurchasing(){
         //Infinite points
         final TextView textViewgetUnlimitedPointsPrice = view.findViewById(R.id.getUnlimitedPointsPrice);
 
@@ -303,6 +322,7 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
         final TextView textViewExtendRadius = view.findViewById(R.id.textViewExtendRadius);
         final TextView textViewExtendRadiusDesc = view.findViewById(R.id.textViewExtendRadiusDesc);
         final TextView textViewExtendRadiusPrice = view.findViewById(R.id.textViewExtendRadiusPrice);
+
 
         billingClient = BillingClient.newBuilder(getContext())
                 .enablePendingPurchases()
@@ -385,7 +405,7 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
             @SuppressLint("CheckResult")
             @Override
             public void onClick(View v) {
-                    purchaseItem(skuDetails60);
+                purchaseItem(skuDetails60);
             }
         });
 
@@ -393,7 +413,7 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
             @SuppressLint("CheckResult")
             @Override
             public void onClick(View v) {
-                    purchaseItem(skuDetails20);
+                purchaseItem(skuDetails20);
             }
         });
 
@@ -453,6 +473,7 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
                 break;
         }
 
+
     }
 
     public void validateItem(final PurchaseHistoryRecord purchase){
@@ -462,8 +483,8 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
         final ProgressDialog progressdialog = new ProgressDialog(getContext());
         progressdialog.setMessage("Enabling... This will take a second");
         progressdialog.show();
-        progressdialog.setCancelable(true);
-        progressdialog.setCanceledOnTouchOutside(true);
+        progressdialog.setCancelable(false);
+        progressdialog.setCanceledOnTouchOutside(false);
 
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
                 .connectTimeout(60, TimeUnit.SECONDS)
@@ -583,8 +604,8 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
 
         progressdialog.setMessage("Enabling... This will take a second");
         progressdialog.show();
-        progressdialog.setCancelable(true);
-        progressdialog.setCanceledOnTouchOutside(true);
+        progressdialog.setCancelable(false);
+        progressdialog.setCanceledOnTouchOutside(false);
 
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
                 .connectTimeout(60, TimeUnit.SECONDS)
