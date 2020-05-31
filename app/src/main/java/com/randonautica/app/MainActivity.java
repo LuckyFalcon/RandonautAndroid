@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -19,6 +20,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -30,18 +32,34 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.amplitude.api.Amplitude;
+import com.android.billingclient.api.AcknowledgePurchaseParams;
+import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
+import com.android.billingclient.api.BillingClient;
+import com.android.billingclient.api.BillingClientStateListener;
+import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.Purchase;
+import com.android.billingclient.api.PurchaseHistoryRecord;
+import com.android.billingclient.api.PurchaseHistoryResponseListener;
+import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.google.android.material.navigation.NavigationView;
 import com.onesignal.OneSignal;
+import com.randonautica.app.Classes.DatabaseHelper;
+import com.randonautica.app.Classes.Points;
 import com.randonautica.app.Interfaces.MainActivityMessage;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity implements MainActivityMessage, MyAttractorsListFragment.SendMessage, MyCamRngFragment.SendMessage, NavigationView.OnNavigationItemSelectedListener {
     public static NavigationView navigationView;
     Dialog privacyPolicyDialog;
-    private static int limitanomalies;
+    private int limitanomalies;
+    private int gottenStart;
+    private  int validated;
+    private BillingClient billingClient;
 
     public static final String SHARED_PREFS = "sharedPrefs";
     public static final String STATS = "stats";
@@ -50,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
     private String tag;
 
     private androidx.fragment.app.FragmentManager fragmentManager;
-    public static  DrawerLayout drawer;
+    public static DrawerLayout drawer;
 
     public static ActionBarDrawerToggle toggle;
 
@@ -128,23 +146,12 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
             showPrivacyPolicyAlertDialog(navigationView);
 
         } else {
-
-          //  if(limitanomalies != Integer.MAX_VALUE) {
-
                 //Continue loading the app
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                         new RandonautFragment(), "randonaut")
                         .addToBackStack("randonaut")
                         .commit();
                 navigationView.setCheckedItem(R.id.nav_randonaut);
-//            } else {
-                //Continue loading the app
-//                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-//                        new RandonautFragment(), "randonaut")
-//                        .addToBackStack("randonaut")
-//                        .commit();
-//                navigationView.setCheckedItem(R.id.nav_randonaut);
-           // }
 
 
         }
@@ -375,6 +382,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
         editor.apply();
     }
 
+
+
     private void loadData() {
         SharedPreferences sharedPreferences = this.getSharedPreferences(STATS, Context.MODE_PRIVATE);
 
@@ -384,10 +393,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityMessa
         //Check for dark mode in SHARED_PREFS
         sharedPreferences = this.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
         darkModeSwitch = sharedPreferences.getBoolean(SWTICHEnableDarkMode, false);
-        limitanomalies = sharedPreferences.getInt("LIMITATTRACTORS", 0);
-
+        limitanomalies = sharedPreferences.getInt("LIMITANOMALY", 0);
     }
-
-
 
 }

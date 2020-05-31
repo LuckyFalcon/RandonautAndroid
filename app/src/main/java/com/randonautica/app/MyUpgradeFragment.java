@@ -27,6 +27,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.amplitude.api.Revenue;
+import com.android.billingclient.api.AcknowledgePurchaseParams;
+import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingClientStateListener;
 import com.android.billingclient.api.BillingFlowParams;
@@ -831,6 +833,15 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
 //                Amplitude.getInstance().logRevenueV2(revenue);
             }
 
+            // Acknowledge the purchase if it hasn't already been acknowledged.
+            if (!purchase.isAcknowledged()) {
+                AcknowledgePurchaseParams acknowledgePurchaseParams =
+                        AcknowledgePurchaseParams.newBuilder()
+                                .setPurchaseToken(purchase.getPurchaseToken())
+                                .build();
+                billingClient.acknowledgePurchase(acknowledgePurchaseParams, acknowledgePurchaseResponseListener);
+            }
+
             ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             MainActivity.toggle.setDrawerIndicatorEnabled(true);
             MainActivity. toggle = new ActionBarDrawerToggle(getActivity(), MainActivity.drawer, toolbar,
@@ -866,6 +877,16 @@ public class MyUpgradeFragment extends Fragment implements PurchasesUpdatedListe
             // pending.
         }
     }
+
+    AcknowledgePurchaseResponseListener acknowledgePurchaseResponseListener = new AcknowledgePurchaseResponseListener() {
+        @Override
+        public void onAcknowledgePurchaseResponse(BillingResult billingResult) {
+
+            Log.d("test", "Purchase acknowledgedtest");
+        }
+
+    };
+
 
     public void saveData(Purchase purchase){
 

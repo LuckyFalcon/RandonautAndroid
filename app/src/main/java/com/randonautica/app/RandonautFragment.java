@@ -32,10 +32,20 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.android.billingclient.api.AcknowledgePurchaseParams;
+import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
+import com.android.billingclient.api.BillingClient;
+import com.android.billingclient.api.BillingClientStateListener;
+import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.Purchase;
+import com.android.billingclient.api.PurchaseHistoryRecord;
+import com.android.billingclient.api.PurchaseHistoryResponseListener;
+import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -67,6 +77,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -80,7 +91,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import static com.randonautica.app.Attractors.GenerateAttractors.locationList;
 import static com.randonautica.app.MyCamRngFragment.REQUEST_PERMISSIONS;
 
-public class RandonautFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMyLocationClickListener {
+public class RandonautFragment extends Fragment implements PurchasesUpdatedListener, OnMapReadyCallback, GoogleMap.OnMyLocationClickListener {
 
     private GoogleMap mMap;
     DatabaseHelper mDatabaseHelper;
@@ -175,6 +186,11 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
     //Initialize ProgressDialog
     ProgressDialog progressdialog;
 
+
+    private  int validated;
+    private BillingClient billingClient;
+    private int gottenStart;
+
     private Boolean mLocationPermissionsGranted = false;
     private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
@@ -194,6 +210,9 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+
+
         if (rootview == null) {
             rootview = inflater.inflate(R.layout.fragment_randonautica, container, false);
             loadData();
@@ -219,8 +238,59 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
         getLocationPermission();
         loadData();
+        if (gottenStart == 0) {
+            saveDataSecond();
+        }
+        if(validated == 0){
+            billingClient = BillingClient.newBuilder(getContext())
+                    .enablePendingPurchases()
+                    .setListener(this).build();
+
+            billingClient.startConnection(new BillingClientStateListener() {
+                @Override
+                public void onBillingSetupFinished(BillingResult billingResult) {
+                    if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+                        billingClient.queryPurchaseHistoryAsync(BillingClient.SkuType.INAPP,
+                                new PurchaseHistoryResponseListener() {
+                                    @Override
+                                    public void onPurchaseHistoryResponse(BillingResult billingResult, List<PurchaseHistoryRecord> list) {
+                                        if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK
+                                                && list != null) {
+                                            for (PurchaseHistoryRecord purchase : list) {
+                                                AcknowledgePurchaseParams acknowledgePurchaseParams =
+                                                        AcknowledgePurchaseParams.newBuilder()
+                                                                .setPurchaseToken(purchase.getPurchaseToken())
+                                                                .build();
+                                                billingClient.acknowledgePurchase(acknowledgePurchaseParams, acknowledgePurchaseResponseListener);
+
+                                            }
+
+                                        }
+                                    }
+                                });
+                    }
+
+                }
+
+                @Override
+                public void onBillingServiceDisconnected() {
+
+                }
+            });
+        }
+
         return rootview;
     }
+    AcknowledgePurchaseResponseListener acknowledgePurchaseResponseListener = new AcknowledgePurchaseResponseListener() {
+        @Override
+        public void onAcknowledgePurchaseResponse(BillingResult billingResult) {
+
+            Log.d("test", "Purchase acknowledgedr");
+            validated = 1;
+            saveDataValidate();
+        }
+
+    };
 
 
     @Override
@@ -1609,6 +1679,8 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
 
     public void loadData() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(STATS, Context.MODE_PRIVATE);
+        validated = sharedPreferences.getInt("VALIDATED", 0);
+
         atts = sharedPreferences.getLong("ATTRACTORS", 0);
         anomalies = sharedPreferences.getLong("ANOMALIES", 0);
         voids = sharedPreferences.getLong("VOID", 0);
@@ -1619,12 +1691,15 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
         limitvoids = sharedPreferences.getInt("LIMITVOID", 0);
         extendradius = sharedPreferences.getInt("EXTENDRADIUS", 0);
         waterpoints = sharedPreferences.getInt("WATERPOINTS", 0);
+        gottenStart = sharedPreferences.getInt("START", 0);
     }
 
     @Override
     public void onMyLocationClick(@NonNull Location location) {
         Toast.makeText(getContext(), "Current location:\n" + location, Toast.LENGTH_LONG).show();
     }
+
+
 
     private class generatingTemporalEntropyAsync extends AsyncTask<String, String, String> {
 
@@ -1751,5 +1826,34 @@ public class RandonautFragment extends Fragment implements OnMapReadyCallback, G
     }
 
 
+    //Save data to Shared Preferences
+    private void saveDataSecond() {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(STATS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        if (limitanomalies != Integer.MAX_VALUE && limitanomalies == 0) {
+            limitanomalies = 5;
+            limitattractors = 5;
+            limitvoids = 5;
+            gottenStart = 1;
+            editor.putInt("LIMITVOID", limitanomalies);
+            editor.putInt("LIMITANOMALY", limitanomalies);
+            editor.putInt("LIMITATTRACTORS", limitvoids);
+            editor.putInt("START", gottenStart);
+            editor.apply();
+        }
+    }
 
+    //Save data to Shared Preferences
+    private void saveDataValidate() {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(STATS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("VALIDATED", validated);
+        editor.apply();
+
+    }
+
+    @Override
+    public void onPurchasesUpdated(BillingResult billingResult, @Nullable List<Purchase> list) {
+
+    }
 }

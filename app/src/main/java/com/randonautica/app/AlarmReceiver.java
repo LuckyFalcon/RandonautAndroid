@@ -35,11 +35,11 @@ public class AlarmReceiver extends BroadcastReceiver
                 //Do nothing
             } else {
                 //Reset points
-                if (limitanomalies < 5) {
+                if (limitanomalies < 5 && limitanomalies != Integer.MAX_VALUE) {
                     limitanomalies = 5;
-                } else if (limitattractors < 5) {
+                } else if (limitattractors < 5 && limitattractors != Integer.MAX_VALUE) {
                     limitattractors = 5;
-                } else if (limitvoids < 5) {
+                } else if (limitvoids < 5 && limitvoids != Integer.MAX_VALUE) {
                     limitvoids = 5;
                 }
                 saveDataDaily(context);
